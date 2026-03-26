@@ -1,0 +1,43 @@
+<html lang="ko" xmlns:th="http://thymeleaf.org">
+<!doctype html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+
+<body>
+<header>
+    <h2>mapPinView.html</h2>
+    <hr>
+
+</header>
+
+<main>
+    <th:block>
+        <div th:each="pin : ${mapPinList}">
+            <div th:text="|id = ${pin.id}|"></div>
+            <div th:text="|lon = ${pin.lon}|"></div>
+            <div th:text="|lat = ${pin.lat}|"></div>
+            <div th:text="|title = ${pin.title}|"></div>
+            <div th:text="|description = ${pin.description}|"></div>
+
+            <hr>
+
+        </div>
+    </th:block>
+    <form action="/modelDelete" method="post">
+        <label for="id">id : </label>
+        <input type="text" name="id" id="id">
+        <input type="hidden" name="modelType" value="mapPin">
+        <button type="submit">삭제</button>
+    </form>
+
+
+</main>
+
+
+</body>
+</html>

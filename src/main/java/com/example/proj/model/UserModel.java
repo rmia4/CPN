@@ -2,21 +2,34 @@ package com.example.proj.model;
 
 
 import jakarta.persistence.*;
+import lombok.Data;
 
+@Data
 @Entity
 public class UserModel {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(unique = true, nullable = false)
+    @Column(unique = true)
+    private String userId; //long ->  string으로 변경함 workbench에서 수정
 
+    @Column(nullable = false)
     private String userName;
 
     @Column(nullable = false, unique = true)
-    private String name;
-    private String studentNumber;
+    private String userNumber;  //컬럼 명 변경함 -> workbench에서
 
+    @Column(nullable = false)
+    private float mannerPoint;
+
+    @Column(nullable = true)
+    private String style1;
+    @Column(nullable = true)
+    private String style2;
+    @Column(nullable = true)
+    private String style3;
 
 
 }
