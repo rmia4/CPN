@@ -12,14 +12,14 @@ public class UserModel {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(unique = true)
-    private String userId; //long ->  string으로 변경함 workbench에서 수정
+    @Column(unique = true, nullable = false)
+    private String userId;
 
     @Column(nullable = false)
     private String userName;
 
     @Column(nullable = false, unique = true)
-    private String userNumber;  //컬럼 명 변경함 -> workbench에서
+    private String userNumber;
 
     @Column(nullable = false)
     private float mannerPoint;

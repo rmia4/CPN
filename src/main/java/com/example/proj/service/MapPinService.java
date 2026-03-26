@@ -23,6 +23,7 @@ public class MapPinService {
 
     }
     public void deletePinById(Long id){
+
         mapPinRepository.deleteById(id);
 
     }

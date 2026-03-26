@@ -6,7 +6,9 @@ import lombok.Data;
 
 @Data
 @Entity
-public class NotificationModel {
+public class
+
+NotificationModel {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
@@ -14,15 +16,10 @@ public class NotificationModel {
     @Column(nullable = false)
     private String description;
 
-    @ManyToOne
-    @JoinColumn(name = "user_id", nullable = false)
+    @ManyToOne(cascade = CascadeType.ALL)
+    @JoinColumn(referencedColumnName = "userId", name = "user_id", nullable = false)
     private UserModel user;
 
 }
-
-// git add .
-// git commit -m "description"
-// git push
-
 
 
