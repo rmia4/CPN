@@ -16,7 +16,7 @@ NotificationModel {
     @Column(nullable = false)
     private String description;
 
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(referencedColumnName = "userId", name = "user_id", nullable = false)
     private UserModel user;
 

@@ -4,6 +4,8 @@ package com.example.proj.model;
 import jakarta.persistence.*;
 import lombok.Data;
 
+import java.util.List;
+
 @Data
 @Entity
 public class UserModel {
@@ -30,6 +32,13 @@ public class UserModel {
     private String style2;
     @Column(nullable = true)
     private String style3;
+
+    @OneToMany(mappedBy = "user",cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<NotificationModel> notificationList;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<PostModel> postList;
+
 
 
 }

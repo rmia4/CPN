@@ -21,11 +21,11 @@ public class CommentModel {
 //    @CreatedDate    //날짜 자동 생성
     private LocalDateTime createdAt;
 
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "post_id", nullable = false)
     private PostModel post;
 
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(referencedColumnName= "userId", name = "user_id", nullable = false)
     private UserModel user;
 
