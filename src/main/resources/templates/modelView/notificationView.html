@@ -20,12 +20,12 @@
         <div th:each="noti : ${notificationList}">
             <div th:text="|id = ${noti.id}|"></div>
             <div th:text="|description = ${noti.description}|"></div>
-            <div th:text="|userid = ${noti.user?.id}|"></div>
+            <div th:text="|userid = ${noti.user?.userId}|"></div>
             <hr>
         </div>
 
     </th:block>
-    <form action="/modelDelete" method="post">
+    <form action="/test/model/userPinNoti/delete" method="post">
         <label for="id">id : </label>
         <input type="text" name="id" id="id">
         <input type="hidden" name="modelType" value="notification">

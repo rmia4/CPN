@@ -5,11 +5,11 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class MainService {
-    private UserRepository userRepository;
+
+//    private final
+
+    //임시로 남겨둔 service 클래스
 
 
-    public  MainService(UserRepository userRepository) {
-        this.userRepository = userRepository;
-    }
 
 }

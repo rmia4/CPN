@@ -5,20 +5,17 @@ import com.example.proj.model.PostModel;
 import com.example.proj.model.UserModel;
 import com.example.proj.repository.PostRepository;
 import com.example.proj.repository.UserRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class PostService {
-    PostRepository postRepository;
-    UserRepository userRepository;
-
-    PostService(PostRepository postRepository, UserRepository userRepository) {
-        this.postRepository = postRepository;
-        this.userRepository = userRepository;
-    }
+    private final PostRepository postRepository;
+    private final UserRepository userRepository;
 
 
     //여기 인수로 유저 아이디 받아오는 것도 추가해야함

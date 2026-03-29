@@ -2,16 +2,16 @@ package com.example.proj.service;
 
 import com.example.proj.model.MapPinModel;
 import com.example.proj.repository.MapPinRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class MapPinService {
-    MapPinRepository  mapPinRepository;
-    MapPinService(MapPinRepository mapPinRepository) {
-        this.mapPinRepository = mapPinRepository;
-    }
+    private final MapPinRepository  mapPinRepository;
+
     public void addMapPin(float lon, float lat, String title, String description){
         MapPinModel pin =  new MapPinModel();
         pin.setLon(lon);

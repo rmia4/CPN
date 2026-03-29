@@ -17,7 +17,7 @@
 
 <main>
     <h3>user Model</h3>
-    <form action="/userModelTest" method="post">
+    <form action="/test/model/user/add" method="post">
         <label for="userId">아이디:</label>
         <input type="text" id="userId" name="userId" required><br>
         <label for="userName">이름:</label>
@@ -27,13 +27,13 @@
 
         <button type="submit">POST 전송</button>
     </form>
-    <form action="/modelTest/search" method="get">
+    <form action="/test/model/userPinNoti/findAll" method="get">
         <input type="hidden" name="modelType" value="user">
         <button type="submit">조회</button>
     </form>
 
     <h3>MapPin Model</h3>
-    <form action="/mapPinModelTest" method="post">
+    <form action="/test/model/mapPin/add" method="post">
         <label for="lon">lon:</label>
         <input type="number" step="any" id="lon" name="lon" required><br>
         <label for="lat">lat:</label>
@@ -45,13 +45,13 @@
 
         <button type="submit">POST 전송</button>
     </form>
-        <form action="/modelTest/search" method="get">
+        <form action="/test/model/userPinNoti/findAll" method="get">
             <input type="hidden" name="modelType" value="mapPin">
             <button type="submit">조회</button>
         </form>
 
     <h3>Notification Model</h3>
-    <form action="/notificationModelTest" method="post">
+    <form action="/test/model/notification/add" method="post">
         <label for="userId">userId:</label>
         <input type="text" id="userId" name="userId" required><br>
         <label for="description">description:</label>
@@ -59,7 +59,7 @@
 
         <button type="submit">POST 전송</button>
     </form>
-    <form action="/modelTest/search" method="get">
+    <form action="/test/model/userPinNoti/findAll" method="get">
         <input type="hidden" name="modelType" value="notification">
         <button type="submit">조회</button>
     </form>

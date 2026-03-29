@@ -5,20 +5,17 @@ import com.example.proj.model.NotificationModel;
 import com.example.proj.model.UserModel;
 import com.example.proj.repository.NotificationRepository;
 import com.example.proj.repository.UserRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 
 @Service
+@RequiredArgsConstructor
 public class NotificationService {
-    NotificationRepository notificationRepository;
-    UserRepository userRepository;
-    NotificationService(NotificationRepository notificationRepository,
-                        UserRepository userRepository) {
-        this.notificationRepository = notificationRepository;
-        this.userRepository = userRepository;
-    }
+    private final NotificationRepository notificationRepository;
+    private final UserRepository userRepository;
 
     public void addNotification(String userId, String description){
         NotificationModel noti =  new NotificationModel();
