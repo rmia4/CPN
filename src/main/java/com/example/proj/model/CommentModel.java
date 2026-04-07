@@ -22,11 +22,11 @@ public class CommentModel {
     private LocalDateTime createdAt;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "post_id", nullable = false)
+    @JoinColumn(name = "postId", nullable = false)
     private PostModel post;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(referencedColumnName= "userId", name = "user_id", nullable = false)
+    @JoinColumn(referencedColumnName= "userId", name = "userId", nullable = false)
     private UserModel user;
 
 

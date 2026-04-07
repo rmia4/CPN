@@ -1,5 +1,6 @@
 package com.example.proj.dto;
 
+import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -8,9 +9,17 @@ import lombok.Setter;
 @Getter
 @Setter
 public class UserSaveRequestDto {
-    //이거 굳이 해야하나?
-    //이건 굳이 안해도 될 것 같다....
-    //이거까지 하면 너무 머리아프다........
+
+    @NotBlank(message = "유저아이디 없음")
+    private String userId;
+
+    @NotBlank(message = "유저 이름 없음")
+    private String userName;
+
+    @NotBlank(message = "유저 학번 없음")
+    private String userNumber;
+
+
 
 
 }

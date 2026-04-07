@@ -33,6 +33,10 @@ public class UserModel {
     @Column(nullable = true)
     private String style3;
 
+
+
+
+    /// ///////////OneToMany
     @OneToMany(mappedBy = "user",cascade = CascadeType.ALL, orphanRemoval = true)
     private List<NotificationModel> notificationList;
 

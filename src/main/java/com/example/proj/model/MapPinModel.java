@@ -21,6 +21,7 @@ public class MapPinModel {
     private String description;
 
 
+    //여기에 userId 외래키도 추가해야 함
 
 
 }

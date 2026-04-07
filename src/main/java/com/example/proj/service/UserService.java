@@ -1,34 +1,35 @@
 package com.example.proj.service;
 
 
+import com.example.proj.dto.UserSaveRequestDto;
 import com.example.proj.model.UserModel;
 import com.example.proj.repository.UserRepository;
-import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class UserService {
-    UserRepository userRepository;
-    UserService(UserRepository userRepository) {
-        this.userRepository = userRepository;
-    }
+    private final UserRepository userRepository;
 
-    public void addUser(String userId, String userName, String userNumber) {
+    public void addUser(UserSaveRequestDto userSaveRequestDto) {
         UserModel user = new UserModel();
-        user.setUserId(userId);
-        user.setUserName(userName);
-        user.setUserNumber(userNumber);
+        user.setUserId(userSaveRequestDto.getUserId());
+        user.setUserName(userSaveRequestDto.getUserName());
+        user.setUserNumber(userSaveRequestDto.getUserNumber());
 
         user.setMannerPoint(36.5f); //기본값
 
+        //userId 중복일 경우 나오는 에러 처리 필요
         userRepository.save(user);
     }
 
-    @Transactional
-    public void deleteUserById(long id) {
-        userRepository.deleteById(id);
+//    @Transactional
+    public void deleteUserById(Long id) {
+        UserModel user =  userRepository.findById(id);
+        userRepository.delete(user);
 
     }
 

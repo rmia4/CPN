@@ -1,7 +1,12 @@
 package com.example.proj.controller;
 
+import com.example.proj.dto.CommentSaveRequestDto;
+import com.example.proj.dto.MapPinSaveRequestDto;
+import com.example.proj.dto.PostSaveRequestDto;
+import com.example.proj.dto.UserSaveRequestDto;
 import com.example.proj.model.*;
 import com.example.proj.service.*;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -27,11 +32,9 @@ public class ModelTestController {
 
 
     @PostMapping("/user/add")
-    public String userTest(@RequestParam(name = "userId") String userId,
-                           @RequestParam(name="userName") String  userName,
-                           @RequestParam(name="userNumber") String userNumber,
+    public String userTest(@Valid @RequestBody UserSaveRequestDto userSaveRequestDto,
                            Model model) {
-        userService.addUser(userId, userName, userNumber);
+        userService.addUser(userSaveRequestDto);
 
         List<UserModel> userList = userService.findAll();
 
@@ -53,17 +56,14 @@ public class ModelTestController {
     }
 
     @PostMapping("/mapPin/add")
-    public String mapPinTest(@RequestParam(name="lon") float lon,
-                             @RequestParam(name = "lat") float lat,
-                             @RequestParam(name="title") String title,
-                             @RequestParam(name="description") String description,
+    public String mapPinTest(@RequestBody MapPinSaveRequestDto mapPinDto,
                              Model model) {
 
-        mapPinService.addMapPin(lon, lat, title, description);
+        mapPinService.addMapPin(mapPinDto);
         List<MapPinModel> pinList = mapPinService.findAllMapPin();
         model.addAttribute("mapPinList",pinList);
 
-        return "modelview/mapPinView";
+        return "modelView/mapPinView";
     }
 
     @PostMapping("/userPinNoti/delete")
@@ -100,7 +100,7 @@ public class ModelTestController {
         else if(type.equals("mapPin")){
             List<MapPinModel> mapPinList = mapPinService.findAllMapPin();
             model.addAttribute("mapPinList",mapPinList);
-            return "modelview/mapPinView";
+            return "modelView/mapPinView";
 
         }
         return "redirect:/test/model/modelTest";
@@ -115,10 +115,9 @@ public class ModelTestController {
     }
 
     @PostMapping("/post/add")
-    public String postTestAdd(@RequestParam(name = "title")String title,
-                              @RequestParam(name="content") String content,
+    public String postTestAdd(@Valid @RequestBody PostSaveRequestDto postSaveRequestDto,
                               Model model){
-        postService.addPost(title,content);
+        postService.addPost(postSaveRequestDto);
 
         return "redirect:/test/model/postTest";
     }
@@ -151,13 +150,12 @@ public class ModelTestController {
 
     }
 
-    @PostMapping("/comment/add/{postId}")
-    public String postTestAddComment(@PathVariable("postId") Long postId,
-                                     @RequestParam(name = "content") String content,
+    @PostMapping("/comment/add")
+    public String postTestAddComment(@RequestBody CommentSaveRequestDto commentSaveRequestDto,
                                      Model model){
-        commentService.addComment(content,postId,1L);   //로그인 옵션이 없어서 uesrId는 직접 입력으로
+        commentService.addComment(commentSaveRequestDto);   //로그인 옵션이 없어서 uesrId는 직접 입력으로
 
-        return "redirect:/test/model/post/detail/" + String.valueOf(postId);
+        return "redirect:/test/model/post/detail/" + commentSaveRequestDto.getPostId();
     }
 
 
