@@ -9,6 +9,8 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 
 @Controller
 @RequiredArgsConstructor
@@ -65,7 +67,8 @@ public class PostController {
 
     @GetMapping("/category/{category}")
     public String findByCategory(@PathVariable String category, Model model){
-
+        List<PostModel> postList = postService.getPostsByCategory(category);
+        model.addAttribute("postList",postList);
 
         return "";
     }

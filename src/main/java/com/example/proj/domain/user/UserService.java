@@ -29,6 +29,13 @@ public class UserService {
         userRepository.delete(user);
 
     }
+    //try catch 사용
+    public void deleteUserByUserId(String userId) {
+        UserModel user =  userRepository.findByUserId(userId);
+
+        userRepository.delete(user);
+    }
+
 
     public List<UserModel> findAll() {
         return userRepository.findAll();

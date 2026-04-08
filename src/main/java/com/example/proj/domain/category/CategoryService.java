@@ -18,10 +18,4 @@ public class CategoryService {
         categoryRepository.save(categoryModel);
     }
 
-    public void deleteCategoryByTitle(String categoryName) {
-        CategoryModel categoryModel = categoryRepository.findByCategoryName(categoryName);
-        categoryRepository.delete(categoryModel);
-    }
-
-
 }

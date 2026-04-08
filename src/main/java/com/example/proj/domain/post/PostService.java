@@ -27,7 +27,7 @@ public class PostService {
         post.setLat(postDto.getLat());
 
 
-        //해당 카테고리, uesrId가 없을 때 예외처리해야함
+        //해당 카테고리, uesrId가 없을 상황에서의 예외
         try{
             CategoryModel category = categoryRepository.findByCategoryName(postDto.getCategory());
             post.setCategory(category);
@@ -59,6 +59,12 @@ public class PostService {
     public void  deletePostById(Long id) {
         //여기도 예외처리 해야함
         postRepository.deleteById(id);
+    }
+
+    public List<PostModel> getPostsByCategory(String category){
+        List<PostModel> postList = postRepository.findAllByCategory_categoryName(category);
+        return postList;
+
     }
 
 
