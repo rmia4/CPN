@@ -23,7 +23,7 @@ public class UserService {
         userRepository.save(user);
     }
 
-//    @Transactional
+    //    @Transactional
     public void deleteUserById(Long id) {
         UserModel user =  userRepository.findById(id);
         userRepository.delete(user);

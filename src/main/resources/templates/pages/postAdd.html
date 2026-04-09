@@ -1,0 +1,70 @@
+<div th:replace="~{layout/layout :: layout(~{::content})}">
+
+  <div th:fragment="content">
+  <h2>새 게시글 작성</h2>
+  <div class="form-box">
+
+
+    <form th:action="@{/test/model/post/add}" method="post" class="flex flex-col gap-5">
+
+      <!-- 카테고리 -->
+      <div>
+        <label class="block text-sm font-semibold mb-2">카테고리</label>
+        <select
+                name="category"
+                class="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-neutral-300"
+        >
+          <option value="">카테고리 선택</option>
+          <option value="질문">질문</option>
+          <option value="정보">정보</option>
+          <option value="잡담">잡담</option>
+        </select>
+      </div>
+
+      <!-- 제목 -->
+      <div>
+        <label class="block text-sm font-semibold mb-2">제목</label>
+        <input
+                type="text"
+                name="title"
+                placeholder="제목을 입력하세요"
+                class="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-neutral-300"
+                required
+        />
+      </div>
+
+      <!-- 내용 -->
+      <div>
+        <label class="block text-sm font-semibold mb-2">내용</label>
+        <textarea
+                name="content"
+                rows="8"
+                placeholder="내용을 입력하세요"
+                class="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-neutral-300 resize-none"
+                required
+        ></textarea>
+      </div>
+      <input type="hidden" name="userId" value="1">
+      <input type="hidden" name="category" value="main">
+
+      <!-- 버튼 -->
+      <div class="flex justify-end gap-2">
+        <a
+                href="/post"
+                class="px-4 py-2 text-sm rounded-lg border text-neutral-600 hover:bg-neutral-100"
+        >
+          취소
+        </a>
+
+        <button
+                type="submit"
+                class="px-5 py-2 text-sm font-semibold text-white bg-neutral-900 rounded-lg hover:bg-neutral-800 active:scale-95 transition"
+        >
+          등록
+        </button>
+      </div>
+
+    </form>
+  </div>
+  </div>
+</div>

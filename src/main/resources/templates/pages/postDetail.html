@@ -1,0 +1,54 @@
+<div th:replace="~{layout/layout :: layout(~{::content})}">
+
+  <div th:fragment="content">
+    <main>
+      <div class="max-w-3xl w-full mx-auto px-4 py-6">
+
+        <!-- 뒤로가기 -->
+        <a href="/post/" class="text-sm text-neutral-500 hover:underline mb-4 inline-block">
+          ← 목록으로
+        </a>
+
+        <!-- 게시글 -->
+        <div id="postDetail" class="border rounded-xl p-5"></div>
+
+      </div>
+
+      <script>
+        // URL에서 id 가져오기
+        const params = new URLSearchParams(window.location.search);
+        const postId = Number(params.get("id"));
+
+        const posts = JSON.parse(localStorage.getItem("posts") || "[]");
+        const post = posts.find(p => p.id === postId);
+
+        const container = document.getElementById("postDetail");
+
+        if (!post) {
+          container.innerHTML = "<p>게시글을 찾을 수 없습니다.</p>";
+        } else {
+          container.innerHTML = `
+            <div class="mb-3">
+            <span class="text-xs px-2 py-1 bg-neutral-200 rounded">
+                ${post.category}
+            </span>
+            </div>
+
+            <h1 class="text-xl font-bold mb-2">
+            ${post.title}
+            </h1>
+
+            <div class="text-sm text-neutral-400 mb-4 flex gap-3">
+            <span>${post.date}</span>
+            <span>댓글 ${post.comments}</span>
+            </div>
+
+            <div class="text-sm leading-relaxed whitespace-pre-line">
+            ${post.content}
+            </div>
+        `;
+        }
+      </script>
+    </main>
+  </div>
+</div>

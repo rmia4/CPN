@@ -1,6 +1,7 @@
 package com.example.proj.domain.post;
 
-
+import com.example.proj.domain.comment.CommentModel;
+import com.example.proj.domain.comment.CommentSaveRequestDto;
 import com.example.proj.domain.comment.CommentService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -19,15 +20,12 @@ public class PostController {
     private final PostService postService;
     private final CommentService commentService;
 
-
-
-    // 뷰 반환 부분은 일단 PASS
-    @GetMapping("")
-    public String finaAll(Model model){
-        model.addAttribute("postList",postService.getAllPosts());
-
-
-        return "";
+    // 게시글 리스트 페이지
+    @GetMapping({"/list", "/list/"})
+    public String postList(Model model) {
+        List<PostModel> postList = postService.getAllPosts();
+        model.addAttribute("postList", postList);
+        return "pages/postTest";
     }
 
 
@@ -42,33 +40,36 @@ public class PostController {
         }
         postService.addPost(postSaveRequestDto);
 
-
-        return "";
+        return "redirect:/test/model/postTest";
     }
 
+    @GetMapping("/detail/{id}")
+    public String postDetail(@PathVariable("id") Long id, Model model) {
+        PostModel post = postService.getPostById(id);
+        model.addAttribute("post", post);
 
-
-    @GetMapping("/detail/{postId}")
-    public String detail(@PathVariable("postId") Long postId, Model model){
-        model.addAttribute("postId",postService.getPostById(postId));
-        model.addAttribute("commentList", commentService.findAllByPostId(postId));
-
-
-        return "";
+        List<CommentModel> commentList = commentService.findAllByPostId(id);
+        model.addAttribute("commentList", commentList);
+        return "pages/postDetail";
     }
 
-    @PostMapping("/delete")
-    public String deletePost(@RequestParam Long postId){
-        postService.deletePostById(postId);
+    @PostMapping("/delete/{id}")
+    public String postDelete(@PathVariable("id") Long id) {
+        postService.deletePostById(id);
+        return "redirect:/post/list";
+    }
 
+    @PostMapping("/comment/add")
+    public String postTestAddComment(@RequestBody CommentSaveRequestDto commentSaveRequestDto,
+                                     Model model){
+        commentService.addComment(commentSaveRequestDto);   //로그인 옵션이 없어서 uesrId는 직접 입력으로
 
-        return "";
+        return "redirect:/test/model/post/detail/" + commentSaveRequestDto.getPostId();
     }
 
     @GetMapping("/category/{category}")
     public String findByCategory(@PathVariable String category, Model model){
-        List<PostModel> postList = postService.getPostsByCategory(category);
-        model.addAttribute("postList",postList);
+
 
         return "";
     }

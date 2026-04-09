@@ -4,11 +4,13 @@ import com.example.proj.domain.comment.CommentModel;
 import com.example.proj.domain.comment.CommentSaveRequestDto;
 import com.example.proj.domain.comment.CommentService;
 import com.example.proj.domain.mapPin.MapPinModel;
+import com.example.proj.domain.mapPin.MapPinSaveRequestDto;
 import com.example.proj.domain.mapPin.MapPinService;
 import com.example.proj.domain.notification.NotificationModel;
 import com.example.proj.domain.notification.NotificationService;
-import com.example.proj.domain.post.*;
-import com.example.proj.domain.mapPin.MapPinSaveRequestDto;
+import com.example.proj.domain.post.PostModel;
+import com.example.proj.domain.post.PostSaveRequestDto;
+import com.example.proj.domain.post.PostService;
 import com.example.proj.domain.user.UserModel;
 import com.example.proj.domain.user.UserSaveRequestDto;
 import com.example.proj.domain.user.UserService;
@@ -33,7 +35,7 @@ public class ModelTestController {
     @GetMapping("/modelTest")
     public String modelTest() {
 
-        return "test/modelTest";
+        return "pages/modelTest";
     }
 
 
@@ -45,7 +47,7 @@ public class ModelTestController {
         List<UserModel> userList = userService.findAll();
 
         model.addAttribute("userList",userList);
-        return "modelView/userView";
+        return "pages/userView";
 
     }
 
@@ -58,8 +60,15 @@ public class ModelTestController {
         List<NotificationModel> list = notificationService.findAll();
         model.addAttribute("notificationList",list);
 
-        return "modelView/notificationView";
+        return "pages/notificationView";
     }
+
+    @GetMapping("/mapPin")
+    public String mapPinList(Model model){
+        return "pages/mapPinView";
+
+    }
+
 
     @PostMapping("/mapPin/add")
     public String mapPinTest(@RequestBody MapPinSaveRequestDto mapPinDto,
@@ -71,6 +80,7 @@ public class ModelTestController {
 
         return "modelView/mapPinView";
     }
+
 
     @PostMapping("/userPinNoti/delete")
     public String modelDelete(@RequestParam(name = "id") Long id,
@@ -90,23 +100,25 @@ public class ModelTestController {
         return "redirect:/test/model/modelTest";
     }
 
+
+
     @GetMapping("/userPinNoti/findAll")
     public String modelTest(@RequestParam(name="modelType") String type, Model model) {
 
         if(type.equals("user")){
             List<UserModel> userList = userService.findAll();
             model.addAttribute("userList",userList);
-            return "modelView/userView";
+            return "pages/userView";
         }
         else if(type.equals("notification")){
             List<NotificationModel> notificationList = notificationService.findAll();
             model.addAttribute("notificationList",notificationList);
-            return "modelView/notificationView";
+            return "pages/notificationView";
         }
         else if(type.equals("mapPin")){
             List<MapPinModel> mapPinList = mapPinService.findAllMapPin();
             model.addAttribute("mapPinList",mapPinList);
-            return "modelView/mapPinView";
+            return "pages/mapPinView";
 
         }
         return "redirect:/test/model/modelTest";
@@ -117,7 +129,7 @@ public class ModelTestController {
         List<PostModel> postList = postService.getAllPosts();
         model.addAttribute("postList",postList);
 
-        return "test/postTest";
+        return "pages/postTest";
     }
 
     @PostMapping("/post/add")
@@ -136,7 +148,7 @@ public class ModelTestController {
         List<CommentModel> commentList = commentService.findAllByPostId(id);
         model.addAttribute("commentList",commentList);
 
-        return "test/postDetail";
+        return "pages/postDetail";
     }
 
     @PostMapping("post/delete/{id}")
@@ -147,15 +159,6 @@ public class ModelTestController {
     }
 
 
-    @PostMapping("/comment/delete/{id}")
-    public String postTestDeleteComment(@PathVariable("id") Long id,
-                                        @RequestParam(name = "postId") String postId){
-        commentService.deleteCommentById(id);
-
-        return "redirect:/test/model/post/detail/" +postId;
-
-    }
-
     @PostMapping("/comment/add")
     public String postTestAddComment(@RequestBody CommentSaveRequestDto commentSaveRequestDto,
                                      Model model){
@@ -164,7 +167,14 @@ public class ModelTestController {
         return "redirect:/test/model/post/detail/" + commentSaveRequestDto.getPostId();
     }
 
+    @PostMapping("/comment/delete/{id}")
+    public String postTestDeleteComment(@PathVariable("id") Long id,
+                                        @RequestParam(name = "postId") String postId){
+        commentService.deleteCommentById(id);
 
+        return "redirect:/test/model/post/detail/" +postId;
+
+    }
 
 
 }

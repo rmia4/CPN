@@ -1,0 +1,152 @@
+<div th:replace="~{layout/layout :: layout(~{::content})}">
+
+  <div th:fragment="content">
+    <div class="max-w-4xl w-full mx-auto px-4 py-6">
+      <!-- 탭 -->
+      <div id="tabs" class="flex gap-2 border-b pb-2 mb-4 overflow-x-auto"></div>
+      <!-- 게시판 정보 -->
+      <div class="flex justify-between items-center mb-4">
+        <div>
+          <h1 id="boardTitle" class="text-xl font-bold"></h1>
+          <p id="boardCount" class="text-sm text-neutral-500"></p>
+        </div>
+        <a
+                href="/post/add"
+                class="inline-flex items-center justify-center px-4 py-2 w-[90px] text-sm font-semibold text-white
+          bg-neutral-900 hover:bg-neutral-800 active:scale-95 transition-colors duration-150 rounded-lg"
+                aria-label="게시글 작성"
+        >
+          글쓰기
+        </a>
+      </div>
+      <!-- 게시글 리스트 -->
+      <div id="postList" class="flex flex-col gap-4"></div>
+    </div>
+
+    <script>
+      // 탭 더미 데이터
+      const tabs = [
+        { id: "freshman", name: "새내기" },
+        { id: "23", name: "23학번" },
+        { id: "graduate", name: "졸업생" }
+      ];
+
+      // 게시글 더미 데이터 (새내기만)
+      const posts = [
+        {
+          id: 1,
+          board: "freshman",
+          category: "질문",
+          title: "수강신청 어떻게 하나요?",
+          content: "이번에 입학했는데 수강신청 너무 어려워요...",
+          date: "2026.03.01",
+          comments: 3
+        },
+        {
+          id: 2,
+          board: "freshman",
+          category: "정보",
+          title: "OT 일정 공유합니다",
+          content: "이번 오리엔테이션 일정은 다음과 같습니다...",
+          date: "2026.03.02",
+          comments: 1
+        },
+        {
+          id: 3,
+          board: "freshman",
+          category: "잡담",
+          title: "친구 사귀고 싶어요",
+          content: "아직 친구가 없어서 같이 밥 먹을 사람 구해요...",
+          date: "2026.03.03",
+          comments: 5
+        }
+      ];
+
+      let currentTab = "freshman";
+
+      // 탭 렌더링
+      function renderTabs() {
+        const container = document.getElementById("tabs");
+        container.innerHTML = "";
+
+        tabs.forEach(tab => {
+          const btn = document.createElement("button");
+          btn.textContent = tab.name;
+
+          btn.className =
+                  "px-4 py-2 text-sm font-semibold rounded-full " +
+                  (tab.id === currentTab
+                          ? "bg-neutral-900 text-white"
+                          : "text-neutral-600 hover:bg-neutral-100");
+
+          btn.onclick = () => {
+            currentTab = tab.id;
+            renderTabs();
+            renderPosts();
+          };
+
+          container.appendChild(btn);
+        });
+      }
+
+      // 게시글 렌더링
+      function renderPosts() {
+        const list = document.getElementById("postList");
+        const title = document.getElementById("boardTitle");
+        const count = document.getElementById("boardCount");
+
+        const filtered = posts.filter(p => p.board === currentTab);
+
+        const currentBoardName = tabs.find(t => t.id === currentTab)?.name;
+
+        title.textContent = currentBoardName + " 게시판";
+        count.textContent = "전체 글 " + filtered.length;
+
+        list.innerHTML = "";
+
+        filtered.forEach(post => {
+          const a = document.createElement("a");
+
+          a.href = `/post/detail/${post.id}`;
+          a.className = "block no-underline text-inherit";
+
+          a.innerHTML = `
+            <div class="flex gap-4 p-4 border rounded-xl hover:bg-neutral-50 transition cursor-pointer">
+
+              <div class="w-16 h-16 bg-neutral-200 rounded-lg flex-shrink-0"></div>
+
+              <div class="flex-1">
+                <div class="flex items-center gap-2 mb-1">
+                  <span class="text-xs px-2 py-1 bg-neutral-200 rounded">
+                    ${post.category}
+                  </span>
+                  <h2 class="font-semibold text-sm">
+                    ${post.title}
+                  </h2>
+                </div>
+
+                <p class="text-sm text-neutral-600 line-clamp-2">
+                  ${post.content}
+                </p>
+
+                <div class="text-xs text-neutral-400 mt-2 flex gap-3">
+                  <span>${post.date}</span>
+                  <span>댓글 ${post.comments}</span>
+                </div>
+              </div>
+
+            </div>
+          `;
+
+          list.appendChild(a);
+        });
+      }
+
+      // 초기 실행
+      window.addEventListener("DOMContentLoaded", () => {
+        renderTabs();
+        renderPosts();
+      });
+    </script>
+  </div>
+</div>
