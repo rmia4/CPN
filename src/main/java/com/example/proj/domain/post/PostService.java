@@ -30,6 +30,10 @@ public class PostService {
         //해당 카테고리, uesrId가 없을 상황에서의 예외
         try{
             CategoryModel category = categoryRepository.findByCategoryName(postDto.getCategory());
+
+            if (category == null) {
+                throw new IllegalArgumentException("존재하지 않는 카테고리: " + postDto.getCategory());
+            }
             post.setCategory(category);
         }
         catch(Exception e){

@@ -1,5 +1,6 @@
 package com.example.proj.domain.post;
 
+import com.example.proj.domain.category.CategoryService;
 import com.example.proj.domain.comment.CommentModel;
 import com.example.proj.domain.comment.CommentSaveRequestDto;
 import com.example.proj.domain.comment.CommentService;
@@ -7,11 +8,9 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-
 
 @Controller
 @RequiredArgsConstructor
@@ -19,6 +18,7 @@ import java.util.List;
 public class PostController {
     private final PostService postService;
     private final CommentService commentService;
+    private final CategoryService categoryService;
 
     // 게시글 리스트 페이지
     @GetMapping({"/list", "/list/"})
@@ -28,20 +28,23 @@ public class PostController {
         return "pages/postTest";
     }
 
-
     @GetMapping("/add")
-    public String addPost(@Valid @RequestBody PostSaveRequestDto postSaveRequestDto,
-            BindingResult bindingResult,Model model){
+    public String addForm(Model model)
+    {
+        model.addAttribute("categoryList", categoryService.findAll());
+        return "pages/postAdd";
+    }
 
-        //DTO 매핑 에러 시
-        if(bindingResult.hasErrors()){
 
-            return "";
-        }
+    @PostMapping("/add")
+    public String postTestAdd(@Valid PostSaveRequestDto postSaveRequestDto,
+                              Model model){
+        System.out.println("들어옴: " + postSaveRequestDto.getTitle());
         postService.addPost(postSaveRequestDto);
 
-        return "redirect:/test/model/postTest";
+        return "redirect:/post/list";
     }
+
 
     @GetMapping("/detail/{id}")
     public String postDetail(@PathVariable("id") Long id, Model model) {
@@ -53,11 +56,13 @@ public class PostController {
         return "pages/postDetail";
     }
 
+
     @PostMapping("/delete/{id}")
     public String postDelete(@PathVariable("id") Long id) {
         postService.deletePostById(id);
         return "redirect:/post/list";
     }
+
 
     @PostMapping("/comment/add")
     public String postTestAddComment(@RequestBody CommentSaveRequestDto commentSaveRequestDto,
@@ -67,16 +72,11 @@ public class PostController {
         return "redirect:/test/model/post/detail/" + commentSaveRequestDto.getPostId();
     }
 
-    @GetMapping("/category/{category}")
-    public String findByCategory(@PathVariable String category, Model model){
 
-
-        return "";
+    @PostMapping("/comment/delete/{id}")
+    public String commentDelete(@PathVariable("id") Long id,
+                                @RequestParam("postId") String postId) {
+        commentService.deleteCommentById(id);
+        return "redirect:/post/detail/" + postId;
     }
-
-
-
-
-
-
 }
