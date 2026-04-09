@@ -1,0 +1,109 @@
+<div th:replace="~{layout/layout :: layout(~{::content})}">
+
+    <div th:fragment="content">
+        <!-- MAIN START -->
+        <div class="relative max-w-[1200px] m-auto bg-white rounded-2xl shadow p-4 overflow-x-auto">
+
+            <div class="relative">
+
+            <!-- 배경 그리드 (반복이 많아서 js로 처리)-->
+            <div 
+                id="timetable-grid" 
+                class="grid min-w-[800px] border"
+                style="grid-template-columns: 60px repeat(5, 1fr)">
+            </div>
+
+            <!-- 수업 레이어 (데이터 받아와서 처리해야하기에 js로 처리) -->
+            <div 
+                id="subject-layer" 
+                class="absolute"
+                style="
+                top: 32px;
+                left: 60px;
+                width: calc(100% - 60px);
+                height: calc(100% - 32px);
+                ">
+            </div>
+
+            </div>
+
+        </div>
+        <script>
+            // 더미 데이터
+            const timetable = [
+                { day: 1, start: 9, duration: 2, title: "웹프로그래밍", color:"blue" },
+                { day: 1, start: 11, duration: 1, title: "자료구조", color:"orange" },
+                { day: 2, start: 10, duration: 3, title: "데이터베이스", color:"red" },
+                { day: 3, start: 13, duration: 2, title: "운영체제", color:"violet" },
+                { day: 5, start: 9, duration: 1, title: "네트워크", color:"yellow" }
+            ];
+
+            // 그리드 만들기
+            function renderGrid(start = 9, end = 17) {
+                const grid = document.getElementById("timetable-grid");
+
+                // 초기화
+                grid.innerHTML = "";
+
+                // 요일 헤더
+                const days = ["시간", "월", "화", "수", "목", "금"];
+                days.forEach(day => {
+                const div = document.createElement("div");
+                div.className = "flex border h-8 p-2 text-center font-semibold items-center justify-center";
+                div.textContent = day;
+                grid.appendChild(div);
+                });
+
+                // 시간 rows
+                for (let time = start; time <= end; time++) {
+                for (let col = 0; col < 6; col++) {
+                    const div = document.createElement("div");
+
+                    if (col === 0) {
+                    div.className = "flex border h-20 text-center items-center justify-center";
+                    div.textContent = time;
+                    } else {
+                    div.className = "border h-20";
+                    }
+
+                    grid.appendChild(div);
+                }
+                }
+            }
+
+            function renderSubjects(data) {
+                const layer = document.getElementById("subject-layer");
+                layer.innerHTML = "";
+
+                const cellHeight = 80; // h-20
+                const startTime = 9;
+                const colWidth = 100 / 5; // %
+
+                data.forEach(item => {
+                const div = document.createElement("div");
+
+                // 위치 계산
+                const top = (item.start - startTime) * cellHeight;
+
+                const left = (item.day-1) * colWidth;
+
+                const height = item.duration * cellHeight;
+
+                div.className = "absolute bg-blue-200 rounded p-2 text-sm shadow";
+
+                div.style.top = `${top}px`;
+                div.style.left = `${left}%`;
+                div.style.width = `${colWidth}%`;
+                div.style.height = `${height}px`;
+                div.style.backgroundColor = item.color;
+
+                div.textContent = item.title;
+
+                layer.appendChild(div);
+                });
+            }
+            renderSubjects(timetable);
+            renderGrid();
+        </script>
+    </div>
+</div>

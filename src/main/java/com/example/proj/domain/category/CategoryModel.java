@@ -7,8 +7,10 @@ import lombok.*;
 
 import java.util.List;
 
+
 @Entity
-@Data
+@Getter
+@Setter
 public class CategoryModel {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

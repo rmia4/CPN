@@ -27,26 +27,22 @@ public class PostService {
         post.setLat(postDto.getLat());
 
 
-        //해당 카테고리, uesrId가 없을 상황에서의 예외
-        try{
-            CategoryModel category = categoryRepository.findByCategoryName(postDto.getCategory());
-
-            if (category == null) {
-                throw new IllegalArgumentException("존재하지 않는 카테고리: " + postDto.getCategory());
-            }
-            post.setCategory(category);
+        // ✅ 카테고리
+        CategoryModel category = categoryRepository.findByCategoryName(postDto.getCategory());
+        if (category == null) {
+            throw new IllegalArgumentException("존재하지 않는 카테고리: " + postDto.getCategory());
         }
-        catch(Exception e){
+        post.setCategory(category);
 
-        }
-        try{
-            UserModel user = userRepository.findByUserId(postDto.getUserId());   //로그인 기능 없어서 일단 이걸로
-            post.setUser(user);
-        }
-        catch(Exception e){
 
+        // ✅ 유저
+        UserModel user = userRepository.findByUserId(postDto.getUserId());
+        if (user == null) {
+            throw new IllegalArgumentException("존재하지 않는 유저: " + postDto.getUserId());
         }
-
+        post.setUser(user);
+        System.out.println("category: " + postDto.getCategory());
+        System.out.println("userId: " + postDto.getUserId());
         postRepository.save(post);
     }
 
