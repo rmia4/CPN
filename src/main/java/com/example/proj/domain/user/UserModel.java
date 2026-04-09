@@ -26,7 +26,8 @@ public class UserModel {
     private String userNumber;
 
     @Column(nullable = false)
-    private float mannerPoint;
+    private String password; // <-- 비밀번호 필드 추가 (가정)
+    private Float mannerPoint;
 
     @Column(nullable = true)
     private String style1;
@@ -44,3 +45,4 @@ public class UserModel {
 
 
 }
+
