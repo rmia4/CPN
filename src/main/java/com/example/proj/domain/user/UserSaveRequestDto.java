@@ -9,7 +9,7 @@ import lombok.Setter;
 @Getter
 @Setter
 public class UserSaveRequestDto {
-
+    //
     @NotBlank(message = "유저아이디 없음")
     private String userId;
 
@@ -18,8 +18,5 @@ public class UserSaveRequestDto {
 
     @NotBlank(message = "유저 학번 없음")
     private String userNumber;
-
-
-
 
 }

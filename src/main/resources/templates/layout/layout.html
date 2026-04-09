@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org" th:fragment="layout(content)">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <title>CPN layout</title>
+  </head>
+  <body class="bg-white text-neutral-950 flex flex-col min-h-screen">
+    <!-- Header -->
+    <div th:replace="~{fragments/header :: header}"></div>
+
+
+
+    <!-- Content -->
+    <div class="pt-16 md:pt-18">
+      <div th:replace="${content}"></div>
+    </div>
+    <a href="/test/model/modelTest">modelTest</a>
+    <br>
+    <a href="/post/list">Post list page</a>
+    <a href="/test/model/mapPin">Map test</a>
+
+    <!-- Footer -->
+    <div th:replace="~{fragments/footer :: footer}"></div>
+
+  </body>
+</html>

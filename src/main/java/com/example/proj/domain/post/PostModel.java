@@ -24,6 +24,7 @@ public class PostModel {
     private String content;
 
     @Column(nullable = false)
+//    @CreatedDate    //현제 시간으로 자동 생성
     private LocalDateTime createdAt;
 
     @Column(nullable = true)
@@ -31,12 +32,6 @@ public class PostModel {
     @Column(nullable = true)
     private Float lat;
 
-// url은 나중에
-
-
-    ///
-    /// ////////// primary Key
-    ///
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(referencedColumnName = "categoryName",name = "category",nullable = false)
     private CategoryModel category;
@@ -51,10 +46,6 @@ public class PostModel {
     /// /////////////OneToMany
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<CommentModel> commentList;
-
-
-
-
 
 
 

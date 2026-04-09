@@ -1,0 +1,174 @@
+<div th:replace="~{layout/layout :: layout(~{::content})}">
+
+    <div th:fragment="content">
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+        <main class="min-h-[600px]">
+            <!-- 지도 -->
+            <div id="map"
+                 class="w-full h-[500px] bg-gray-200"
+                 style="width: 100%; height: 500px; border-radius: 8px; border: 1px solid #dee2e6;"></div>
+
+            <!-- 핀 디테일 패널 -->
+            <div id="pinDetail" style="display:none; position:fixed; top:80px; right:20px; width:300px; z-index:1000;"
+                 class="card shadow">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <span id="detailName" class="fw-bold"></span>
+                    <button class="btn-close" onclick="closeDetail()"></button>
+                </div>
+                <div class="card-body">
+                    <!-- image_url 미구현 -->
+                    <!-- <img id="detailImage" src="" alt="" style="width:100%; border-radius:6px; margin-bottom:10px;"> -->
+                    <p id="detailDescription" class="text-muted small mb-3"></p>
+                    <!-- is_owner 미구현 (로그인 기능 추가 후 활성화) -->
+                    <!-- <button id="detailDeleteBtn" class="btn btn-danger btn-sm w-100">삭제</button> -->
+                </div>
+            </div>
+
+            <!-- 핀 추가 모달 -->
+            <div class="modal fade" id="pinModal" tabindex="-1">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">핀 추가</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                        </div>
+                        <form id="pinForm">
+                            <div class="modal-body">
+                                <input type="hidden" id="pinLat" name="lat">
+                                <input type="hidden" id="pinLng" name="lon">
+                                <div class="mb-3">
+                                    <label class="form-label">이름 <span class="text-danger">*</span></label>
+                                    <input type="text" name="title" class="form-control" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">설명</label>
+                                    <textarea name="description" class="form-control" rows="3"></textarea>
+                                </div>
+                                <!-- image 업로드 미구현 -->
+                                <!-- <div class="mb-3">
+                                    <label class="form-label">사진</label>
+                                    <input type="file" name="image" class="form-control" accept="image/*">
+                                </div> -->
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">취소</button>
+                                <button type="submit" class="btn btn-primary">저장</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </main>
+        <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js" integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r" crossorigin="anonymous"></script>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.min.js" integrity="sha384-G/EV+4j2dNv+tEPo3++6LCgdCROaejBqfUeNjuKAiuXbjrxilcCdDz6ZAVfHWe1Y" crossorigin="anonymous"></script>
+        <script th:inline="javascript">
+            const PIN_ADD_URL = '/mapPin/add';
+            const PIN_DELETE_URL = '/mapPin/';
+            const API_KEY = 'xuA0v0EToS2lTlJCTmm2d6cUkKnihnZA8UO140xt';
+            const CSRF_TOKEN = null; // TODO: Spring Security 추가 시 설정
+            let savedPins = /*[[${mapPinList}]]*/ [];
+            if (!Array.isArray(savedPins)) {
+                savedPins = [];
+            }
+            let map, clickedLatLng, pinModal;
+            const markers = {};
+
+            function initTmap() {
+                pinModal = new bootstrap.Modal(document.getElementById('pinModal'));
+                const mapEl = document.getElementById('map');
+                map = new Tmapv2.Map('map', {
+                    center: new Tmapv2.LatLng(35.139550, 129.098581),
+                    width: '100%',
+                    height: '100%',
+                    zoom: 17,
+                });
+
+                map.addListener('click', function(e) {
+                    closeDetail();
+                    clickedLatLng = e.latLng;
+                    document.getElementById('pinLat').value = clickedLatLng.lat();
+                    document.getElementById('pinLng').value = clickedLatLng.lng();
+                    document.getElementById('pinForm').reset();
+                    document.getElementById('pinLat').value = clickedLatLng.lat();
+                    document.getElementById('pinLng').value = clickedLatLng.lng();
+                    pinModal.show();
+                });
+
+                savedPins.forEach(addMarker);
+            }
+
+            function addMarker(pin) {
+                const marker = new Tmapv2.Marker({
+                    position: new Tmapv2.LatLng(pin.lat, pin.lon),
+                    map: map,
+                    title: pin.title,
+                });
+                marker.addListener('click', function() {
+                    showDetail(pin);
+                });
+                markers[pin.id] = marker;
+            }
+
+            function showDetail(pin) {
+                document.getElementById('detailName').textContent = pin.title;
+                document.getElementById('detailDescription').textContent = pin.description || '';
+
+                // image_url 미구현
+                // const img = document.getElementById('detailImage');
+                // img.style.display = 'none';
+
+                // is_owner 미구현 (로그인 기능 추가 후 활성화)
+                // const deleteBtn = document.getElementById('detailDeleteBtn');
+                // deleteBtn.style.display = 'none';
+
+                document.getElementById('pinDetail').style.display = 'block';
+            }
+
+            function closeDetail() {
+                document.getElementById('pinDetail').style.display = 'none';
+            }
+
+            document.getElementById('pinForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                const formData = new FormData(this);
+                fetch(PIN_ADD_URL, {
+                    method: 'POST',
+                    // TODO: Spring Security 추가 시 CSRF 헤더 설정
+                    // headers: { 'X-CSRFToken': CSRF_TOKEN },
+                    body: formData,
+                })
+                    .then(r => r.json())
+                    .then(pin => {
+                        savedPins.push(pin);
+                        addMarker(pin);
+                        pinModal.hide();
+                    });
+            });
+
+            function deletePin(id) {
+                if (!confirm('핀을 삭제할까요?')) return;
+                fetch(`${PIN_DELETE_URL}${id}/delete/`, {
+                    method: 'POST',
+                    // TODO: Spring Security 추가 시 CSRF 헤더 설정
+                    // headers: { 'X-CSRFToken': CSRF_TOKEN },
+                })
+                    .then(r => r.json())
+                    .then(() => {
+                        markers[id].setMap(null);
+                        delete markers[id];
+                        savedPins = savedPins.filter(p => p.id !== id);
+                        closeDetail();
+                    });
+            }
+        </script>
+
+        <!-- TODO: tmapApiKey를 application.properties에 설정 후 th:src로 교체 -->
+        <!-- <script th:src="@{https://apis.openapi.sk.com/tmap/jsv2(version=1,appKey=${tmapApiKey})}"></script> -->
+        <script src="https://apis.openapi.sk.com/tmap/jsv2?version=1&appKey=xuA0v0EToS2lTlJCTmm2d6cUkKnihnZA8UO140xt"></script>
+        <script>
+            window.addEventListener('load', () => {
+                setTimeout(initTmap, 200);
+            });
+        </script>
+    </div>
+</div>
