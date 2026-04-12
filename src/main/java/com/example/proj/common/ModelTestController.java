@@ -1,8 +1,8 @@
 package com.example.proj.common;
 
-import com.example.proj.domain.comment.CommentModel;
-import com.example.proj.domain.comment.CommentSaveRequestDto;
-import com.example.proj.domain.comment.CommentService;
+import com.example.proj.domain.post.comment.CommentModel;
+import com.example.proj.domain.post.comment.CommentSaveRequestDto;
+import com.example.proj.domain.post.comment.CommentService;
 import com.example.proj.domain.mapPin.MapPinModel;
 import com.example.proj.domain.mapPin.MapPinSaveRequestDto;
 import com.example.proj.domain.mapPin.MapPinService;

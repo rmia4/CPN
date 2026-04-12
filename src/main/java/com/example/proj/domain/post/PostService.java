@@ -1,8 +1,8 @@
 package com.example.proj.domain.post;
 
 
-import com.example.proj.domain.category.CategoryModel;
-import com.example.proj.domain.category.CategoryRepository;
+import com.example.proj.domain.post.category.CategoryModel;
+import com.example.proj.domain.post.category.CategoryRepository;
 import com.example.proj.domain.user.UserModel;
 import com.example.proj.domain.user.UserRepository;
 import lombok.RequiredArgsConstructor;

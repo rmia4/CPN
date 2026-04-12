@@ -1,9 +1,9 @@
 package com.example.proj.domain.post;
 
-import com.example.proj.domain.category.CategoryService;
-import com.example.proj.domain.comment.CommentModel;
-import com.example.proj.domain.comment.CommentSaveRequestDto;
-import com.example.proj.domain.comment.CommentService;
+import com.example.proj.domain.post.category.CategoryService;
+import com.example.proj.domain.post.comment.CommentModel;
+import com.example.proj.domain.post.comment.CommentSaveRequestDto;
+import com.example.proj.domain.post.comment.CommentService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;

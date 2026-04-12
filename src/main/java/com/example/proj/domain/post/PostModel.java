@@ -1,11 +1,10 @@
 package com.example.proj.domain.post;
 
 
-import com.example.proj.domain.category.CategoryModel;
-import com.example.proj.domain.comment.CommentModel;
+import com.example.proj.domain.post.category.CategoryModel;
+import com.example.proj.domain.post.comment.CommentModel;
 import com.example.proj.domain.user.UserModel;
 import jakarta.persistence.*;
-import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 

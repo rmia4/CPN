@@ -1,4 +1,4 @@
-package com.example.proj.domain.category;
+package com.example.proj.domain.post.category;
 
 
 import org.springframework.data.jpa.repository.JpaRepository;

@@ -1,4 +1,4 @@
-package com.example.proj.domain.category;
+package com.example.proj.domain.post.category;
 
 
 import com.example.proj.domain.post.PostModel;

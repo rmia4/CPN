@@ -1,4 +1,4 @@
-package com.example.proj.domain.category;
+package com.example.proj.domain.post.category;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

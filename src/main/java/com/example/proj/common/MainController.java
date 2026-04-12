@@ -1,6 +1,6 @@
 package com.example.proj.common;
 
-import com.example.proj.domain.comment.CommentService;
+import com.example.proj.domain.post.comment.CommentService;
 import com.example.proj.domain.mapPin.MapPinService;
 import com.example.proj.domain.notification.NotificationService;
 import com.example.proj.domain.post.PostService;

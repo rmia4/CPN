@@ -1,4 +1,4 @@
-package com.example.proj.domain.comment;
+package com.example.proj.domain.post.comment;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;

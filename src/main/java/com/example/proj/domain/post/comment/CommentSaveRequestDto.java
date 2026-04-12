@@ -1,4 +1,4 @@
-package com.example.proj.domain.comment;
+package com.example.proj.domain.post.comment;
 
 
 import jakarta.validation.constraints.NotBlank;
