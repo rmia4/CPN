@@ -6,12 +6,12 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface UserRepository extends JpaRepository<UserModel,Integer> {
+public interface UserRepository extends JpaRepository<UserModel,Long> {
 //    UserModel findByUserName(String userName);
     UserModel findByUserId(String userId);
     List<UserModel> findAll();
 
-    UserModel findById(Long id);
+    UserModel findUserById(Long id);
 
 
 }

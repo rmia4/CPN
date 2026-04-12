@@ -28,7 +28,7 @@ public class UserService {
 
     // @Transactional
     public void deleteUserById(Long id) {
-        UserModel user =  userRepository.findById(id);
+        UserModel user =  userRepository.findUserById(id);
         if (user != null) {
             userRepository.delete(user);
         }
