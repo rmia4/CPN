@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.List;
 
+//TODO: try-catch문 예외처리 만들기
 @Service
 @RequiredArgsConstructor
 public class CommentService {
@@ -18,7 +19,7 @@ public class CommentService {
     private final UserRepository userRepository;
     private final PostRepository postRepository;
 
-    public void addComment(CommentSaveRequestDto  commentDto) {
+    public void addComment(CommentSaveRequestDto  commentDto, Long postId) {
         CommentModel comment =  new CommentModel();
         try{
             UserModel user = userRepository.findByUserId(commentDto.getUserId());
@@ -28,7 +29,7 @@ public class CommentService {
 
         }
         try{
-            PostModel post = postRepository.findPostById(commentDto.getPostId());
+            PostModel post = postRepository.findPostById(postId);
             comment.setPost(post);
         }
         catch(Exception e){

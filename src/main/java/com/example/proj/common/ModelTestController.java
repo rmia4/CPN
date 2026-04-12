@@ -159,12 +159,13 @@ public class ModelTestController {
     }
 
 
-    @PostMapping("/comment/add")
-    public String postTestAddComment(@RequestBody CommentSaveRequestDto commentSaveRequestDto,
+    @PostMapping("/{postId}/comment/add")
+    public String postTestAddComment(@PathVariable("postId") Long postId,
+                                     CommentSaveRequestDto commentSaveRequestDto,
                                      Model model){
-        commentService.addComment(commentSaveRequestDto);   //로그인 옵션이 없어서 uesrId는 직접 입력으로
+        commentService.addComment(commentSaveRequestDto,postId);   //로그인 옵션이 없어서 uesrId는 직접 입력으로
 
-        return "redirect:/test/model/post/detail/" + commentSaveRequestDto.getPostId();
+        return "redirect:/test/model/post/detail/" + postId;
     }
 
     @PostMapping("/comment/delete/{id}")

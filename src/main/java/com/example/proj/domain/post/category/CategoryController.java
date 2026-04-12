@@ -12,17 +12,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @RequestMapping("/category")
 public class CategoryController {
     private final CategoryService categoryService;
-//    private final CategoryService categoryService;
     private final CategoryRepository categoryRepository;
 
+    //임시 카테고리 생성 url
     @GetMapping("/add/{name}")
     public String addForm(@PathVariable("name") String name, Model model) {
         if (categoryRepository.findByCategoryName(name) == null) {
 
-            CategoryModel category = new CategoryModel();
-            category.setCategoryName(name);
-
-            categoryService.addCategory(category);
+            categoryService.addCategory(name);
             System.out.println(name + " 카테고리 생성");
         }
         return "redirect:/post/list";

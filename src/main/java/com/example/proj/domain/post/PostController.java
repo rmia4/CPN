@@ -8,10 +8,14 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
+import javax.naming.Binding;
 import java.util.List;
 
+
+//TODO : bindingResult 사용한 검증단계 오류처리단계 추가
 @Controller
 @RequiredArgsConstructor
 @RequestMapping("/post")
@@ -27,18 +31,26 @@ public class PostController {
         model.addAttribute("postList", postList);
         return "pages/postTest";
     }
+    //카테고리에 맞는 게시글 검색
+    @GetMapping("/list/{category}")
+    public String postListByCategory(@PathVariable("category") String category, Model model) {
+        model.addAttribute("postList",postService.getPostsByCategory(category));
 
-    @GetMapping("/add")
-    public String addForm(Model model)
-    {
-        model.addAttribute("categoryList", categoryService.findAll());
-        return "pages/postAdd";
+        return "";
     }
+
+
+//    @GetMapping("/add")
+//    public String addForm(Model model)
+//    {
+//        model.addAttribute("categoryList", categoryService.findAll());
+//        return "pages/postAdd";
+//    }
 
 
     @PostMapping("/add")
     public String postTestAdd(@Valid PostSaveRequestDto postSaveRequestDto,
-                              Model model){
+                              BindingResult bindingResult, Model model){
         System.out.println("들어옴: " + postSaveRequestDto.getTitle());
         postService.addPost(postSaveRequestDto);
 
@@ -57,26 +69,31 @@ public class PostController {
     }
 
 
-    @PostMapping("/delete/{id}")
-    public String postDelete(@PathVariable("id") Long id) {
-        postService.deletePostById(id);
+    @PostMapping("/delete")
+    public String postDelete(@RequestParam("postId") Long postId) {
+        postService.deletePostById(postId);
         return "redirect:/post/list";
     }
 
+    @PostMapping("/{postId}/comment/add")
+    public String postTestAddComment(@Valid CommentSaveRequestDto commentSaveRequestDto,
+                                     @PathVariable("postId") Long postId,
+                                     BindingResult bindingResult, Model model){
+        commentService.addComment(commentSaveRequestDto,postId);
 
-    @PostMapping("/comment/add")
-    public String postTestAddComment(@RequestBody CommentSaveRequestDto commentSaveRequestDto,
-                                     Model model){
-        commentService.addComment(commentSaveRequestDto);   //로그인 옵션이 없어서 uesrId는 직접 입력으로
-
-        return "redirect:/test/model/post/detail/" + commentSaveRequestDto.getPostId();
+        //FIXME:리다이렉트 주소가 왜 test?
+        return "redirect:/test/model/post/detail/" + postId;
     }
 
 
-    @PostMapping("/comment/delete/{id}")
-    public String commentDelete(@PathVariable("id") Long id,
-                                @RequestParam("postId") String postId) {
+    @PostMapping("/{postId}/comment/delete")
+    public String commentDelete(@RequestParam("id") Long id,
+                                @PathVariable("postId") Long postId) {
         commentService.deleteCommentById(id);
         return "redirect:/post/detail/" + postId;
     }
+
+
+
+
 }

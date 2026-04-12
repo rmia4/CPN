@@ -14,8 +14,10 @@ public class CategoryService {
         return categoryRepository.findAll();
     }
 
-    public void addCategory(CategoryModel categoryModel) {
-        categoryRepository.save(categoryModel);
+    public void addCategory(String name) {
+        CategoryModel category = new CategoryModel();
+        category.setCategoryName(name);
+        categoryRepository.save(category);
     }
 
 }

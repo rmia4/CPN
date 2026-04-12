@@ -30,5 +30,9 @@ public class MapPinService {
         return mapPinRepository.findAll();
     }
 
+    public List<MapPinModel> findAllMapPinByTagName(String tagName){
 
+        return mapPinRepository.findAllByTag(tagName);
+
+    }
 }
