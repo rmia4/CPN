@@ -2,6 +2,7 @@ package com.example.proj.domain.post.category;
 
 
 import com.example.proj.domain.post.PostModel;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 

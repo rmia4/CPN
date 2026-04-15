@@ -5,8 +5,44 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <script src="https://cdn.tailwindcss.com"></script>
     <title>CPN layout</title>
+    <script>
+      tailwind.config = {
+        darkMode: 'class'
+      }
+    </script>
+    <script>
+      function toggleDarkMode() {
+        const root = document.documentElement;
+        const icon = document.getElementById("themeIcon");
+
+        root.classList.toggle("dark");
+
+        if (root.classList.contains("dark")) {
+          localStorage.setItem("theme", "dark");
+          icon.textContent = "⭐";
+        } else {
+          localStorage.setItem("theme", "light");
+          icon.textContent = "🌙";
+        }
+      }
+
+      // 페이지 로드시 아이콘도 맞춰줌
+      window.addEventListener("DOMContentLoaded", () => {
+        const theme = localStorage.getItem("theme");
+        const icon = document.getElementById("themeIcon");
+
+        if (theme === "dark") {
+          document.documentElement.classList.add("dark");
+          if (icon) icon.textContent = "⭐️";
+        } else {
+          document.documentElement.classList.remove("dark");
+          if (icon) icon.textContent = "🌙";
+        }
+      });
+    </script>
   </head>
-  <body class="bg-white text-neutral-950 flex flex-col min-h-screen">
+  <body class="bg-white text-black
+             dark:bg-neutral-800 dark:text-neutral-100 flex flex-col min-h-screen">
     <!-- Header -->
     <div th:replace="~{fragments/header :: header}"></div>
 
@@ -16,13 +52,12 @@
     <div class="pt-16 md:pt-18">
       <div th:replace="${content}"></div>
     </div>
-    <a href="/test/model/modelTest">modelTest</a>
+    <a href="/test/model/modelTest">modelTest 여기서 user Model 부분 바로 POST 전송 누르고 테스트하심 됩니/a></a>
     <br>
     <a href="/post/list">Post list page</a>
     <a href="/test/model/mapPin">Map test</a>
 
     <!-- Footer -->
     <div th:replace="~{fragments/footer :: footer}"></div>
-
   </body>
 </html>

@@ -18,10 +18,12 @@
               CPN
             </span>
                 </a>
-                
                 <!-- Desktop Nav (md 이상에서 활성화) -->
                 <!-- 클래스 변경: md:flex를 사용하고, 기본적으로 flex 항목들을 가질 수 있게 조정 -->
                 <nav class="hidden md:!flex md:items-center md:gap-1">
+                    <button type="button" onclick="toggleDarkMode()">
+                        <span id="themeIcon">🌙</span>
+                    </button>
                     <a href="/test/model/mapPin"
                        class="px-3 py-2 text-sm font-medium text-neutral-600 hover:text-neutral-950 hover:bg-neutral-100 rounded-lg transition duration-150">
                         지도

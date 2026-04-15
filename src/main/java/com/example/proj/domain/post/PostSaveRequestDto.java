@@ -30,9 +30,4 @@ public class PostSaveRequestDto {
     private Float lon;
     private Float lat;
 
-
-
-
-
-
 }

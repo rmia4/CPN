@@ -3,7 +3,16 @@
   <div th:fragment="content">
     <div class="max-w-4xl w-full mx-auto px-4 py-6">
       <!-- 탭 -->
-      <div id="tabs" class="flex gap-2 border-b pb-2 mb-4 overflow-x-auto"></div>
+      <div id="tabs" class="flex gap-2 border-b pb-2 mb-4 overflow-x-auto">
+        <a class="px-4 py-2 text-sm font-semibold rounded-full text-neutral-600 hover:bg-neutral-100" href="/post/list">전체</a>
+        <a
+                th:each="tab : ${categoryList}"
+                th:text="${tab.categoryName}"
+                th:href="@{/post/list/{id}(id=${tab.categoryName})}"
+                class="px-4 py-2 text-sm font-semibold rounded-full text-neutral-600 hover:bg-neutral-100"
+                th:classappend="${tab.id == currentTab} ? 'bg-neutral-900 text-white' : ''">
+        </a>
+      </div>
       <!-- 게시판 정보 -->
       <div class="flex justify-between items-center mb-4">
         <div>
@@ -20,11 +29,30 @@
         </a>
       </div>
       <!-- 게시글 리스트 -->
-      <div id="postList" class="flex flex-col gap-4"></div>
+      <div id="postList" class="flex flex-col gap-4">
+        <a th:each="post: ${postList}" th:href="@{/post/detail/{id}(id=${post.id})}"> <!-- 타임리프 링크 생성 문법 @{URL(param)} -->
+          <div class="flex gap-4 p-4 border rounded-xl hover:bg-neutral-50 transition cursor-pointer">
+            <div class="w-16 h-16 bg-neutral-200 rounded-lg flex-shrink-0"></div>
+            <div class="flex-1">
+              <div class="flex items-center gap-2 mb-1">
+                  <span th:text="${post.category.categoryName}" class="text-xs px-2 py-1 bg-neutral-200 rounded"></span>
+                <h2 th:text="${post.title}" class="font-semibold text-sm"></h2>
+              </div>
 
+              <p th:text="${post.content}" class="text-sm text-neutral-600 line-clamp-2"></p>
+
+              <div class="text-xs text-neutral-400 mt-2 flex gap-3">
+                <span th:text="${#temporals.format(post.createdAt, 'yyyy.MM.dd HH:mm')}"></span>
+                <span>댓글 ()</span>
+              </div>
+            </div>
+          </div>
+        </a>
+      </div>
     </div>
+    <a href="/category/add/hello">hello카테고리생성 - 이거로 카테고리 만들고 테스트하심 됩니</a>
 
-    <p th:text="${postList}"></p>
+
 
     <script>
       // 탭 더미 데이터
@@ -146,10 +174,10 @@
       }
 
       // 초기 실행
-      window.addEventListener("DOMContentLoaded", () => {
-        renderTabs();
-        renderPosts();
-      });
+      // window.addEventListener("DOMContentLoaded", () => {
+        // renderTabs();
+        // renderPosts();
+      // });
     </script>
   </div>
 </div>

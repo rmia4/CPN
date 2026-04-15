@@ -23,4 +23,7 @@ public class MainController {
     public String home() {
         return "pages/home";
     }
+
+    @GetMapping("/timetable")
+    public String timetable() { return "pages/timetable"; }
 }

@@ -29,23 +29,25 @@ public class PostController {
     public String postList(Model model) {
         List<PostModel> postList = postService.getAllPosts();
         model.addAttribute("postList", postList);
+        model.addAttribute("categoryList", categoryService.findAll());
         return "pages/postTest";
     }
     //카테고리에 맞는 게시글 검색
     @GetMapping("/list/{category}")
     public String postListByCategory(@PathVariable("category") String category, Model model) {
         model.addAttribute("postList",postService.getPostsByCategory(category));
+        model.addAttribute("categoryList", categoryService.findAll());
 
-        return "";
+        return "pages/postTest";
     }
 
 
-//    @GetMapping("/add")
-//    public String addForm(Model model)
-//    {
-//        model.addAttribute("categoryList", categoryService.findAll());
-//        return "pages/postAdd";
-//    }
+    @GetMapping("/add")
+    public String addForm(Model model)
+    {
+        model.addAttribute("categoryList", categoryService.findAll());
+        return "pages/postAdd";
+    }
 
 
     @PostMapping("/add")

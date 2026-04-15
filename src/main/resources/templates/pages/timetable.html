@@ -2,16 +2,22 @@
 
     <div th:fragment="content">
         <!-- MAIN START -->
-        <div class="relative max-w-[1200px] m-auto bg-white rounded-2xl shadow p-4 overflow-x-auto">
+<!--        <div class="relative max-w-[1200px] m-auto bg-white rounded-2xl shadow p-4 overflow-x-auto ">-->
+            <div class="relative max-w-[1200px] m-auto bg-white rounded-2xl shadow p-4 overflow-x-auto dark:bg-neutral-800 dark:border-neutral-700">
 
             <div class="relative">
 
             <!-- 배경 그리드 (반복이 많아서 js로 처리)-->
-            <div 
-                id="timetable-grid" 
-                class="grid min-w-[800px] border"
-                style="grid-template-columns: 60px repeat(5, 1fr)">
-            </div>
+<!--            <div -->
+<!--                id="timetable-grid" -->
+<!--                class="grid min-w-[800px] border"-->
+<!--                style="grid-template-columns: 60px repeat(5, 1fr)">-->
+<!--            </div>-->
+
+                <div id="timetable-grid"
+                     class="grid min-w-[800px] borderbg-white border-gray-200 dark:bg-neutral-800 dark:border-neutral-700"
+                     style="grid-template-columns: 60px repeat(5, 1fr)">
+                </div>
 
             <!-- 수업 레이어 (데이터 받아와서 처리해야하기에 js로 처리) -->
             <div 
