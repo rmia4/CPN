@@ -9,7 +9,7 @@
                      style="width: 100%; height: 500px; border-radius: 8px; border: 1px solid #dee2e6;"></div>
                 <!-- 필터 UI -->
                 <div id="filterBox"
-                     class="absolute top-3 left-3 z-[1000] flex gap-2 bg-white p-1.5 rounded-full shadow">
+                     class="absolute top-3 left-3 z-[30] flex gap-2 bg-white p-1.5 rounded-full shadow">
 
                     <button class="filter-btn px-3 py-1 text-sm rounded-full bg-blue-500 text-white" data-type="all">
                         전체
@@ -40,14 +40,14 @@
 
             <!-- 핀 디테일 패널 -->
             <div id="pinDetail"
-                 style="display:none; position:fixed; top:80px; right:20px; width:300px; z-index:1000;"
+                 style="display:none; position:fixed; top:80px; right:20px; width:300px; z-index:30;"
                  class="card shadow">
                 <div class="card-header d-flex justify-content-between align-items-center">
                     <span id="detailName" class="fw-bold"></span>
                     <button class="btn-close" onclick="closeDetail()"></button>
                 </div>
                 <div class="card-body">
-                    <img id="detailImage" style="display:none;" class="w-full max-h-64 object-cover rounded-lg mb-3"/>
+                    <img id="detailImage" alt="핀 이미지" style="display:none;" class="w-full max-h-64 object-cover rounded-lg mb-3"/>
                     <p id="detailDescription" class="text-muted small mb-3"></p>
                     <!-- is_owner 미구현 (로그인 기능 추가 후 활성화) -->
                     <!-- <button id="detailDeleteBtn" class="btn btn-danger btn-sm w-100">삭제</button> -->
@@ -126,6 +126,7 @@
                                     <!-- 미리보기 -->
                                     <img
                                             id="preview"
+                                            alt="미리보기 이미지"
                                             class="hidden mt-3 max-w-full max-h-48 object-contain rounded-lg border"
                                     >
                                 </div>
@@ -164,7 +165,7 @@
             ========================= */
             function initTmap() {
                 pinModal = new bootstrap.Modal(document.getElementById('pinModal'));
-                const mapEl = document.getElementById('map');
+
                 map = new Tmapv2.Map('map', {
                     center: new Tmapv2.LatLng(35.139550, 129.098581),
                     width: '100%',
