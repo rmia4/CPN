@@ -26,8 +26,12 @@ public class UserModel {
     @Column(nullable = false, unique = true)
     private String userNumber;
 
+    @Column
+    private String role;
+
     @Column(nullable = false)
-    private String password; // <-- 비밀번호 필드 추가 (가정)
+    private String passwd;
+
     private Float mannerPoint;
 
     @Column(nullable = true)

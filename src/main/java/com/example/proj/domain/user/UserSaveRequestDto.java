@@ -19,4 +19,7 @@ public class UserSaveRequestDto {
     @NotBlank(message = "유저 학번 없음")
     private String userNumber;
 
+    @NotBlank(message = "passwd")
+    private String passwd;
+
 }
