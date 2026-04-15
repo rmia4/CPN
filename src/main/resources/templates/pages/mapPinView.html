@@ -23,6 +23,10 @@
                         보관
                     </button>
 
+                    <button class="filter-btn px-3 py-1 text-sm rounded-full text-gray-600" data-type="matching">
+                        공강
+                    </button>
+
                 </div>
             </div>
 
@@ -35,15 +39,15 @@
             </div>
 
             <!-- 핀 디테일 패널 -->
-            <div id="pinDetail" style="display:none; position:fixed; top:80px; right:20px; width:300px; z-index:1000;"
+            <div id="pinDetail"
+                 style="display:none; position:fixed; top:80px; right:20px; width:300px; z-index:1000;"
                  class="card shadow">
                 <div class="card-header d-flex justify-content-between align-items-center">
                     <span id="detailName" class="fw-bold"></span>
                     <button class="btn-close" onclick="closeDetail()"></button>
                 </div>
                 <div class="card-body">
-                    <!-- image_url 미구현 -->
-                    <!-- <img id="detailImage" src="" alt="" style="width:100%; border-radius:6px; margin-bottom:10px;"> -->
+                    <img id="detailImage" style="display:none;" class="w-full max-h-64 object-cover rounded-lg mb-3"/>
                     <p id="detailDescription" class="text-muted small mb-3"></p>
                     <!-- is_owner 미구현 (로그인 기능 추가 후 활성화) -->
                     <!-- <button id="detailDeleteBtn" class="btn btn-danger btn-sm w-100">삭제</button> -->
@@ -74,21 +78,57 @@
                                             <input class="form-check-input" type="radio" name="category" id="found" value="found">
                                             <label class="form-check-label" for="found">찾아가세요</label>
                                         </div>
+
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="radio" name="category" id="matching" value="matching">
+                                            <label class="form-check-label" for="matching">공강 같이 보내요</label>
+                                        </div>
                                     </div>
                                 </div>
                                 <div class="mb-3">
-                                    <label class="form-label">이름 <span class="text-danger">*</span></label>
-                                    <input type="text" name="title" class="form-control" required>
+                                    <label class="form-label" for="title">제목 <span class="text-danger">*</span></label>
+                                    <input type="text" id="title" name="title" class="form-control" required>
                                 </div>
                                 <div class="mb-3">
-                                    <label class="form-label">설명</label>
-                                    <textarea name="description" class="form-control" rows="3"></textarea>
+                                    <label class="form-label" for="description">설명</label>
+                                    <textarea id="description" name="description" class="form-control" rows="3"></textarea>
                                 </div>
-                                <!-- image 업로드 미구현 -->
-                                <!-- <div class="mb-3">
+                                <div class="mb-3">
                                     <label class="form-label">사진</label>
-                                    <input type="file" name="image" class="form-control" accept="image/*">
-                                </div> -->
+
+                                    <div class="d-flex gap-2">
+                                        <!-- 파일 선택 -->
+                                        <label class="btn btn-outline-primary mb-0">
+                                            파일 선택
+                                            <input
+                                                    type="file"
+                                                    name="image"
+                                                    accept="image/*"
+                                                    hidden
+                                                    id="fileInput"
+                                            >
+                                        </label>
+
+                                        <!-- 카메라 -->
+                                        <label class="btn btn-outline-secondary mb-0">
+                                            카메라
+                                            <input
+                                                    type="file"
+                                                    name="image"
+                                                    accept="image/*"
+                                                    capture="environment"
+                                                    hidden
+                                                    id="cameraInput"
+                                            >
+                                        </label>
+                                    </div>
+
+                                    <!-- 미리보기 -->
+                                    <img
+                                            id="preview"
+                                            class="hidden mt-3 max-w-full max-h-48 object-contain rounded-lg border"
+                                    >
+                                </div>
                             </div>
                             <div class="modal-footer">
                                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">취소</button>
@@ -115,6 +155,9 @@
             }
             let map, clickedLatLng, pinModal;
             const markers = {};
+            const preview = document.getElementById("preview");
+            const fileInput = document.getElementById("fileInput");
+            const cameraInput = document.getElementById("cameraInput");
 
             /* =========================
                2. 초기화
@@ -156,15 +199,20 @@
                 // 2. markers 초기화
                 for (let key in markers) delete markers[key];
 
-                // 3. 다시 생성
+                // 3. 카테고리 라벨
+                const categoryLabel = {
+                    lost: '[분실] ',
+                    found: '[보관] ',
+                    matching: '[공강] '
+                };
+
+                // 4. 다시 생성
                 savedPins.forEach(pin => {
                     if (type === 'all' || pin.category === type) {
 
                         const marker = new Tmapv2.Marker({
                             position: new Tmapv2.LatLng(pin.lat, pin.lon),
-                            title: pin.category === 'lost'
-                                ? '[분실] ' + pin.title
-                                : '[보관] ' + pin.title,
+                            title: (categoryLabel[pin.category] || '') + pin.title,
                             map: map
                         });
 
@@ -182,9 +230,18 @@
                 document.getElementById('detailName').textContent = pin.title;
                 document.getElementById('detailDescription').textContent = pin.description || '';
 
-                // image_url 미구현
-                // const img = document.getElementById('detailImage');
-                // img.style.display = 'none';
+                const img = document.getElementById('detailImage');
+
+                if (pin.imageUrl) {
+                    img.src = pin.imageUrl;
+                    img.style.display = 'block';
+                } else {
+                    img.style.display = 'none';
+                }
+
+                img.onerror = () => {
+                    img.style.display = 'none';
+                };
 
                 // is_owner 미구현 (로그인 기능 추가 후 활성화)
                 // const deleteBtn = document.getElementById('detailDeleteBtn');
@@ -210,6 +267,26 @@
                 }, 2000);
             }
 
+            // 사진 미리보기
+            function handleImage(input) {
+                const file = input.files[0];
+                if (file) {
+                    preview.src = URL.createObjectURL(file);
+                    preview.classList.remove("hidden");
+                } else {
+                    preview.classList.add("hidden");
+                }
+            }
+
+            // 이미지 미리보기 리셋
+            function resetImageInput() {
+                preview.src = "";
+                preview.classList.add("hidden");
+
+                fileInput.value = "";
+                cameraInput.value = "";
+            }
+
             /* =========================
                5. 유틸
             ========================= */
@@ -227,16 +304,18 @@
                 const formData = new FormData(this);
 
                 // 임시 프론트에서 저장
+                const file = formData.get('image');
+
                 const pin = {
                     id: Date.now(),
                     lat: formData.get('lat'),
                     lon: formData.get('lon'),
                     title: formData.get('title'),
                     description: formData.get('description'),
-                    category: formData.get('category'), // 추가
+                    category: formData.get('category'),
+                    imageUrl: (file && file.size > 0) ? URL.createObjectURL(file) : null,
                 };
                 savedPins.push(pin);
-
                 renderPins();
 
                 const currentFilter = getCurrentFilter();
@@ -248,6 +327,7 @@
                 }
 
                 pinModal.hide();
+                resetImageInput();
 
                 // 서버에 저장 요청
                 // fetch(PIN_ADD_URL, {
@@ -274,6 +354,7 @@
                 //
                 //         // 4. 모달 닫기
                 //         pinModal.hide();
+                //         resetImageInput();
                 //     })
                 //     .catch(err => {
                 //         showToast('저장 실패');
@@ -310,6 +391,14 @@
 
                     renderPins();
                 });
+            });
+
+            // 이미지 미리 보기
+            fileInput.addEventListener("change", function () {
+                handleImage(this);
+            });
+            cameraInput.addEventListener("change", function () {
+                handleImage(this);
             });
         </script>
 
