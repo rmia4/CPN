@@ -1,13 +1,13 @@
 <div th:fragment="header">
     <!-- HEADER START -->
     <header
-            class="fixed top-0 right-0 left-0 z-[9999] bg-transparent"
+            class="fixed top-0 right-0 left-0 z-50 bg-transparent"
             role="navigation"
             aria-label="Main navigation"
     >
         <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             <div class="flex h-16 items-center justify-between md:h-18">
-                
+
                 <!-- Logo -->
                 <a
                         class="relative z-50 flex items-center gap-2 text-xl font-extrabold"
@@ -18,7 +18,7 @@
               CPN
             </span>
                 </a>
-                
+
                 <!-- Desktop Nav (md 이상에서 활성화) -->
                 <!-- 클래스 변경: md:flex를 사용하고, 기본적으로 flex 항목들을 가질 수 있게 조정 -->
                 <nav class="hidden md:!flex md:items-center md:gap-1">
@@ -42,7 +42,7 @@
                         중고장터
                     </a>
                 </nav>
-                
+
                 <!-- Language Switcher & Login (md 이상에서만 표시) -->
                 <div class="hidden md:flex md:items-center md:gap-8">
                     <!-- Language Switcher -->
@@ -54,13 +54,13 @@
                         <button
                                 class="relative z-10 flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium
                 text-neutral-500 hover:text-neutral-900 transition-colors duration-200 rounded-full"
-                               role="radio"
-                               aria-checked="false"
-                               aria-label="English"
+                                role="radio"
+                                aria-checked="false"
+                                aria-label="English"
                         >
                             <a href="#en">
-                               <span>🇺🇸</span>
-                               <span>EN</span>
+                                <span>🇺🇸</span>
+                                <span>EN</span>
                             </a>
                         </button>
                         <button
@@ -83,7 +83,7 @@
                         login
                     </a>
                 </div>
-                
+
                 <!-- Mobile Button (모바일에서만 표시) -->
                 <button
                         id="menuBtn"
@@ -107,7 +107,7 @@
                 </button>
             </div>
         </div>
-        
+
         <!-- Mobile Menu (전체 뷰를 덮는 오버레이) -->
         <div
                 id="mobileMenu"
