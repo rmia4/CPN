@@ -1,5 +1,6 @@
 package com.example.proj.domain.post;
 
+import com.example.proj.domain.post.File.FileService;
 import com.example.proj.domain.post.category.CategoryService;
 import com.example.proj.domain.post.comment.CommentModel;
 import com.example.proj.domain.post.comment.CommentSaveRequestDto;
@@ -10,8 +11,10 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.naming.Binding;
+import java.io.IOException;
 import java.util.List;
 
 
@@ -23,6 +26,8 @@ public class PostController {
     private final PostService postService;
     private final CommentService commentService;
     private final CategoryService categoryService;
+
+    private final FileService fileService;
 
     // 게시글 리스트 페이지
     @GetMapping({"/list", "/list/"})
@@ -52,9 +57,16 @@ public class PostController {
 
     @PostMapping("/add")
     public String postTestAdd(@Valid PostSaveRequestDto postSaveRequestDto,
-                              BindingResult bindingResult, Model model){
-        System.out.println("들어옴: " + postSaveRequestDto.getTitle());
-        postService.addPost(postSaveRequestDto);
+                              BindingResult bindingResult,
+                              @RequestParam("image") List<MultipartFile> files,
+                              Model model) throws IOException {
+        if (bindingResult.hasErrors()) {
+            return "pages/postAdd";
+        }
+        // 이미지 저장
+        List<String> imagePaths = fileService.saveFiles(files);
+        // 기존 방식 유지 + 이미지 추가 전달
+        postService.addPost(postSaveRequestDto, imagePaths);
 
         return "redirect:/post/list";
     }

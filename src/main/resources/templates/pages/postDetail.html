@@ -25,13 +25,20 @@
 
           <!-- meta -->
           <div class="text-sm text-neutral-400 mb-4 flex gap-3">
-            <span th:text="${post.createdAt}"></span>
+            <span th:text="${#temporals.format(post.createdAt, 'yyyy.MM.dd HH:mm')}"></span>
             <span>댓글 <span th:text="${#lists.size(commentList)}"></span></span>
             <span th:text="${post.user.userId}"></span>
           </div>
           <!-- content -->
           <div th:text="${post.content}"
                class="text-sm leading-relaxed whitespace-pre-line">
+          </div>
+
+          <div class="flex gap-2 overflow-x-auto mt-2 snap-x snap-mandatory">
+            <div th:each="img : ${post.images}" class="flex-shrink-0 snap-start">
+              <img th:src="@{${img.imageUrl}}"
+                   class="w-24 h-24 object-cover rounded-lg border"/>
+            </div>
           </div>
         </div>
       </div>

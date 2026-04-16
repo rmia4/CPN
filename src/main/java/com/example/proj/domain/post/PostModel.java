@@ -1,6 +1,7 @@
 package com.example.proj.domain.post;
 
 
+import com.example.proj.domain.post.File.ImageModel;
 import com.example.proj.domain.post.category.CategoryModel;
 import com.example.proj.domain.post.comment.CommentModel;
 import com.example.proj.domain.user.UserModel;
@@ -49,6 +50,9 @@ public class PostModel {
     /// /////////////OneToMany
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<CommentModel> commentList;
+
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL)
+    private List<ImageModel> images;
 
 
 

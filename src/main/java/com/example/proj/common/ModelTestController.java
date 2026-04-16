@@ -132,13 +132,13 @@ public class ModelTestController {
         return "pages/postTest";
     }
 
-    @PostMapping("/post/add")
-    public String postTestAdd(@Valid @RequestBody PostSaveRequestDto postSaveRequestDto,
-                              Model model){
-        postService.addPost(postSaveRequestDto);
-
-        return "redirect:/test/model/postTest";
-    }
+//    @PostMapping("/post/add")
+//    public String postTestAdd(@Valid @RequestBody PostSaveRequestDto postSaveRequestDto,
+//                              Model model){
+//        postService.addPost(postSaveRequestDto, );
+//
+//        return "redirect:/test/model/postTest";
+//    }
 
     @GetMapping("/post/detail/{id}")
     public String postTestDetail(@PathVariable("id") Long id, Model model){

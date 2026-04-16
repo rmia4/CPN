@@ -1,6 +1,7 @@
 package com.example.proj.domain.post;
 
 
+import com.example.proj.domain.post.File.ImageModel;
 import com.example.proj.domain.post.category.CategoryModel;
 import com.example.proj.domain.post.category.CategoryRepository;
 import com.example.proj.domain.user.UserModel;
@@ -9,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -18,7 +20,7 @@ public class PostService {
     private final UserRepository userRepository;
     private final CategoryRepository categoryRepository;
 
-    public void addPost(PostSaveRequestDto postDto) {
+    public void addPost(PostSaveRequestDto postDto, List<String> imagePaths) {
         PostModel post =  new PostModel();
         post.setTitle(postDto.getTitle());
         post.setContent(postDto.getContent());
@@ -41,6 +43,17 @@ public class PostService {
             throw new IllegalArgumentException("존재하지 않는 유저: " + postDto.getUserId());
         }
         post.setUser(user);
+        // ⭐ 이미지 여러 개 저장
+        List<ImageModel> imageList = new ArrayList<>();
+
+        for (String path : imagePaths) {
+            ImageModel img = new ImageModel();
+            img.setImageUrl(path);
+            img.setPost(post);
+            imageList.add(img);
+        }
+
+        post.setImages(imageList);
         System.out.println("category: " + postDto.getCategory());
         System.out.println("userId: " + postDto.getUserId());
         postRepository.save(post);
