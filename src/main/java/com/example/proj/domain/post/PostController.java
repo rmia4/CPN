@@ -5,8 +5,10 @@ import com.example.proj.domain.post.category.CategoryService;
 import com.example.proj.domain.post.comment.CommentModel;
 import com.example.proj.domain.post.comment.CommentSaveRequestDto;
 import com.example.proj.domain.post.comment.CommentService;
+import com.example.proj.domain.user.login.CustomUserDetail;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -26,7 +28,6 @@ public class PostController {
     private final PostService postService;
     private final CommentService commentService;
     private final CategoryService categoryService;
-
     private final FileService fileService;
 
     // 게시글 리스트 페이지
@@ -56,10 +57,11 @@ public class PostController {
 
 
     @PostMapping("/add")
-    public String postTestAdd(@Valid PostSaveRequestDto postSaveRequestDto,
-                              BindingResult bindingResult,
+    public String postTestAdd(@Valid PostSaveRequestDto postSaveRequestDto, BindingResult bindingResult,
+                              @AuthenticationPrincipal CustomUserDetail userDetail,
                               @RequestParam("image") List<MultipartFile> files,
                               Model model) throws IOException {
+        postSaveRequestDto.setUserId(userDetail.getUsername());
         if (bindingResult.hasErrors()) {
             return "pages/postAdd";
         }

@@ -1,6 +1,8 @@
 package com.example.proj.domain.user.login;
 
 
+import com.example.proj.domain.post.category.CategoryModel;
+import com.example.proj.domain.post.category.CategoryRepository;
 import com.example.proj.domain.user.UserModel;
 import com.example.proj.domain.user.UserRepository;
 import org.springframework.boot.CommandLineRunner;
@@ -11,15 +13,23 @@ import org.springframework.stereotype.Component;
 @Component
 public class LoginTest implements CommandLineRunner {
     private final UserRepository userRepository;
+    private final CategoryRepository categoryRepository;
     private final PasswordEncoder passwordEncoder; // 주입
 
-    public LoginTest(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+    public LoginTest(UserRepository userRepository, PasswordEncoder passwordEncoder, CategoryRepository categoryRepository) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
+        this.categoryRepository = categoryRepository;
     }
 
     @Override
     public void run(String... args) throws Exception {
+        CategoryModel testCategory = new CategoryModel();
+        testCategory.setCategoryName("test");
+        categoryRepository.save(testCategory);
+
+
+
         UserModel user = new UserModel();
         user.setUserName("testUser");
         user.setUserNumber("112233");

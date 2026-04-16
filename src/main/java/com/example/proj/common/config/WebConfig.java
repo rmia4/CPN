@@ -1,4 +1,4 @@
-package com.example.proj.domain.post.File;
+package com.example.proj.common.config;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;

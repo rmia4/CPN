@@ -32,10 +32,9 @@ public class MapPinController {
         return "";
     }
 
-    @GetMapping("/list/{tagName}")
-    public String listMapPins(@PathVariable("tagName") String tagName, Model model) {
-        model.addAttribute("mapPinList",mapPinService.findAllMapPinByTagName(tagName));
-
+    @GetMapping("/list")
+    public String listMapPins(Model model) {
+        model.addAttribute("mapPinList",mapPinService.findAllMapPin());
 
         return "";
     }

@@ -60,30 +60,6 @@ public class UserService implements UserDetailsService {
         return userRepository.findByUserId(userId);
     }
 
-    /**
-     * 로그인 유효성 검사 및 사용자 정보를 조회합니다.
-     * (⚠️ 보안 경고: 실제 운영 환경에서는 BCryptPasswordEncoder를 사용해야 합니다.)
-     * @param loginRequestDto 로그인 요청 데이터 (userId, password 포함)
-     * @return 로그인 성공 시 사용자 모델, 실패 시 null
-     */
-    public UserModel loginUser(LoginRequestDto loginRequestDto) {
-        // 1. DB에서 ID로 사용자 정보를 찾습니다.
-        UserModel user = userRepository.findByUserId(loginRequestDto.getUserId());
-
-        if (user == null) {
-            return null; // 사용자 없음
-        }
-
-        // 2. 비밀번호 비교 (⚠️ 이 비교는 평문 비교이므로 매우 취약합니다!)
-        // 실제로는 user.getPassword()와 loginRequestDto.getPassword()를 인코딩하여 비교해야 합니다.
-        if (user.getPasswd() != null && user.getPasswd().equals(loginRequestDto.getPassword())) {
-            return user; // 비밀번호가 일치함
-        } else {
-            return null; // 비밀번호 불일치
-        }
-    }
-
-
     //spring security에서 자동호출하는 메서드 구현
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
