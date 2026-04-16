@@ -1,23 +1,53 @@
 <div th:replace="~{layout/layout :: layout(~{::content})}">
 
     <div th:fragment="content">
-        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
         <main class="min-h-[600px]">
-            <!-- 지도 -->
-            <div id="map"
-                 class="w-full h-[500px] bg-gray-200"
-                 style="width: 100%; height: 500px; border-radius: 8px; border: 1px solid #dee2e6;"></div>
+            <div class="relative">
+                <!-- 지도 -->
+                <div id="map"
+                     class="w-full h-[500px] bg-gray-200"
+                     style="width: 100%; height: 500px; border-radius: 8px; border: 1px solid #dee2e6;"></div>
+                <!-- 필터 UI -->
+                <div id="filterBox"
+                     class="absolute top-3 left-3 z-[30] flex gap-2 bg-white p-1.5 rounded-full shadow">
+
+                    <button class="filter-btn px-3 py-1 text-sm rounded-full bg-blue-500 text-white" data-type="all">
+                        전체
+                    </button>
+
+                    <button class="filter-btn px-3 py-1 text-sm rounded-full text-gray-600" data-type="lost">
+                        분실
+                    </button>
+
+                    <button class="filter-btn px-3 py-1 text-sm rounded-full text-gray-600" data-type="found">
+                        보관
+                    </button>
+
+                    <button class="filter-btn px-3 py-1 text-sm rounded-full text-gray-600" data-type="matching">
+                        공강
+                    </button>
+
+                </div>
+            </div>
+
+            <!-- 토스트 UI -->
+            <div id="toast"
+                 class="fixed bottom-20 left-1/2 -translate-x-1/2 z-[2000]
+            bg-black text-white text-sm px-4 py-2 rounded-lg
+            opacity-0 translate-y-5 pointer-events-none
+            transition-all duration-300">
+            </div>
 
             <!-- 핀 디테일 패널 -->
-            <div id="pinDetail" style="display:none; position:fixed; top:80px; right:20px; width:300px; z-index:1000;"
+            <div id="pinDetail"
+                 style="display:none; position:fixed; top:80px; right:20px; width:300px; z-index:30;"
                  class="card shadow">
                 <div class="card-header d-flex justify-content-between align-items-center">
                     <span id="detailName" class="fw-bold"></span>
                     <button class="btn-close" onclick="closeDetail()"></button>
                 </div>
                 <div class="card-body">
-                    <!-- image_url 미구현 -->
-                    <!-- <img id="detailImage" src="" alt="" style="width:100%; border-radius:6px; margin-bottom:10px;"> -->
+                    <img id="detailImage" alt="핀 이미지" style="display:none;" class="w-full max-h-64 object-cover rounded-lg mb-3"/>
                     <p id="detailDescription" class="text-muted small mb-3"></p>
                     <!-- is_owner 미구현 (로그인 기능 추가 후 활성화) -->
                     <!-- <button id="detailDeleteBtn" class="btn btn-danger btn-sm w-100">삭제</button> -->
@@ -37,18 +67,69 @@
                                 <input type="hidden" id="pinLat" name="lat">
                                 <input type="hidden" id="pinLng" name="lon">
                                 <div class="mb-3">
-                                    <label class="form-label">이름 <span class="text-danger">*</span></label>
-                                    <input type="text" name="title" class="form-control" required>
+                                    <label class="form-label">카테고리</label>
+                                    <div class="d-flex gap-3">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="radio" name="category" id="lost" value="lost" checked>
+                                            <label class="form-check-label" for="lost">잃어버렸어요</label>
+                                        </div>
+
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="radio" name="category" id="found" value="found">
+                                            <label class="form-check-label" for="found">찾아가세요</label>
+                                        </div>
+
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="radio" name="category" id="matching" value="matching">
+                                            <label class="form-check-label" for="matching">공강 같이 보내요</label>
+                                        </div>
+                                    </div>
                                 </div>
                                 <div class="mb-3">
-                                    <label class="form-label">설명</label>
-                                    <textarea name="description" class="form-control" rows="3"></textarea>
+                                    <label class="form-label" for="title">제목 <span class="text-danger">*</span></label>
+                                    <input type="text" id="title" name="title" class="form-control" required>
                                 </div>
-                                <!-- image 업로드 미구현 -->
-                                <!-- <div class="mb-3">
+                                <div class="mb-3">
+                                    <label class="form-label" for="description">설명</label>
+                                    <textarea id="description" name="description" class="form-control" rows="3"></textarea>
+                                </div>
+                                <div class="mb-3">
                                     <label class="form-label">사진</label>
-                                    <input type="file" name="image" class="form-control" accept="image/*">
-                                </div> -->
+
+                                    <div class="d-flex gap-2">
+                                        <!-- 파일 선택 -->
+                                        <label class="btn btn-outline-primary mb-0">
+                                            파일 선택
+                                            <input
+                                                    type="file"
+                                                    name="image"
+                                                    accept="image/*"
+                                                    hidden
+                                                    id="fileInput"
+                                            >
+                                        </label>
+
+                                        <!-- 카메라 -->
+                                        <label class="btn btn-outline-secondary mb-0">
+                                            카메라
+                                            <input
+                                                    type="file"
+                                                    name="image"
+                                                    accept="image/*"
+                                                    capture="environment"
+                                                    hidden
+                                                    id="cameraInput"
+                                            >
+                                        </label>
+                                    </div>
+
+                                    <!-- 미리보기 -->
+                                    <img
+                                            id="preview"
+                                            alt="미리보기 이미지"
+                                            class="hidden mt-3 max-w-full max-h-48 object-contain rounded-lg border"
+                                    >
+                                </div>
                             </div>
                             <div class="modal-footer">
                                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">취소</button>
@@ -62,6 +143,9 @@
         <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js" integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r" crossorigin="anonymous"></script>
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.min.js" integrity="sha384-G/EV+4j2dNv+tEPo3++6LCgdCROaejBqfUeNjuKAiuXbjrxilcCdDz6ZAVfHWe1Y" crossorigin="anonymous"></script>
         <script th:inline="javascript">
+            /* =========================
+               1. 전역 변수
+            ========================= */
             const PIN_ADD_URL = '/mapPin/add';
             const PIN_DELETE_URL = '/mapPin/';
             const API_KEY = 'xuA0v0EToS2lTlJCTmm2d6cUkKnihnZA8UO140xt';
@@ -72,10 +156,16 @@
             }
             let map, clickedLatLng, pinModal;
             const markers = {};
+            const preview = document.getElementById("preview");
+            const fileInput = document.getElementById("fileInput");
+            const cameraInput = document.getElementById("cameraInput");
 
+            /* =========================
+               2. 초기화
+            ========================= */
             function initTmap() {
                 pinModal = new bootstrap.Modal(document.getElementById('pinModal'));
-                const mapEl = document.getElementById('map');
+
                 map = new Tmapv2.Map('map', {
                     center: new Tmapv2.LatLng(35.139550, 129.098581),
                     width: '100%',
@@ -94,28 +184,65 @@
                     pinModal.show();
                 });
 
-                savedPins.forEach(addMarker);
+                renderPins();
             }
 
-            function addMarker(pin) {
-                const marker = new Tmapv2.Marker({
-                    position: new Tmapv2.LatLng(pin.lat, pin.lon),
-                    map: map,
-                    title: pin.title,
+            /* =========================
+               3. 핵심 로직 (렌더링)
+            ========================= */
+            function renderPins() {
+
+                const type = getCurrentFilter();
+
+                // 1. 기존 마커 제거
+                Object.values(markers).forEach(marker => marker.setMap(null));
+
+                // 2. markers 초기화
+                for (let key in markers) delete markers[key];
+
+                // 3. 카테고리 라벨
+                const categoryLabel = {
+                    lost: '[분실] ',
+                    found: '[보관] ',
+                    matching: '[공강] '
+                };
+
+                // 4. 다시 생성
+                savedPins.forEach(pin => {
+                    if (type === 'all' || pin.category === type) {
+
+                        const marker = new Tmapv2.Marker({
+                            position: new Tmapv2.LatLng(pin.lat, pin.lon),
+                            title: (categoryLabel[pin.category] || '') + pin.title,
+                            map: map
+                        });
+
+                        marker.addListener("click", () => showDetail(pin));
+
+                        markers[pin.id] = marker;
+                    }
                 });
-                marker.addListener('click', function() {
-                    showDetail(pin);
-                });
-                markers[pin.id] = marker;
             }
 
+            /* =========================
+               4. UI 관련
+            ========================= */
             function showDetail(pin) {
                 document.getElementById('detailName').textContent = pin.title;
                 document.getElementById('detailDescription').textContent = pin.description || '';
 
-                // image_url 미구현
-                // const img = document.getElementById('detailImage');
-                // img.style.display = 'none';
+                const img = document.getElementById('detailImage');
+
+                if (pin.imageUrl) {
+                    img.src = pin.imageUrl;
+                    img.style.display = 'block';
+                } else {
+                    img.style.display = 'none';
+                }
+
+                img.onerror = () => {
+                    img.style.display = 'none';
+                };
 
                 // is_owner 미구현 (로그인 기능 추가 후 활성화)
                 // const deleteBtn = document.getElementById('detailDeleteBtn');
@@ -128,23 +255,114 @@
                 document.getElementById('pinDetail').style.display = 'none';
             }
 
+            function showToast(message) {
+                const toast = document.getElementById('toast');
+
+                toast.textContent = message;
+                toast.classList.remove('opacity-0', 'pointer-events-none');
+                toast.classList.add('opacity-100');
+
+                setTimeout(() => {
+                    toast.classList.remove('opacity-100');
+                    toast.classList.add('opacity-0', 'pointer-events-none');
+                }, 2000);
+            }
+
+            // 사진 미리보기
+            function handleImage(input) {
+                const file = input.files[0];
+                if (file) {
+                    preview.src = URL.createObjectURL(file);
+                    preview.classList.remove("hidden");
+                } else {
+                    preview.classList.add("hidden");
+                }
+            }
+
+            // 이미지 미리보기 리셋
+            function resetImageInput() {
+                preview.src = "";
+                preview.classList.add("hidden");
+
+                fileInput.value = "";
+                cameraInput.value = "";
+            }
+
+            /* =========================
+               5. 유틸
+            ========================= */
+            function getCurrentFilter() {
+                return document.querySelector('.filter-btn.bg-blue-500')?.dataset.type || 'all';
+            }
+
+            /* =========================
+               6. 이벤트
+            ========================= */
+            // 핀 추가
             document.getElementById('pinForm').addEventListener('submit', function(e) {
                 e.preventDefault();
+
                 const formData = new FormData(this);
-                fetch(PIN_ADD_URL, {
-                    method: 'POST',
-                    // TODO: Spring Security 추가 시 CSRF 헤더 설정
-                    // headers: { 'X-CSRFToken': CSRF_TOKEN },
-                    body: formData,
-                })
-                    .then(r => r.json())
-                    .then(pin => {
-                        savedPins.push(pin);
-                        addMarker(pin);
-                        pinModal.hide();
-                    });
+
+                // 임시 프론트에서 저장
+                const file = formData.get('image');
+
+                const pin = {
+                    id: Date.now(),
+                    lat: formData.get('lat'),
+                    lon: formData.get('lon'),
+                    title: formData.get('title'),
+                    description: formData.get('description'),
+                    category: formData.get('category'),
+                    imageUrl: (file && file.size > 0) ? URL.createObjectURL(file) : null,
+                };
+                savedPins.push(pin);
+                renderPins();
+
+                const currentFilter = getCurrentFilter();
+
+                if (currentFilter === 'all' || currentFilter === pin.category) {
+                    showToast('핀 추가됨');
+                } else {
+                    showToast('현재 필터에서는 보이지 않습니다');
+                }
+
+                pinModal.hide();
+                resetImageInput();
+
+                // 서버에 저장 요청
+                // fetch(PIN_ADD_URL, {
+                //     method: 'POST',
+                //     body: formData,
+                // })
+                //     .then(r => r.json())
+                //     .then(pin => {
+                //
+                //         // 1. 데이터만 추가
+                //         savedPins.push(pin);
+                //
+                //         // 2. 화면은 한 번에 렌더
+                //         renderPins();
+                //
+                //         // 3. 토스트만 조건 처리
+                //         const currentFilter = getCurrentFilter();
+                //
+                //         if (currentFilter === 'all' || currentFilter === pin.category) {
+                //             showToast('핀 추가됨');
+                //         } else {
+                //             showToast('현재 필터에서는 보이지 않습니다');
+                //         }
+                //
+                //         // 4. 모달 닫기
+                //         pinModal.hide();
+                //         resetImageInput();
+                //     })
+                //     .catch(err => {
+                //         showToast('저장 실패');
+                //     });
             });
 
+            // 핀 삭제
             function deletePin(id) {
                 if (!confirm('핀을 삭제할까요?')) return;
                 fetch(`${PIN_DELETE_URL}${id}/delete/`, {
@@ -154,12 +372,35 @@
                 })
                     .then(r => r.json())
                     .then(() => {
-                        markers[id].setMap(null);
-                        delete markers[id];
                         savedPins = savedPins.filter(p => p.id !== id);
+                        renderPins();
                         closeDetail();
                     });
             }
+
+            // 필터 버튼
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+
+                    document.querySelectorAll('.filter-btn').forEach(b => {
+                        b.classList.remove('bg-blue-500','text-white');
+                        b.classList.add('text-gray-600');
+                    });
+
+                    this.classList.add('bg-blue-500','text-white');
+                    this.classList.remove('text-gray-600');
+
+                    renderPins();
+                });
+            });
+
+            // 이미지 미리 보기
+            fileInput.addEventListener("change", function () {
+                handleImage(this);
+            });
+            cameraInput.addEventListener("change", function () {
+                handleImage(this);
+            });
         </script>
 
         <!-- TODO: tmapApiKey를 application.properties에 설정 후 th:src로 교체 -->

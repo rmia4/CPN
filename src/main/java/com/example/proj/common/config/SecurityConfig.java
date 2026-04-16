@@ -24,7 +24,7 @@ public class SecurityConfig {
                 //로그인 폼 설정
                 .formLogin(form -> form
                         .loginPage("/login")
-                        .loginProcessingUrl("/login-pro")
+                        .loginProcessingUrl("/login")
                         .usernameParameter("userId")
                         .passwordParameter("passwd")
                         .defaultSuccessUrl("/")
