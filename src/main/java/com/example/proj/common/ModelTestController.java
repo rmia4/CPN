@@ -1,5 +1,6 @@
 package com.example.proj.common;
 
+import com.example.proj.domain.notification.NotificationSaveRequestDto;
 import com.example.proj.domain.post.comment.CommentModel;
 import com.example.proj.domain.post.comment.CommentSaveRequestDto;
 import com.example.proj.domain.post.comment.CommentService;
@@ -52,10 +53,9 @@ public class ModelTestController {
     }
 
     @PostMapping("/notification/add")
-    public String notificationTest(@RequestParam(name="userId")  String userId,
-                                   @RequestParam(name = "description") String description,
+    public String notificationTest(@Valid NotificationSaveRequestDto dto,
                                    Model model) {
-        notificationService.addNotification(userId, description);
+        notificationService.addNotification(dto);
 
         List<NotificationModel> list = notificationService.findAll();
         model.addAttribute("notificationList",list);

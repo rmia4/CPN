@@ -14,6 +14,10 @@ NotificationModel {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
+    //TODO:기능 구현 시
+//    @Column(nullable = false)
+    private String title;
+
     @Column(nullable = false)
     private String description;
 
