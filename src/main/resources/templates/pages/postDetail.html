@@ -27,8 +27,8 @@
           <div class="text-sm text-neutral-400 mb-4 flex gap-3">
             <span th:text="${post.createdAt}"></span>
             <span>댓글 <span th:text="${#lists.size(commentList)}"></span></span>
+            <span th:text="${post.user.userId}"></span>
           </div>
-
           <!-- content -->
           <div th:text="${post.content}"
                class="text-sm leading-relaxed whitespace-pre-line">

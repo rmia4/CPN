@@ -16,9 +16,10 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http.authorizeHttpRequests(auth -> auth
                 //url 권한 설정
-                .requestMatchers("/login").permitAll()
+                //유저 상세 정보 같은거만 접근제어
+//                .requestMatchers("","").permitAll()
                 .requestMatchers("/admin/**").hasRole("ADMIN")
-                .anyRequest().authenticated()
+                .anyRequest().permitAll()
         )
                 //로그인 폼 설정
                 .formLogin(form -> form

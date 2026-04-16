@@ -41,7 +41,7 @@ public class ModelTestController {
 
 
     @PostMapping("/user/add")
-    public String userTest(@Valid @RequestBody UserSaveRequestDto userSaveRequestDto,
+    public String userTest(@Valid UserSaveRequestDto userSaveRequestDto,
                            Model model) {
         userService.addUser(userSaveRequestDto);
 
