@@ -1,0 +1,231 @@
+<div th:replace="~{layout/layout :: layout(~{::content})}">
+
+    <div th:fragment="content">
+        <main>
+            <section class="section relative overflow-hidden bg-white dark:bg-neutral-950">
+
+                <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-24 pb-16 sm:pt-32 sm:pb-24 lg:pt-40 lg:pb-32">
+
+                    <div class="text-center max-w-4xl mx-auto">
+
+                        <!-- 배지 -->
+                        <div class="mb-6 reveal opacity-0 translate-y-10 transition-all duration-700">
+                            <span class="inline-flex items-center gap-2 rounded-full border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900 px-4 py-1.5 text-sm font-medium text-neutral-600 dark:text-neutral-400">
+
+                                <span class="relative flex h-2 w-2">
+                                    <span class="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75"></span>
+                                    <span class="relative inline-flex h-2 w-2 rounded-full bg-emerald-400"></span>
+                                </span>
+
+                                캠퍼스 라이프의 모든 것!
+                            </span>
+                        </div>
+
+                        <!-- 제목 -->
+                        <h1 class="reveal opacity-0 translate-y-10 transition-all duration-700
+                       text-4xl sm:text-5xl md:text-6xl lg:text-7xl
+                       font-extrabold leading-tight tracking-tight
+                       text-neutral-950 dark:text-neutral-50 mb-6">
+
+                            텍스트를 넘어
+                            <br class="hidden sm:block">
+                            지도로 소통하는 우리들만의
+                            <br class="hidden sm:block">
+                            <span>캠퍼스 플랫폼</span>
+
+                        </h1>
+
+                        <!-- 설명 -->
+                        <p class="reveal opacity-0 translate-y-10 transition-all duration-700
+                      text-base sm:text-lg lg:text-xl
+                      text-neutral-500 dark:text-neutral-400
+                      max-w-2xl mx-auto mb-8 sm:mb-10
+                      leading-relaxed whitespace-pre-line">
+
+                            파편화된 대학 생활 정보를 지도 위에서 한눈에 확인하세요.
+                            맞춤형 공강 매칭과 AI가 제안하는 날씨 코디 추천으로
+                            더 스마트하고 연결된 대학 생활이 시작됩니다.
+
+                        </p>
+
+                        <!-- 버튼 영역 -->
+                        <div class="reveal opacity-0 translate-y-10 transition-all duration-700
+                        flex flex-col sm:flex-row items-center justify-center gap-4 mb-12 sm:mb-16">
+
+                            <!--                    <a href="https://fwd.page/signup"
+                                                       data-testid="hero-cta-primary"
+                                                       class="w-full sm:w-auto inline-flex items-center justify-center rounded-lg bg-neutral-950 dark:bg-neutral-50 text-white dark:text-neutral-950 px-8 py-4 text-lg font-bold hover:bg-neutral-800 dark:hover:bg-neutral-200 active:scale-[0.98] transition-all duration-200">
+                                                        무료로 시작하기
+                                                        <svg class="ml-2 w-5 h-5"
+                                                             fill="none"
+                                                             viewBox="0 0 24 24"
+                                                             stroke="currentColor"
+                                                             stroke-width="2.5">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6"></path>
+                                                        </svg>
+                                                    </a> -->
+
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- 하단 라인 -->
+                <div class="absolute bottom-0 left-0 right-0 h-px bg-neutral-200 dark:bg-neutral-800"
+                     aria-hidden="true"></div>
+
+            </section>
+            <section class="section py-16 sm:py-24 bg-white dark:bg-neutral-950">
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+
+                    <!-- 제목 -->
+                    <div class="text-center mb-12 sm:mb-16">
+                        <p class="reveal text-sm font-semibold tracking-widest uppercase text-neutral-500 dark:text-neutral-400 mb-3">
+                            주요 기능
+                        </p>
+                        <h2 class="reveal text-3xl sm:text-4xl lg:text-5xl font-extrabold text-neutral-950 dark:text-neutral-50 mb-4">
+                            더 스마트한 캠퍼스 생활을 위한 모든 것
+                        </h2>
+                        <p class="reveal text-lg sm:text-xl text-neutral-500 dark:text-neutral-400 max-w-2xl mx-auto">
+                            지도와 AI 기술을 결합하여 대학 생활의 실질적인 문제를 해결하고 새로운 연결을 만듭니다.
+                        </p>
+                    </div>
+
+                    <!-- 카드 -->
+                    <div class="reveal grid grid-cols-1 sm:grid-cols-2 gap-6 sm:gap-8">
+                        <!-- 카드1 -->
+                        <div class="group relative rounded-xl border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900 p-6 sm:p-8 hover:border-neutral-300 dark:hover:border-neutral-700 transition-colors duration-200 ">
+                            <div class="inline-flex items-center justify-center w-14 h-14 rounded-xl bg-neutral-200 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 mb-5 group-hover:scale-110 transition-transform duration-300">
+                                <svg xmlns="http://www.w3.org/2000/svg"
+                                     viewBox="0 0 64 64"
+                                     width="120"
+                                     height="120"
+                                     fill="none"
+                                     stroke="black"
+                                     stroke-width="2">
+                                    <!-- 건물 -->
+                                    <rect x="8" y="20" width="20" height="28"/>
+                                    <rect x="28" y="12" width="16" height="36"/>
+
+                                    <!-- 왼쪽 건물 창문 -->
+                                    <circle cx="14" cy="26" r="1"/>
+                                    <circle cx="14" cy="32" r="1"/>
+                                    <circle cx="14" cy="38" r="1"/>
+
+                                    <circle cx="22" cy="26" r="1"/>
+                                    <circle cx="22" cy="32" r="1"/>
+                                    <circle cx="22" cy="38" r="1"/>
+
+                                    <!-- 오른쪽 건물 창문 (6개로 수정) -->
+                                    <circle cx="32" cy="20" r="1"/>
+                                    <circle cx="32" cy="26" r="1"/>
+                                    <circle cx="32" cy="32" r="1"/>
+
+                                    <circle cx="40" cy="20" r="1"/>
+                                    <circle cx="40" cy="26" r="1"/>
+                                    <circle cx="40" cy="32" r="1"/>
+
+                                    <!-- 위치 핀 -->
+                                    <path d="M57 34c0-4-3-7-7-7s-7 3-7 7c0 5 7 12 7 12s7-7 7-12z"/>
+                                    <circle cx="50" cy="34" r="2"/>
+
+                                </svg>
+                            </div>
+                            <h3 class="text-xl font-bold text-neutral-950 dark:text-neutral-50 mb-2">
+                                위치 기반 실시간 캠퍼스 맵
+                            </h3>
+                            <p class="text-neutral-500 dark:text-neutral-400 leading-relaxed text-sm sm:text-base">
+                                단순한 지도를 넘어 분실물 위치, 맛집 정보, 중고 거래 장소 등 캠퍼스의 모든 동적인 정보를 지도 위에 핀으로 시각화합니다.
+                            </p>
+                        </div>
+                        <div class="group relative rounded-xl border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900 p-6 sm:p-8 hover:border-neutral-300 dark:hover:border-neutral-700 transition-colors duration-200 ">
+                            <div class="inline-flex items-center justify-center w-14 h-14 rounded-xl bg-neutral-200 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 mb-5 group-hover:scale-110 transition-transform duration-300">
+                                <svg xmlns="http://www.w3.org/2000/svg"
+                                     class="w-8 h-8"
+                                     viewBox="0 0 24 24"
+                                     fill="none"
+                                     stroke="currentColor"
+                                     stroke-width="2"
+                                     stroke-linecap="round"
+                                     stroke-linejoin="round">
+                                    <circle cx="12" cy="8" r="4"></circle>
+                                    <path d="M5 21 C5 14 19 14 19 21 Z"></path>
+                                </svg>
+                            </div>
+                            <h3 class="text-xl font-bold text-neutral-950 dark:text-neutral-50 mb-2">
+                                스마트 공강 매칭
+                            </h3>
+                            <p class="text-neutral-500 dark:text-neutral-400 leading-relaxed text-sm sm:text-base">
+                                지도 기반 인터페이스를 통해 공강 시간이 겹치는 주변 학우들을 확인하고, 식사나 공부를 함께할 메이트를 즉시 매칭합니다.
+                            </p>
+                        </div>
+                        <div class="group relative rounded-xl border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900 p-6 sm:p-8 hover:border-neutral-300 dark:hover:border-neutral-700 transition-colors duration-200 ">
+                            <div class="inline-flex items-center justify-center w-14 h-14 rounded-xl bg-neutral-200 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 mb-5 group-hover:scale-110 transition-transform duration-300">
+                                <svg xmlns="http://www.w3.org/2000/svg"
+                                     class="w-8 h-8"
+                                     viewBox="0 0 24 24"
+                                     fill="none"
+                                     stroke="currentColor"
+                                     stroke-width="2"
+                                     stroke-linecap="round"
+                                     stroke-linejoin="round">
+                                    <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
+                                    <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
+                                </svg>
+                            </div>
+                            <h3 class="text-xl font-bold text-neutral-950 dark:text-neutral-50 mb-2">
+                                AI 맞춤형 등교 가이드
+                            </h3>
+                            <p class="text-neutral-500 dark:text-neutral-400 leading-relaxed text-sm sm:text-base">
+                                기상청 데이터를 분석하여 오늘 날씨에 최적화된 코디와 생활 조언을 제공해 대학생들의 등교 준비를 돕습니다.
+                            </p>
+                        </div>
+                        <div class="group relative rounded-xl border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900 p-6 sm:p-8 hover:border-neutral-300 dark:hover:border-neutral-700 transition-colors duration-200 lg:col-span-1 sm:col-span-1">
+                            <div class="inline-flex items-center justify-center w-14 h-14 rounded-xl bg-neutral-200 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 mb-5 group-hover:scale-110 transition-transform duration-300">
+                                <svg xmlns="http://www.w3.org/2000/svg"
+                                     class="w-8 h-8"
+                                     viewBox="0 0 24 24"
+                                     fill="none"
+                                     stroke="currentColor"
+                                     stroke-width="2"
+                                     stroke-linecap="round"
+                                     stroke-linejoin="round">
+                                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                                    <path d="M10 12V9a2 2 0 0 1 4 0v3"></path>
+                                    <rect x="8" y="12" width="8" height="6" rx="1"></rect>
+                                </svg>
+                            </div>
+                            <h3 class="text-xl font-bold text-neutral-950 dark:text-neutral-50 mb-2">
+                                안전한 인증 커뮤니티
+                            </h3>
+                            <p class="text-neutral-500 dark:text-neutral-400 leading-relaxed text-sm sm:text-base">
+                                학교 이메일 인증(OAuth)을 거친 사용자만 참여하여 보안과 신뢰가 확보된 캠퍼스 전용 소통 환경을 제공합니다.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+        <script>
+            const sections = document.querySelectorAll(".section");
+
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const items = entry.target.querySelectorAll(".reveal");
+
+                        items.forEach((el, index) => {
+                            setTimeout(() => {
+                                el.classList.add("opacity-100", "translate-y-0");
+                            }, index * 200);
+                        });
+
+                        observer.unobserve(entry.target); // 섹션당 1번만 실행
+                    }
+                });
+            }, { threshold: 0.2 });
+
+            sections.forEach(section => observer.observe(section));
+        </script>
+    </div>
+</div>
