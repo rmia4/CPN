@@ -23,6 +23,8 @@ public class MapPinSaveRequestDto {
     private String title;
     
     private String description;
+
+    private String tag;
     
     
 

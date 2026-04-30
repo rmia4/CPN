@@ -17,6 +17,7 @@ public class MapPinService {
         pin.setLat(mapPinDto.getLat());
         pin.setTitle(mapPinDto.getTitle());
         pin.setDescription(mapPinDto.getDescription());
+        pin.setTag(mapPinDto.getTag());
 
         mapPinRepository.save(pin);
 
