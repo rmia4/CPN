@@ -21,8 +21,8 @@
                 <!-- Desktop Nav (md 이상에서 활성화) -->
                 <!-- 클래스 변경: md:flex를 사용하고, 기본적으로 flex 항목들을 가질 수 있게 조정 -->
                 <nav class="hidden md:!flex md:items-center md:gap-1">
-                    <button type="button" onclick="toggleDarkMode()">
-                        <span id="themeIcon">🌙</span>
+                    <button type="button" onclick="toggleDarkMode()" class="h-9 w-9 rounded-lg hover:bg-neutral-100 dark:hover:bg-neutral-700">
+                        <span class="themeIcon">🌙</span>
                     </button>
                     <a href="/test/model/mapPin"
                        class="px-3 py-2 text-sm font-medium text-neutral-600 hover:text-neutral-950 hover:bg-neutral-100 rounded-lg transition duration-150">
@@ -139,6 +139,13 @@
                     </a>
                 </nav>
                 <div class="flex flex-col mt-auto gap-4">
+                    <button
+                            type="button"
+                            onclick="toggleDarkMode()"
+                            class="flex items-center justify-center px-6 py-3 text-base font-semibold border border-neutral-200 text-neutral-800 hover:bg-neutral-100 transition-colors duration-150 rounded-lg"
+                    >
+                        <span class="themeIcon">🌙</span>
+                    </button>
                     <div class="flex justify-center gap-3">
                         <!-- Language Switcher -->
                         <div
