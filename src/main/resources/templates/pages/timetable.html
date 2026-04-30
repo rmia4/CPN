@@ -3,79 +3,128 @@
     <div th:fragment="content">
         <!-- MAIN START -->
 <!--        <div class="relative max-w-[1200px] m-auto bg-white rounded-2xl shadow p-4 overflow-x-auto ">-->
-            <div class="relative max-w-[1200px] m-auto bg-white rounded-2xl shadow p-4 overflow-x-auto dark:bg-neutral-800 dark:border-neutral-700">
 
+        <div class="relative max-w-[1200px] m-auto bg-white rounded-2xl shadow p-4 overflow-x-auto dark:bg-neutral-800 dark:border-neutral-700">
+            <div>
+                <!-- 추가 버튼 -->
+                <button onclick="openAddModal()"
+                        class="mb-4 px-4 py-2 bg-gray-700 text-white rounded">
+                    + 수업 추가
+                </button>
+
+                <!-- 수업 수정/추가 모달 -->
+                <div id="modal"
+                     class="fixed inset-0 bg-black/50 flex items-center justify-center hidden z-50">
+
+                    <div class="bg-white dark:bg-neutral-800 p-6 rounded-xl w-80 shadow-lg">
+                        <h2 id="modal-title" class="text-lg font-bold mb-4">수업 추가</h2>
+
+                        <form>
+
+                            <input type="hidden" name="id" id="form-id">
+
+                            <input name="title" id="form-title" type="text" placeholder="과목명"
+                                   class="w-full mb-2 p-2 border rounded" required>
+
+                            <select name="day" id="form-day"
+                                    class="w-full mb-2 p-2 border rounded" required>
+                                <option value="">요일 선택</option>
+                                <option value="1">월</option>
+                                <option value="2">화</option>
+                                <option value="3">수</option>
+                                <option value="4">목</option>
+                                <option value="5">금</option>
+                            </select>
+
+                            <input name="form-start" id="form-start" type="time" step="600"
+                                   class="w-full mb-2 p-2 border rounded" required>
+
+                            <input name="form-end" id="form-end" type="time" step="600"
+                                   class="w-full mb-4 p-2 border rounded" required>
+
+                            <div class="flex justify-end gap-2">
+                                <button type="button" onclick="closeModal()"
+                                        class="px-3 py-1 border rounded">
+                                    취소
+                                </button>
+                                <button type="submit"
+                                        class="px-3 py-1 bg-blue-500 text-white rounded">
+                                    저장
+                                </button>
+                            </div>
+
+                        </form>
+                    </div>
+                </div>
+            </div>
             <div class="relative">
 
             <!-- 배경 그리드 (반복이 많아서 js로 처리)-->
-<!--            <div -->
-<!--                id="timetable-grid" -->
-<!--                class="grid min-w-[800px] border"-->
-<!--                style="grid-template-columns: 60px repeat(5, 1fr)">-->
-<!--            </div>-->
 
                 <div id="timetable-grid"
-                     class="grid min-w-[800px] borderbg-white border-gray-200 dark:bg-neutral-800 dark:border-neutral-700"
+                     class="grid border-bg-white border-gray-200 dark:bg-neutral-800 dark:border-neutral-700"
                      style="grid-template-columns: 60px repeat(5, 1fr)">
+
+                    <!-- 헤더 -->
+                    <div class="flex border h-8 items-center justify-center">시간</div>
+                    <div class="flex border h-8 items-center justify-center">월</div>
+                    <div class="flex border h-8 items-center justify-center">화</div>
+                    <div class="flex border h-8 items-center justify-center">수</div>
+                    <div class="flex border h-8 items-center justify-center">목</div>
+                    <div class="flex border h-8 items-center justify-center">금</div>
+
+                    <!-- 시간 rows -->
+                    <th:block th:each="time : ${#numbers.sequence(9, 17)}">
+                        <div class="flex border h-20 items-center justify-center"
+                             th:text="${time}"></div>
+
+                        <th:block th:each="i : ${#numbers.sequence(1,5)}">
+                            <div class="border h-20"></div>
+                        </th:block>
+                    </th:block>
                 </div>
 
             <!-- 수업 레이어 (데이터 받아와서 처리해야하기에 js로 처리) -->
-            <div 
-                id="subject-layer" 
-                class="absolute"
-                style="
-                top: 32px;
-                left: 60px;
-                width: calc(100% - 60px);
-                height: calc(100% - 32px);
-                ">
-            </div>
+                <div
+                    id="subject-layer"
+                    class="absolute"
+                    style="
+                    top: 32px;
+                    left: 60px;
+                    width: calc(100% - 60px);
+                    height: calc(100% - 32px);
+                    ">
+                </div>
 
             </div>
 
         </div>
         <script>
             // 더미 데이터
-            const timetable = [
-                { day: 1, start: 9, duration: 2, title: "웹프로그래밍", color:"blue" },
-                { day: 1, start: 11, duration: 1, title: "자료구조", color:"orange" },
-                { day: 2, start: 10, duration: 3, title: "데이터베이스", color:"red" },
-                { day: 3, start: 13, duration: 2, title: "운영체제", color:"violet" },
-                { day: 5, start: 9, duration: 1, title: "네트워크", color:"yellow" }
+            const palette = [
+                "#FADADD", // 연한 핑크
+                "#FFE5B4", // 살구
+                "#FFFACD", // 레몬 옐로우
+                "#E0F7FA", // 민트 블루
+                "#E6E6FA", // 라벤더
+                "#D8BFD8", // 연보라
+                "#F5F5DC", // 베이지
+                "#E0FFE0", // 연한 그린
+                "#F0FFF0", // 허니듀
+                "#FDFD96"  // 소프트 옐로우
             ];
-
-            // 그리드 만들기
-            function renderGrid(start = 9, end = 17) {
-                const grid = document.getElementById("timetable-grid");
-
-                // 초기화
-                grid.innerHTML = "";
-
-                // 요일 헤더
-                const days = ["시간", "월", "화", "수", "목", "금"];
-                days.forEach(day => {
-                const div = document.createElement("div");
-                div.className = "flex border h-8 p-2 text-center font-semibold items-center justify-center";
-                div.textContent = day;
-                grid.appendChild(div);
-                });
-
-                // 시간 rows
-                for (let time = start; time <= end; time++) {
-                for (let col = 0; col < 6; col++) {
-                    const div = document.createElement("div");
-
-                    if (col === 0) {
-                    div.className = "flex border h-20 text-center items-center justify-center";
-                    div.textContent = time;
-                    } else {
-                    div.className = "border h-20";
-                    }
-
-                    grid.appendChild(div);
-                }
-                }
+            function getRandomPaletteColor() {
+                const index = Math.floor(Math.random() * palette.length);
+                return palette[index];
             }
+            // 더미 데이터
+            const timetable = [
+                { day: 1, start: 9, duration: 2, title: "웹프로그래밍", color:getRandomPaletteColor() },
+                { day: 1, start: 11, duration: 1, title: "자료구조", color:getRandomPaletteColor() },
+                { day: 2, start: 10, duration: 3, title: "데이터베이스", color:getRandomPaletteColor() },
+                { day: 3, start: 13, duration: 2, title: "운영체제", color:getRandomPaletteColor() },
+                { day: 5, start: 9, duration: 1, title: "네트워크", color:getRandomPaletteColor() }
+            ];
 
             function renderSubjects(data) {
                 const layer = document.getElementById("subject-layer");
@@ -95,7 +144,7 @@
 
                 const height = item.duration * cellHeight;
 
-                div.className = "absolute bg-blue-200 rounded p-2 text-sm shadow";
+                div.className = "absolute border border-gray-200 bg-blue-200 rounded p-2 text-sm";
 
                 div.style.top = `${top}px`;
                 div.style.left = `${left}%`;
@@ -108,6 +157,37 @@
                 layer.appendChild(div);
                 });
             }
+                function openModal() {
+                document.getElementById("modal").classList.remove("hidden");
+            }
+
+                function closeModal() {
+                document.getElementById("modal").classList.add("hidden");
+            }
+
+                function openAddModal() {
+                document.getElementById("modal-title").innerText = "수업 추가";
+
+                document.getElementById("form-id").value = "";
+                document.getElementById("form-title").value = "";
+                document.getElementById("form-day").value = "";
+                document.getElementById("form-start").value = "";
+                document.getElementById("form-end").value = "";
+
+                openModal();
+            }
+
+                function openEditModal(id, title, startTime, endTime) {
+                document.getElementById("modal-title").innerText = "수업 수정";
+
+                document.getElementById("form-id").value = id;
+                document.getElementById("form-title").value = title;
+                document.getElementById("form-start").value = startTime;
+                document.getElementById("form-end").value = endTime;
+
+                openModal();
+            }
+
             renderSubjects(timetable);
             renderGrid();
         </script>
