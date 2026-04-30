@@ -1,4 +1,5 @@
-<div th:replace="~{layout/layout :: layout(~{::content})}">
+<div th:replace="~{layout/layout :: layout(~{::content})}"
+     xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 
   <div th:fragment="content">
     <main>
@@ -41,6 +42,48 @@
             </div>
           </div>
         </div>
+
+        <!-- 댓글 -->
+        <section class="mt-6">
+          <h2 class="text-sm font-semibold mb-3">
+            댓글 <span th:text="${#lists.size(commentList)}"></span>
+          </h2>
+
+          <div class="space-y-3">
+            <p th:if="${commentList == null or #lists.isEmpty(commentList)}"
+               class="text-sm text-neutral-500">
+              아직 댓글이 없습니다.
+            </p>
+
+            <div th:each="comment : ${commentList}" class="border-t pt-3">
+              <div class="flex gap-2 text-xs text-neutral-400 mb-1">
+                <span th:text="${comment.user.userName}"></span>
+                <span th:text="${#temporals.format(comment.createdAt, 'yyyy.MM.dd HH:mm')}"></span>
+              </div>
+              <p th:text="${comment.content}" class="text-sm whitespace-pre-line"></p>
+            </div>
+          </div>
+
+          <form sec:authorize="isAuthenticated()"
+                th:action="@{/post/{postId}/comment/add(postId=${post.id})}"
+                method="post"
+                class="mt-4 flex gap-2">
+            <input type="text"
+                   name="content"
+                   required
+                   minlength="1"
+                   class="flex-1 border rounded px-3 py-2 text-sm"
+                   placeholder="댓글을 입력하세요">
+            <button type="submit"
+                    class="px-3 py-2 text-sm text-white bg-neutral-900 rounded">
+              등록
+            </button>
+          </form>
+
+          <div sec:authorize="isAnonymous()" class="mt-4 text-sm text-neutral-500">
+            <a href="/login" class="underline">로그인</a> 후 댓글을 작성할 수 있습니다.
+          </div>
+        </section>
       </div>
 
       <script>

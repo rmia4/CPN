@@ -1,5 +1,8 @@
 <!doctype html>
-<html lang="ko" xmlns:th="http://www.thymeleaf.org" th:fragment="layout(content)">
+<html lang="ko"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      th:fragment="layout(content)">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -98,10 +101,8 @@
     <div class="pt-16 md:pt-18">
       <div th:replace="${content}"></div>
     </div>
-    <a href="/test/model/modelTest">modelTest 여기서 user Model 부분 바로 POST 전송 누르고 테스트하심 됩니/a></a>
+    <a href="/test/model/modelTest">modelTest</a>
     <br>
-    <a href="/post/list">Post list page</a>
-    <a href="/test/model/mapPin">Map test</a>
 
     <!-- Footer -->
     <div th:replace="~{fragments/footer :: footer}"></div>

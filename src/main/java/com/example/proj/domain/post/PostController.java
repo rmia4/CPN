@@ -15,7 +15,6 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.naming.Binding;
 import java.io.IOException;
 import java.util.List;
 
@@ -36,7 +35,7 @@ public class PostController {
         List<PostModel> postList = postService.getAllPosts();
         model.addAttribute("postList", postList);
         model.addAttribute("categoryList", categoryService.findAll());
-        return "pages/postTest";
+        return "pages/postList";
     }
     //카테고리에 맞는 게시글 검색
     @GetMapping("/list/{category}")
@@ -44,7 +43,7 @@ public class PostController {
         model.addAttribute("postList",postService.getPostsByCategory(category));
         model.addAttribute("categoryList", categoryService.findAll());
 
-        return "pages/postTest";
+        return "pages/postList";
     }
 
 
@@ -92,13 +91,21 @@ public class PostController {
     }
 
     @PostMapping("/{postId}/comment/add")
-    public String postTestAddComment(@Valid CommentSaveRequestDto commentSaveRequestDto,
-                                     @PathVariable("postId") Long postId,
-                                     BindingResult bindingResult, Model model){
-        commentService.addComment(commentSaveRequestDto,postId);
+    public String addComment(@Valid CommentSaveRequestDto commentSaveRequestDto,
+                             BindingResult bindingResult,
+                             @PathVariable("postId") Long postId,
+                             @AuthenticationPrincipal CustomUserDetail userDetail) {
+        if (userDetail == null) {
+            return "redirect:/login";
+        }
 
-        //FIXME:리다이렉트 주소가 왜 test?
-        return "redirect:/test/model/post/detail/" + postId;
+        if (bindingResult.hasErrors()) {
+            return "redirect:/post/detail/" + postId;
+        }
+
+        commentService.addComment(commentSaveRequestDto, postId, userDetail.getUsername());
+
+        return "redirect:/post/detail/" + postId;
     }
 
 

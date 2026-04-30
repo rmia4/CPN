@@ -52,14 +52,15 @@
 
               <div class="text-xs text-neutral-400 mt-2 flex gap-3">
                 <span th:text="${#temporals.format(post.createdAt, 'yyyy.MM.dd HH:mm')}"></span>
-                <span>댓글 ()</span>
+                  <span>댓글 (<span th:text="${post.commentList == null ? 0 : #lists.size(post.commentList)}">0</span>)</span>
+
               </div>
             </div>
           </div>
         </a>
       </div>
     </div>
-    <a href="/category/add/hello">hello카테고리생성 - 이거로 카테고리 만들고 테스트하심 됩니</a>
+    <a href="/category/add/hello">카테고리생성</a>
 
 
 

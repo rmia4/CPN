@@ -129,7 +129,7 @@ public class ModelTestController {
         List<PostModel> postList = postService.getAllPosts();
         model.addAttribute("postList",postList);
 
-        return "pages/postTest";
+        return "pages/postList";
     }
 
 //    @PostMapping("/post/add")
@@ -163,7 +163,7 @@ public class ModelTestController {
     public String postTestAddComment(@PathVariable("postId") Long postId,
                                      CommentSaveRequestDto commentSaveRequestDto,
                                      Model model){
-        commentService.addComment(commentSaveRequestDto,postId);   //로그인 옵션이 없어서 uesrId는 직접 입력으로
+        commentService.addComment(commentSaveRequestDto, postId, null);   //로그인 옵션이 없어서 userId 연결 전
 
         return "redirect:/test/model/post/detail/" + postId;
     }
@@ -179,4 +179,3 @@ public class ModelTestController {
 
 
 }
-
