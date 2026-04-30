@@ -316,6 +316,7 @@
                     category: formData.get('category'),
                     imageUrl: (file && file.size > 0) ? URL.createObjectURL(file) : null,
                 };
+
                 savedPins.push(pin);
                 renderPins();
 
