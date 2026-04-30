@@ -2,15 +2,9 @@
 <div th:replace="~{layout/layout :: layout(~{::content})}">
 
     <div th:fragment="content">
-        <button
-                class="px-6 py-3 font-semibold text-white rounded-xl
-  bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500
-  bg-[length:200%_200%]
-  transition-all duration-300
-  hover:animate-gradientFlow
-  hover:scale-105
-  shadow-lg hover:shadow-[0_0_25px_rgba(168,85,247,0.7)]">
-            🚀 AI ⭐
-        </button>
+
+
+
+        <div th:text="${api_key}"></div>
     </div>
 </div>
