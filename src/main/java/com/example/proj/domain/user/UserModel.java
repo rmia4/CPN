@@ -4,6 +4,7 @@ package com.example.proj.domain.user;
 import com.example.proj.domain.mapPin.MapPinModel;
 import com.example.proj.domain.notification.NotificationModel;
 import com.example.proj.domain.post.PostModel;
+import com.example.proj.domain.timeTable.TimeTableModel;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -51,6 +52,8 @@ public class UserModel {
     @OneToMany(mappedBy = "user",cascade = CascadeType.ALL, orphanRemoval = true)
     private List<MapPinModel>  mapPinList;
 
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<TimeTableModel>  timeTableList;
 
 
 }

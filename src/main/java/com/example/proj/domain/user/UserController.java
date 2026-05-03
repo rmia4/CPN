@@ -1,8 +1,10 @@
 package com.example.proj.domain.user;
 
 
+import com.example.proj.domain.user.login.CustomUserDetail;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -37,9 +39,9 @@ public class UserController {
     }
 
 
-    @GetMapping("/detail/{userId}")
-    public String userDetail(@PathVariable("userId") String userId, Model model){
-        model.addAttribute("user",userService.findByUserId(userId));
+    @GetMapping("/detail")
+    public String userDetail(@AuthenticationPrincipal CustomUserDetail userDetail, Model model){
+        model.addAttribute("user",userService.findByUserId(userDetail.getUsername()));
 
         return "";
     }

@@ -1,4 +1,4 @@
-package com.example.proj.domain.grok;
+package com.example.proj.common.config;
 
 import io.github.cdimascio.dotenv.Dotenv;
 import org.springframework.context.annotation.Bean;
