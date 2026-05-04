@@ -19,6 +19,7 @@ public class SecurityConfig {
                 //유저 상세 정보 같은거만 접근제어
 //                .requestMatchers("","").permitAll()
                 .requestMatchers("/admin/**").hasRole("ADMIN")
+                .requestMatchers("/timetable/**").hasRole("USER")
                 .anyRequest().permitAll()
         )
                 //로그인 폼 설정

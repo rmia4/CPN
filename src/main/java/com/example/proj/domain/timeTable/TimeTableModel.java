@@ -15,16 +15,16 @@ public class TimeTableModel {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column
+    @Column(nullable = false)
     private String title;
 
-    @Column
+    @Column(nullable = false, name = "day_of_week")
     private int day;
 
-    @Column
+    @Column(nullable = false)
     private int startTime;
 
-    @Column
+    @Column(nullable = false)
     private int endTime;
 
     @Column

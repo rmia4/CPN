@@ -2,114 +2,289 @@
 
     <div th:fragment="content">
         <!-- MAIN START -->
-<!--        <div class="relative max-w-[1200px] m-auto bg-white rounded-2xl shadow p-4 overflow-x-auto ">-->
-            <div class="relative max-w-[1200px] m-auto bg-white rounded-2xl shadow p-4 overflow-x-auto dark:bg-neutral-800 dark:border-neutral-700">
+        <!--        <div class="relative max-w-[1200px] m-auto bg-white rounded-2xl shadow p-4 overflow-x-auto ">-->
 
-            <div class="relative">
+        <div class="relative max-w-[1200px] m-auto bg-white rounded-2xl shadow p-4 overflow-x-auto dark:bg-neutral-800 dark:border-neutral-700">
+            <div id="loading-overlay"
+                 class="fixed inset-0 hidden z-50 flex items-center justify-center
+                        bg-white/30 dark:bg-black/30">
 
-            <!-- 배경 그리드 (반복이 많아서 js로 처리)-->
-<!--            <div -->
-<!--                id="timetable-grid" -->
-<!--                class="grid min-w-[800px] border"-->
-<!--                style="grid-template-columns: 60px repeat(5, 1fr)">-->
-<!--            </div>-->
-
-                <div id="timetable-grid"
-                     class="grid min-w-[800px] border-bg-white border-gray-200 dark:bg-neutral-800 dark:border-neutral-700"
-                     style="grid-template-columns: 60px repeat(5, 1fr)">
+                <div class="bg-gray-200 dark:bg-neutral-700
+                            text-gray-800 dark:text-gray-100
+                            px-6 py-3 rounded-lg shadow-lg text-sm font-semibold">
+                    저장 중...
                 </div>
 
-            <!-- 수업 레이어 (데이터 받아와서 처리해야하기에 js로 처리) -->
-            <div 
-                id="subject-layer" 
-                class="absolute"
-                style="
-                top: 32px;
-                left: 60px;
-                width: calc(100% - 60px);
-                height: calc(100% - 32px);
-                ">
             </div>
+            <div>
+                <!-- 추가 버튼 -->
+                <button onclick="openAddModal()"
+                        class="mb-4 px-4 py-2 bg-gray-700 text-white rounded">
+                    + 수업 추가
+                </button>
 
+                <!-- 수업 수정/추가 모달 -->
+                <div id="modal"
+                     class="fixed inset-0 bg-black/50 flex items-center justify-center hidden z-50">
+
+                    <div class="bg-white dark:bg-neutral-800 p-6 rounded-xl w-80 shadow-lg">
+                        <h2 id="modal-title" class="text-lg font-bold mb-4">수업 추가</h2>
+
+                        <form method="post" th:action="@{/timetable/add}">
+
+                            <input type="hidden" name="id" id="form-id">
+
+                            <input name="title" id="form-title" type="text" placeholder="과목명"
+                                   class="w-full mb-2 p-2 border rounded" required>
+
+                            <select name="day" id="form-day"
+                                    class="w-full mb-2 p-2 border rounded" required>
+                                <option value="" disabled selected hidden>요일 선택</option>
+                                <option th:each="i : ${#numbers.sequence(1,5)}"
+                                        th:value="${i}"
+                                        th:text="${i == 1 ? '월' :
+                                                   i == 2 ? '화' :
+                                                   i == 3 ? '수' :
+                                                   i == 4 ? '목' : '금'}">
+                                </option>
+                            </select>
+
+                            <select name="startTime" id="form-start"
+                                    class="w-full mb-2 p-2 border rounded" required>
+                                <option value="" disabled selected hidden>시작 시간 선택</option>
+                                <option th:each="hour : ${#numbers.sequence(9,18)}"
+                                        th:value="${hour}"
+                                        th:text="${hour + '시'}">
+                                </option>
+                            </select>
+
+                            <select name="endTime" id="form-end"
+                                    class="w-full mb-2 p-2 border rounded" required>
+                                <option value="" disabled selected hidden>종료 시간 선택</option>
+                                <option th:each="hour : ${#numbers.sequence(9,18)}"
+                                        th:value="${hour}"
+                                        th:text="${hour + '시'}">
+                                </option>
+                            </select>
+
+                            <input name="place" id="form-place" type="text" placeholder="수업장소"
+                                   class="w-full mb-4 p-2 border rounded">
+
+                            <div class="flex justify-end gap-2">
+                                <button type="button" onclick="closeModal()"
+                                        class="px-3 py-1 border rounded">
+                                    취소
+                                </button>
+                                <button type="submit"
+                                        class="px-3 py-1 bg-blue-500 text-white rounded">
+                                    저장
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- 수업 삭제 히든 폼 -->
+                <form id="delete-form" method="post" onsubmit="return false;" th:action="@{/timetable/delete}">
+                    <input type="hidden" name="id" id="delete-id">
+                </form>
             </div>
+            <div class="relative">
 
+                <!-- 시간표 그리드 -->
+                <div id="timetable"
+                     class="grid relative border-bg-white border-gray-200 dark:bg-neutral-800 dark:border-neutral-700"
+                     style="grid-template-columns: 60px repeat(5, 1fr);
+                            grid-template-rows: 32px repeat(9, 80px);">
+
+                    <!-- 헤더 -->
+                    <div class="flex border h-8 items-center justify-center">시간</div>
+                    <div class="flex border h-8 items-center justify-center">월</div>
+                    <div class="flex border h-8 items-center justify-center">화</div>
+                    <div class="flex border h-8 items-center justify-center">수</div>
+                    <div class="flex border h-8 items-center justify-center">목</div>
+                    <div class="flex border h-8 items-center justify-center">금</div>
+
+                    <!-- 시간 rows -->
+                    <th:block th:each="time : ${#numbers.sequence(9, 17)}">
+                        <div class="flex border items-center justify-center"
+                             th:text="${time}"></div>
+
+                        <th:block th:each="i : ${#numbers.sequence(1,5)}">
+                            <div class="border"></div>
+                        </th:block>
+                    </th:block>
+
+                    <!-- 수업 레이어 -->
+                    <div th:each="item : ${timeTable}"
+                         class="subject border rounded p-2 text-sm z-10"
+                         th:data-id="${item.id}"
+                         th:data-title="${item.title}"
+                         th:data-day="${item.day}"
+                         th:data-starttime="${item.startTime}"
+                         th:data-endtime="${item.endTime}"
+                         th:data-place="${item.place}"
+
+                         th:style="|
+            grid-column: ${item.day + 1};
+            grid-row: ${(item.startTime - 9) + 2} / ${(item.endTime - 9) + 2};
+            background-color: ${item.color};|
+         ">
+
+                        <div th:text="${item.title}"></div>
+                        <div class="text-xs text-gray-500" th:text="${item.place}"></div>
+
+                        <div class="flex justify-end gap-1 mt-2">
+                            <button type="button"
+                                    class="edit-btn text-xs px-2 py-1 bg-blue-500 text-white rounded">
+                                수정
+                            </button>
+                            <button type="button"
+                                    class="delete-btn text-xs px-2 py-1 bg-red-500 text-white rounded">
+                                삭제
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
+
+        <script>
+            //부드러운 랜더링을 위한 오버래이
+            const form = document.querySelector("#modal form");
+            const overlay = document.getElementById("loading-overlay");
+
+            form.addEventListener("submit", () => {
+                overlay.classList.remove("hidden");
+            });
+        </script>
         <script>
             // 더미 데이터
-            const timetable = [
-                { day: 1, start: 9, duration: 2, title: "웹프로그래밍", color:"blue" },
-                { day: 1, start: 11, duration: 1, title: "자료구조", color:"orange" },
-                { day: 2, start: 10, duration: 3, title: "데이터베이스", color:"red" },
-                { day: 3, start: 13, duration: 2, title: "운영체제", color:"violet" },
-                { day: 5, start: 9, duration: 1, title: "네트워크", color:"yellow" }
-            ];
+            // const palette = [
+            //     "#FADADD", // 연한 핑크
+            //     "#FFE5B4", // 살구
+            //     "#FFFACD", // 레몬 옐로우
+            //     "#E0F7FA", // 민트 블루
+            //     "#E6E6FA", // 라벤더
+            //     "#D8BFD8", // 연보라
+            //     "#F5F5DC", // 베이지
+            //     "#E0FFE0", // 연한 그린
+            //     "#F0FFF0", // 허니듀
+            //     "#FDFD96"  // 소프트 옐로우
+            // ];
+            // function getRandomPaletteColor() {
+            //     const index = Math.floor(Math.random() * palette.length);
+            //     return palette[index];
+            // }
+            // // 더미 데이터
+            // const timetable = [
+            //     { day: 1, startTime: 9, endTime:11, title: "웹프로그래밍", color:getRandomPaletteColor() },
+            //     { day: 1, startTime: 11, endTime: 12, title: "자료구조", color:getRandomPaletteColor() },
+            //     { day: 2, startTime: 10, endTime: 13, title: "데이터베이스", color:getRandomPaletteColor() },
+            //     { day: 3, startTime: 13, endTime: 15, title: "운영체제", color:getRandomPaletteColor() },
+            //     { day: 5, startTime: 9, endTime: 10, title: "네트워크", color:getRandomPaletteColor() }
+            // ];
+            function openModal() {
+                document.getElementById("modal").classList.remove("hidden");
+            }
 
-            // 그리드 만들기
-            function renderGrid(start = 9, end = 17) {
-                const grid = document.getElementById("timetable-grid");
+            function closeModal() {
+                document.getElementById("modal").classList.add("hidden");
+            }
 
-                // 초기화
-                grid.innerHTML = "";
+            function openAddModal() {
+                document.getElementById("modal-title").innerText = "수업 추가";
 
-                // 요일 헤더
-                const days = ["시간", "월", "화", "수", "목", "금"];
-                days.forEach(day => {
-                const div = document.createElement("div");
-                div.className = "flex border h-8 p-2 text-center font-semibold items-center justify-center";
-                div.textContent = day;
-                grid.appendChild(div);
-                });
+                document.getElementById("form-id").value = "";
+                document.getElementById("form-title").value = "";
+                document.getElementById("form-day").value = "";
+                document.getElementById("form-start").value = "";
+                document.getElementById("form-end").value = "";
+                document.getElementById("form-place").value = "";
 
-                // 시간 rows
-                for (let time = start; time <= end; time++) {
-                for (let col = 0; col < 6; col++) {
-                    const div = document.createElement("div");
+                openModal();
+            }
 
-                    if (col === 0) {
-                    div.className = "flex border h-20 text-center items-center justify-center";
-                    div.textContent = time;
-                    } else {
-                    div.className = "border h-20";
+            function openEditModal(id, title, day, startTime, endTime, place) {
+                document.getElementById("modal-title").innerText = "수업 수정";
+
+                document.getElementById("form-id").value = id;
+                document.getElementById("form-title").value = title;
+                document.getElementById("form-day").value = day;
+                document.getElementById("form-start").value = startTime;
+                document.getElementById("form-end").value = endTime;
+                document.getElementById("form-place").value = place;
+
+                openModal();
+            }
+
+            document.getElementById("timetable").addEventListener("click", (e) => {
+                const subject = e.target.closest(".subject");
+                if (!subject) return;
+
+                // 수정 버튼 클릭
+                if (e.target.classList.contains("edit-btn")) {
+                    e.stopPropagation();
+
+                    openEditModal(
+                        subject.dataset.id,
+                        subject.dataset.title,
+                        subject.dataset.day,
+                        subject.dataset.starttime,
+                        subject.dataset.endtime,
+                        subject.dataset.place
+                    );
+
+                    document.getElementById("form-day").value = subject.dataset.day;
+                    return;
+                }
+
+                // 삭제 버튼 클릭
+                if (e.target.classList.contains("delete-btn")) {
+                    e.stopPropagation();
+
+                    if (confirm("삭제할까요?")) {
+                        overlay.classList.remove("hidden");
+
+                        document.getElementById("delete-id").value = subject.dataset.id;
+                        document.getElementById("delete-form").submit();
                     }
-
-                    grid.appendChild(div);
+                    return;
                 }
-                }
-            }
 
-            function renderSubjects(data) {
-                const layer = document.getElementById("subject-layer");
-                layer.innerHTML = "";
+                // 그냥 수업 클릭 → 수정
+                openEditModal(
+                    subject.dataset.id,
+                    subject.dataset.title,
+                    subject.dataset.day,
+                    subject.dataset.starttime,
+                    subject.dataset.endtime,
+                    subject.dataset.place
+                );
+                document.getElementById("form-day").value = subject.dataset.day;
+            });
 
-                const cellHeight = 80; // h-20
-                const startTime = 9;
-                const colWidth = 100 / 5; // %
+            const startSelect = document.getElementById("form-start");
+            const endSelect = document.getElementById("form-end");
 
-                data.forEach(item => {
-                const div = document.createElement("div");
+            // 종료시간은 시작시간 이후만 선택 가능하도록 하는 리스너
+            startSelect.addEventListener("change", () => {
+                const start = Number(startSelect.value);
 
-                // 위치 계산
-                const top = (item.start - startTime) * cellHeight;
+                [...endSelect.options].forEach(option => {
+                    if (option.value === "") return; // placeholder 건너뜀
 
-                const left = (item.day-1) * colWidth;
+                    const value = Number(option.value);
 
-                const height = item.duration * cellHeight;
-
-                div.className = "absolute bg-blue-200 rounded p-2 text-sm shadow";
-
-                div.style.top = `${top}px`;
-                div.style.left = `${left}%`;
-                div.style.width = `${colWidth}%`;
-                div.style.height = `${height}px`;
-                div.style.backgroundColor = item.color;
-
-                div.textContent = item.title;
-
-                layer.appendChild(div);
+                    // 시작보다 작거나 같으면 비활성화
+                    option.disabled = value <= start;
                 });
-            }
-            renderSubjects(timetable);
-            renderGrid();
+
+                // 이미 선택된 end가 잘못된 경우 초기화
+                if (Number(endSelect.value) <= start) {
+                    endSelect.value = "";
+                }
+            });
         </script>
     </div>
 </div>

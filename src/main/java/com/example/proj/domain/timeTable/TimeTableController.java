@@ -10,6 +10,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
 
@@ -37,6 +38,13 @@ public class TimeTableController {
         List<TimeTableModel> timeTable= timeTableService.getAllTimeTable(userDetails.getUsername());
         model.addAttribute("timeTable",timeTable);
         return "pages/timetable";
+    }
+
+    @PostMapping("/delete")
+    public String deleteTimeTable(@RequestParam(name = "id") Long id, Model model){
+        timeTableService.deleteTimeTable(id);
+
+        return "redirect:/timetable/list";
     }
 
 }

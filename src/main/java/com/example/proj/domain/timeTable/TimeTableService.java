@@ -34,8 +34,8 @@ public class TimeTableService {
         timeTable.setStartTime(dto.getStartTime());
         timeTable.setEndTime(dto.getEndTime());
         timeTable.setPlace(dto.getPlace());
-        timeTable.setColor(dto.getColor());
-
+//        timeTable.setColor(dto.getColor());
+        timeTable.setColor("pink");
         UserModel user = userRepository.findByUserId(dto.getUserId());
         if(user == null){
             throw new IllegalArgumentException("존재하지 않는 유저: " +dto.getUserId());
@@ -48,6 +48,15 @@ public class TimeTableService {
 
     public List<TimeTableModel>  getAllTimeTable(String userId){
         return timeTableRepository.findAllByUser_userId(userId);
+    }
+
+    public void deleteTimeTable(Long id){
+        if(timeTableRepository.existsById(id)){
+            timeTableRepository.deleteById(id);
+        }
+        else{
+            throw new IllegalArgumentException("올바르지 않은 id" + id);
+        }
     }
 
 }

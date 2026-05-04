@@ -2,6 +2,7 @@ package com.example.proj.domain.timeTable;
 
 
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -10,16 +11,16 @@ import lombok.Setter;
 @Getter
 @Setter
 public class TimeTableUpdateDto {
-    @NotBlank
+    @NotBlank(message = "")
     private String title;
 
-    @NotBlank
+    @NotNull(message = "")
     private int day;
 
-    @NotBlank
+    @NotNull(message = "")
     private int startTime;
 
-    @NotBlank
+    @NotNull(message = "")
     private int endTime;
 
     private String place;
