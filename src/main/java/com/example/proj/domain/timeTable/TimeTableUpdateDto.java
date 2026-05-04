@@ -7,24 +7,19 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.List;
+
 @NoArgsConstructor
 @Getter
 @Setter
 public class TimeTableUpdateDto {
-    @NotBlank(message = "")
+    @NotBlank(message = "강의 제목 없음")
     private String title;
 
-    @NotNull(message = "")
-    private int day;
+    @NotBlank(message = "강의 시간정보 없음")
+    private List<TimeSlotModel> timeSlots;
 
-    @NotNull(message = "")
-    private int startTime;
-
-    @NotNull(message = "")
-    private int endTime;
-
-    private String place;
     private String color;
-    private String userId;
     private Long id;
+    private String userId;
 }

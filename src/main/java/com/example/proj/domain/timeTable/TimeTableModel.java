@@ -5,7 +5,9 @@ import com.example.proj.domain.user.UserModel;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
-import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 @Setter
@@ -18,24 +20,24 @@ public class TimeTableModel {
     @Column(nullable = false)
     private String title;
 
-    @Column(nullable = false, name = "day_of_week")
-    private int day;
-
-    @Column(nullable = false)
-    private int startTime;
-
-    @Column(nullable = false)
-    private int endTime;
-
-    @Column
-    private String place;
-
     @Column
     private String color;
+
+    @ElementCollection
+    @CollectionTable(name = "time_table_slot",joinColumns = @JoinColumn(name = "time_table_id"))
+    private List<TimeSlotModel> timeSlotModels = new ArrayList<>();
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(referencedColumnName = "userId", name = "userId")
     private UserModel user;
+
+    //데이터 추가를 위한 편의메서드
+    public void addTimeSlot(TimeSlotModel TimeSlotModel){
+        this.timeSlotModels.add(TimeSlotModel);
+    }
+    public void  removeTimeSlot(){
+        this.timeSlotModels.clear();
+    }
 
 
 }

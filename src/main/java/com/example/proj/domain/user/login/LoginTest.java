@@ -3,6 +3,9 @@ package com.example.proj.domain.user.login;
 
 import com.example.proj.domain.post.category.CategoryModel;
 import com.example.proj.domain.post.category.CategoryRepository;
+import com.example.proj.domain.timeTable.TimeSlotModel;
+import com.example.proj.domain.timeTable.TimeTableModel;
+import com.example.proj.domain.timeTable.TimeTableRepository;
 import com.example.proj.domain.user.UserModel;
 import com.example.proj.domain.user.UserRepository;
 import org.springframework.boot.CommandLineRunner;
@@ -15,11 +18,14 @@ public class LoginTest implements CommandLineRunner {
     private final UserRepository userRepository;
     private final CategoryRepository categoryRepository;
     private final PasswordEncoder passwordEncoder; // 주입
+    private final TimeTableRepository  timeTableRepository;
 
-    public LoginTest(UserRepository userRepository, PasswordEncoder passwordEncoder, CategoryRepository categoryRepository) {
+    public LoginTest(UserRepository userRepository, PasswordEncoder passwordEncoder,
+                     CategoryRepository categoryRepository,  TimeTableRepository timeTableRepository) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.categoryRepository = categoryRepository;
+        this.timeTableRepository = timeTableRepository;
     }
 
     @Override
@@ -55,6 +61,37 @@ public class LoginTest implements CommandLineRunner {
         String encodedPassword2 = passwordEncoder.encode(rawPassword2);
         user2.setPasswd(encodedPassword2);
         userRepository.save(user2);
+
+
+        //TimeTable 테스트용 더미데이터
+        TimeTableModel table = new TimeTableModel();
+        table.setColor("pink");
+        table.setTitle("일반물리학");
+        table.setUser(user2);
+        TimeSlotModel slot = new TimeSlotModel();
+        slot.setDay(3);
+        slot.setStartTime(5);
+        slot.setEndTime(8);
+        table.addTimeSlot(slot);
+        timeTableRepository.save(table);
+
+        TimeTableModel table2 = new TimeTableModel();
+        table2.setColor("green");
+        table2.setTitle("소프트웨어 공학");
+        table2.setUser(user2);
+        TimeSlotModel slot2 = new TimeSlotModel();
+        slot2.setDay(1);
+        slot2.setStartTime(1);
+        slot2.setEndTime(2);
+        slot2.setPlace("319호");
+        table2.addTimeSlot(slot2);
+        TimeSlotModel slot3 = new TimeSlotModel();
+        slot3.setDay(2);
+        slot3.setStartTime(3);
+        slot3.setEndTime(5);
+        table2.addTimeSlot(slot3);
+        timeTableRepository.save(table2);
+
 
 
 
