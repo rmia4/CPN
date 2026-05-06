@@ -2,6 +2,7 @@ package com.example.proj.domain.timeTable;
 
 
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -16,7 +17,7 @@ public class TimeTableUpdateDto {
     @NotBlank(message = "강의 제목 없음")
     private String title;
 
-    @NotBlank(message = "강의 시간정보 없음")
+    @NotEmpty(message = "강의 시간정보 없음")
     private List<TimeSlotModel> timeSlots;
 
     private String color;
