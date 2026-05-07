@@ -18,7 +18,10 @@ import org.springframework.security.web.SecurityFilterChain;
 public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http.authorizeHttpRequests(auth -> auth
+        http.csrf(csrf -> csrf
+                .ignoringRequestMatchers("/grok/chat", "/grok/outfit-check")
+        )
+                .authorizeHttpRequests(auth -> auth
                 //url 권한 설정
                 //유저 상세 정보 같은거만 접근제어
 //                .requestMatchers("","").permitAll()
