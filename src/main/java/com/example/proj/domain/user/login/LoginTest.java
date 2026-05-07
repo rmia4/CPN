@@ -8,6 +8,7 @@ import com.example.proj.domain.timeTable.TimeTableModel;
 import com.example.proj.domain.timeTable.TimeTableRepository;
 import com.example.proj.domain.user.UserModel;
 import com.example.proj.domain.user.UserRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
@@ -29,6 +30,7 @@ public class LoginTest implements CommandLineRunner {
     }
 
     @Override
+    @Transactional
     public void run(String... args) throws Exception {
         CategoryModel testCategory = new CategoryModel();
         testCategory.setCategoryName("test");

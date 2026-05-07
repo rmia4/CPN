@@ -34,7 +34,7 @@ public class TimeTableController {
         return "redirect:/timetable/list";
     }
 
-    @GetMapping("/list")
+    @GetMapping("")
     public String listTimeTable(@AuthenticationPrincipal UserDetails userDetails, Model model){
         List<TimeTableModel> timeTable= timeTableService.getAllTimeTable(userDetails.getUsername());
         model.addAttribute("timeTable",timeTable);
