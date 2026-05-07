@@ -72,8 +72,8 @@ public class LoginTest implements CommandLineRunner {
         table.setUser(user2);
         TimeSlotModel slot = new TimeSlotModel();
         slot.setDay(3);
-        slot.setStartTime(5);
-        slot.setEndTime(8);
+        slot.setStartTime(13);
+        slot.setEndTime(16);
         table.addTimeSlot(slot);
         timeTableRepository.save(table);
 
@@ -83,14 +83,14 @@ public class LoginTest implements CommandLineRunner {
         table2.setUser(user2);
         TimeSlotModel slot2 = new TimeSlotModel();
         slot2.setDay(1);
-        slot2.setStartTime(1);
-        slot2.setEndTime(2);
+        slot2.setStartTime(9);
+        slot2.setEndTime(10);
         slot2.setPlace("319호");
         table2.addTimeSlot(slot2);
         TimeSlotModel slot3 = new TimeSlotModel();
         slot3.setDay(2);
-        slot3.setStartTime(3);
-        slot3.setEndTime(5);
+        slot3.setStartTime(11);
+        slot3.setEndTime(13);
         table2.addTimeSlot(slot3);
         timeTableRepository.save(table2);
 

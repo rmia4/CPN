@@ -185,6 +185,7 @@
             function openEditModal(data) {
                 // 초기화
                 resetForm();
+                document.getElementById("modal-title").innerText = "수업 수정";
 
                 // 기본 정보
                 document.getElementById("form-id").value = data.id;
@@ -198,13 +199,25 @@
 
                     const currentSlot = container.lastElementChild;
 
-                    currentSlot.querySelector('[name*="day"]').value = slot.day;
-                    currentSlot.querySelector('[name*="startTime"]').value = slot.startTime;
-                    currentSlot.querySelector('[name*="endTime"]').value = slot.endTime;
+                    setSelectValue(currentSlot.querySelector('[name*="day"]'), slot.day, slot.day + "요일");
+                    setSelectValue(currentSlot.querySelector('[name*="startTime"]'), slot.startTime, slot.startTime + "시");
+                    setSelectValue(currentSlot.querySelector('[name*="endTime"]'), slot.endTime, slot.endTime + "시");
                     currentSlot.querySelector('[name*="place"]').value = slot.place;
                 });
 
                 openModal();
+            }
+
+            function setSelectValue(select, value, label) {
+                const stringValue = String(value ?? "");
+                if (!stringValue) return;
+
+                const hasOption = [...select.options].some(option => option.value === stringValue);
+                if (!hasOption) {
+                    select.add(new Option(label, stringValue));
+                }
+
+                select.value = stringValue;
             }
 
             function addTimeSlot() {
