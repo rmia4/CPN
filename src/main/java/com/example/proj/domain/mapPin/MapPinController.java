@@ -2,6 +2,8 @@ package com.example.proj.domain.mapPin;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -17,9 +19,12 @@ public class MapPinController {
 
     @PostMapping("/add")
     public String addMapPin(@Valid MapPinSaveRequestDto mapPinSaveRequestDto,
+                          @AuthenticationPrincipal UserDetails userDetails,
                           BindingResult bindingResult, Model model) {
+        //TODO:bindingResult 예외처리
 //        if (bindingResult.hasErrors()) {
 //        }
+        mapPinSaveRequestDto.setUserId(userDetails.getUsername());
         mapPinService.addMapPin(mapPinSaveRequestDto);
 
         return "";
@@ -33,8 +38,8 @@ public class MapPinController {
     }
 
     @GetMapping("/list")
-    public String listMapPins(Model model) {
-        model.addAttribute("mapPinList",mapPinService.findAllMapPin());
+    public String listMapPins(Model model,@RequestParam(name = "tag")String tag) {
+        model.addAttribute("mapPinList",mapPinService.findAllMapPinByTagName(tag));
 
         return "";
     }

@@ -1,5 +1,6 @@
 package com.example.proj.domain.mapPin;
 
+import com.example.proj.domain.post.File.ImageModel;
 import com.example.proj.domain.user.UserModel;
 import jakarta.persistence.*;
 import lombok.Data;
@@ -26,10 +27,17 @@ public class MapPinModel {
     private String tag;
 
 
+
+
     //TODO: nullable = false로 변경해야함
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(referencedColumnName = "userId",name = "userId",nullable = true)
+    @JoinColumn(referencedColumnName = "userId",name = "userId",nullable = false)
     private UserModel user;
+
+    //TODO:이미지는 나중에
+//    @ManyToOne(fetch = FetchType.LAZY)
+//    @JoinColumn(referencedColumnName = "mapPin", name = "mapPin",nullable = true)
+//    private ImageModel image;
 
 
 }

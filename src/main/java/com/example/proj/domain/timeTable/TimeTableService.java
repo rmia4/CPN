@@ -53,10 +53,10 @@ public class TimeTableService {
             slot.setStartTime(dto.getTimeSlots().get(i).getStartTime());
             slot.setEndTime(dto.getTimeSlots().get(i).getEndTime());
 
-            if(dto.getTimeSlots().get(i).getPlace()!=null){
-                slot.setPlace(dto.getTimeSlots().get(i).getPlace());
+            String place = dto.getTimeSlots().get(i).getPlace();
+            if(place!=null){
+                slot.setPlace(place);
             }
-
             timeTable.addTimeSlot(slot);
         }
         UserModel user = userRepository.findByUserId(dto.getUserId());
