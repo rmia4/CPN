@@ -15,16 +15,12 @@
                         전체
                     </button>
 
-                    <button class="filter-btn px-3 py-1 text-sm rounded-full text-gray-600" data-type="lost">
-                        분실
+                    <button class="filter-btn px-3 py-1 text-sm rounded-full text-gray-600" data-type="분실물">
+                        분실물
                     </button>
 
-                    <button class="filter-btn px-3 py-1 text-sm rounded-full text-gray-600" data-type="found">
-                        보관
-                    </button>
-
-                    <button class="filter-btn px-3 py-1 text-sm rounded-full text-gray-600" data-type="matching">
-                        공강
+                    <button class="filter-btn px-3 py-1 text-sm rounded-full text-gray-600" data-type="밥친구">
+                        밥친구
                     </button>
 
                 </div>
@@ -49,6 +45,7 @@
                 <div class="card-body">
                     <img id="detailImage" alt="핀 이미지" style="display:none;" class="w-full max-h-64 object-cover rounded-lg mb-3"/>
                     <p id="detailDescription" class="text-muted small mb-3"></p>
+                    <a id="detailPostLink" href="#" class="btn btn-dark btn-sm w-100">게시글 보기</a>
                     <!-- is_owner 미구현 (로그인 기능 추가 후 활성화) -->
                     <!-- <button id="detailDeleteBtn" class="btn btn-danger btn-sm w-100">삭제</button> -->
                 </div>
@@ -70,18 +67,18 @@
                                     <label class="form-label">카테고리</label>
                                     <div class="d-flex gap-3">
                                         <div class="form-check">
-                                            <input class="form-check-input" type="radio" name="category" id="lost" value="lost" checked>
+                                            <input class="form-check-input" type="radio" name="category" id="lost" value="분실물" checked>
                                             <label class="form-check-label" for="lost">잃어버렸어요</label>
                                         </div>
 
                                         <div class="form-check">
-                                            <input class="form-check-input" type="radio" name="category" id="found" value="found">
+                                            <input class="form-check-input" type="radio" name="category" id="found" value="분실물">
                                             <label class="form-check-label" for="found">찾아가세요</label>
                                         </div>
 
                                         <div class="form-check">
-                                            <input class="form-check-input" type="radio" name="category" id="matching" value="matching">
-                                            <label class="form-check-label" for="matching">공강 같이 보내요</label>
+                                            <input class="form-check-input" type="radio" name="category" id="matching" value="밥친구">
+                                            <label class="form-check-label" for="matching">밥 같이 먹어요</label>
                                         </div>
                                     </div>
                                 </div>
@@ -91,7 +88,7 @@
                                 </div>
                                 <div class="mb-3">
                                     <label class="form-label" for="description">설명</label>
-                                    <textarea id="description" name="description" class="form-control" rows="3"></textarea>
+                                    <textarea id="description" name="description" class="form-control" rows="3" required></textarea>
                                 </div>
                                 <div class="mb-3">
                                     <label class="form-label">사진</label>
@@ -150,7 +147,7 @@
             const PIN_DELETE_URL = '/mapPin/';
             const API_KEY = 'xuA0v0EToS2lTlJCTmm2d6cUkKnihnZA8UO140xt';
             const CSRF_TOKEN = null; // TODO: Spring Security 추가 시 설정
-            let savedPins = /*[[${mapPinList}]]*/ [];
+            let savedPins = /*[[${postPinList}]]*/ [];
             if (!Array.isArray(savedPins)) {
                 savedPins = [];
             }
@@ -202,9 +199,8 @@
 
                 // 3. 카테고리 라벨
                 const categoryLabel = {
-                    lost: '[분실] ',
-                    found: '[보관] ',
-                    matching: '[공강] '
+                    "분실물": '[분실물] ',
+                    "밥친구": '[밥친구] '
                 };
 
                 // 4. 다시 생성
@@ -230,6 +226,7 @@
             function showDetail(pin) {
                 document.getElementById('detailName').textContent = pin.title;
                 document.getElementById('detailDescription').textContent = pin.description || '';
+                document.getElementById('detailPostLink').href = `/post/detail/${pin.id}`;
 
                 const img = document.getElementById('detailImage');
 
@@ -304,63 +301,34 @@
 
                 const formData = new FormData(this);
 
-                // 임시 프론트에서 저장
-                const file = formData.get('image');
+                fetch(PIN_ADD_URL, {
+                    method: 'POST',
+                    body: formData,
+                })
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('저장 실패');
+                        }
+                        return response.json();
+                    })
+                    .then(pin => {
+                        savedPins.push(pin);
+                        renderPins();
 
-                const pin = {
-                    id: Date.now(),
-                    lat: formData.get('lat'),
-                    lon: formData.get('lon'),
-                    title: formData.get('title'),
-                    description: formData.get('description'),
-                    category: formData.get('category'),
-                    imageUrl: (file && file.size > 0) ? URL.createObjectURL(file) : null,
-                };
+                        const currentFilter = getCurrentFilter();
 
-                savedPins.push(pin);
-                renderPins();
+                        if (currentFilter === 'all' || currentFilter === pin.category) {
+                            showToast('게시글 핀 추가됨');
+                        } else {
+                            showToast('현재 필터에서는 보이지 않습니다');
+                        }
 
-                const currentFilter = getCurrentFilter();
-
-                if (currentFilter === 'all' || currentFilter === pin.category) {
-                    showToast('핀 추가됨');
-                } else {
-                    showToast('현재 필터에서는 보이지 않습니다');
-                }
-
-                pinModal.hide();
-                resetImageInput();
-
-                // 서버에 저장 요청
-                // fetch(PIN_ADD_URL, {
-                //     method: 'POST',
-                //     body: formData,
-                // })
-                //     .then(r => r.json())
-                //     .then(pin => {
-                //
-                //         // 1. 데이터만 추가
-                //         savedPins.push(pin);
-                //
-                //         // 2. 화면은 한 번에 렌더
-                //         renderPins();
-                //
-                //         // 3. 토스트만 조건 처리
-                //         const currentFilter = getCurrentFilter();
-                //
-                //         if (currentFilter === 'all' || currentFilter === pin.category) {
-                //             showToast('핀 추가됨');
-                //         } else {
-                //             showToast('현재 필터에서는 보이지 않습니다');
-                //         }
-                //
-                //         // 4. 모달 닫기
-                //         pinModal.hide();
-                //         resetImageInput();
-                //     })
-                //     .catch(err => {
-                //         showToast('저장 실패');
-                //     });
+                        pinModal.hide();
+                        resetImageInput();
+                    })
+                    .catch(() => {
+                        showToast('저장 실패');
+                    });
             });
 
             // 핀 삭제

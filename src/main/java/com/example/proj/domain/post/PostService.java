@@ -20,7 +20,7 @@ public class PostService {
     private final UserRepository userRepository;
     private final CategoryRepository categoryRepository;
 
-    public void addPost(PostSaveRequestDto postDto, List<String> imagePaths) {
+    public PostModel addPost(PostSaveRequestDto postDto, List<String> imagePaths) {
         PostModel post =  new PostModel();
         post.setTitle(postDto.getTitle());
         post.setContent(postDto.getContent());
@@ -30,10 +30,7 @@ public class PostService {
 
 
         // ✅ 카테고리
-        CategoryModel category = categoryRepository.findByCategoryName(postDto.getCategory());
-        if (category == null) {
-            throw new IllegalArgumentException("존재하지 않는 카테고리: " + postDto.getCategory());
-        }
+        CategoryModel category = getOrCreateCategory(postDto.getCategory());
         post.setCategory(category);
 
 
@@ -56,7 +53,7 @@ public class PostService {
         post.setImages(imageList);
         System.out.println("category: " + postDto.getCategory());
         System.out.println("userId: " + postDto.getUserId());
-        postRepository.save(post);
+        return postRepository.save(post);
     }
 
     public List<PostModel> getAllPosts() {
@@ -78,6 +75,21 @@ public class PostService {
         List<PostModel> postList = postRepository.findAllByCategory_categoryName(category);
         return postList;
 
+    }
+
+    public List<PostModel> getLocatedPosts() {
+        return postRepository.findDistinctByLatIsNotNullAndLonIsNotNull();
+    }
+
+    private CategoryModel getOrCreateCategory(String categoryName) {
+        CategoryModel category = categoryRepository.findByCategoryName(categoryName);
+        if (category != null) {
+            return category;
+        }
+
+        CategoryModel newCategory = new CategoryModel();
+        newCategory.setCategoryName(categoryName);
+        return categoryRepository.save(newCategory);
     }
 
 

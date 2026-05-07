@@ -38,9 +38,25 @@
           <div class="flex gap-2 overflow-x-auto mt-2 snap-x snap-mandatory">
             <div th:each="img : ${post.images}" class="flex-shrink-0 snap-start">
               <img th:src="@{${img.imageUrl}}"
-                   class="w-24 h-24 object-cover rounded-lg border"/>
+                   class="object-cover rounded-lg border"
+                   style="width: 220px; height: 220px; max-width: 100%;"/>
             </div>
           </div>
+
+          <section th:if="${post.lat != null and post.lon != null}"
+                   class="mt-5 border-t pt-4">
+            <div class="mb-2 flex items-center justify-between gap-3">
+              <h2 class="text-sm font-semibold">대략적인 위치</h2>
+              <span class="text-xs text-neutral-400"
+                    th:text="|${post.lat}, ${post.lon}|"></span>
+            </div>
+            <div id="postLocationMap"
+                 class="border bg-neutral-100"
+                 th:data-lat="${post.lat}"
+                 th:data-lon="${post.lon}"
+                 th:data-title="${post.title}"
+                 style="width: 50%; height: 240px; min-width: 280px; max-width: 100%; border-radius: 8px;"></div>
+          </section>
         </div>
 
         <!-- 댓글 -->
@@ -86,6 +102,55 @@
         </section>
       </div>
 
+      <script th:if="${post.lat != null and post.lon != null}">
+        (() => {
+          let initialized = false;
+
+          function renderPostLocationMap() {
+            if (initialized || !window.Tmapv2) return false;
+
+            const mapElement = document.getElementById("postLocationMap");
+            if (!mapElement) return false;
+
+            const postLat = Number(mapElement.dataset.lat);
+            const postLon = Number(mapElement.dataset.lon);
+            if (!Number.isFinite(postLat) || !Number.isFinite(postLon)) return false;
+
+            const center = new Tmapv2.LatLng(postLat, postLon);
+            const map = new Tmapv2.Map("postLocationMap", {
+              center,
+              width: "100%",
+              height: "240px",
+              zoom: 16
+            });
+
+            new Tmapv2.Marker({
+              position: center,
+              title: mapElement.dataset.title || "게시글 위치",
+              map
+            });
+
+            initialized = true;
+            return true;
+          }
+
+          window.initPostLocationMap = function () {
+            let count = 0;
+            const timer = setInterval(() => {
+              count += 1;
+              if (renderPostLocationMap() || count >= 20) {
+                clearInterval(timer);
+              }
+            }, 150);
+          };
+
+          window.addEventListener("load", window.initPostLocationMap);
+        })();
+      </script>
+      <script th:if="${post.lat != null and post.lon != null}"
+              src="https://apis.openapi.sk.com/tmap/jsv2?version=1&appKey=xuA0v0EToS2lTlJCTmm2d6cUkKnihnZA8UO140xt"
+              onload="window.initPostLocationMap && window.initPostLocationMap()"></script>
+      </script>
       <script>
         // URL에서 id 가져오기
         const params = new URLSearchParams(window.location.search);

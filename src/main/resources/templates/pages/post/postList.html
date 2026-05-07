@@ -32,7 +32,7 @@
       <div id="postList" class="flex flex-col gap-4">
         <a th:each="post: ${postList}" th:href="@{/post/detail/{id}(id=${post.id})}"> <!-- 타임리프 링크 생성 문법 @{URL(param)} -->
           <div class="flex gap-4 p-4 border rounded-xl hover:bg-neutral-50 transition cursor-pointer">
-            <div class="w-16 h-16 bg-neutral-200 rounded-lg flex-shrink-0">
+            <div class="bg-neutral-200 rounded-lg flex-shrink-0" style="width: 96px; height: 96px;">
 <!--              첫 번째 이미지만 표시-->
               <img th:if="${post.images != null and !#lists.isEmpty(post.images)}"
                    th:src="@{${post.images[0].imageUrl}}"

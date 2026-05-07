@@ -65,7 +65,7 @@ public class ModelTestController {
 
     @GetMapping("/mapPin")
     public String mapPinList(Model model){
-        return "pages/map/mapPinView";
+        return "redirect:/mapPin";
 
     }
 
