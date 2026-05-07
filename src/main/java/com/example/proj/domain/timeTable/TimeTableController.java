@@ -21,6 +21,7 @@ public class TimeTableController {
     private final TimeTableService timeTableService;
 
 
+    //update
     @PostMapping("/add")
     public String addTimeTable(@Valid TimeTableUpdateDto dto, BindingResult bindingResult,
                                @AuthenticationPrincipal UserDetails userDetails, Model model) {

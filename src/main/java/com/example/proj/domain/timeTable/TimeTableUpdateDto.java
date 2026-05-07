@@ -13,10 +13,10 @@ import java.util.List;
 @Getter
 @Setter
 public class TimeTableUpdateDto {
-    @NotBlank(message = "강의 제목 없음")
+    @NotNull(message = "강의 제목 없음")
     private String title;
 
-    @NotBlank(message = "강의 시간정보 없음")
+    @NotNull(message = "강의 시간정보 없음")
     private List<TimeSlotModel> timeSlots;
 
     private String color;

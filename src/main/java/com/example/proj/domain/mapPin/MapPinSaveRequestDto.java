@@ -12,7 +12,7 @@ import lombok.Setter;
 public class MapPinSaveRequestDto {
 
 
-    //한국이나 tMap 지원범위로 크기 제한
+    //TODO:한국이나 tMap 지원범위로 크기 제한
 //    @Min(123)
     @NotBlank(message = "좌표값은 필수")
     private Float lon;
@@ -25,7 +25,8 @@ public class MapPinSaveRequestDto {
     private String description;
 
     private String tag;
-    
-    
+    private String userId;
+
+
 
 }
