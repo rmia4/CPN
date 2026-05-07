@@ -28,8 +28,8 @@ public class MainController {
         return "pages/home";
     }
 
-    @GetMapping("/timetable")
-    public String timetable() { return "pages/timetable"; }
+//    @GetMapping("/timetable")
+//    public String timetable() { return "pages/timetable"; }
 
     @GetMapping("/login")
     public String login() {

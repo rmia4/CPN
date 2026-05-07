@@ -31,7 +31,7 @@ public class TimeTableController {
         if(bindingResult.hasErrors()){
         }
         timeTableService.updateTimeTable(dto);
-        return "redirect:/timetable/list";
+        return "redirect:/timetable";
     }
 
     @GetMapping("")
@@ -45,7 +45,7 @@ public class TimeTableController {
     public String deleteTimeTable(@RequestParam(name = "id") Long id, Model model){
         timeTableService.deleteTimeTable(id);
 
-        return "redirect:/timetable/list";
+        return "redirect:/timetable";
     }
 
 }
