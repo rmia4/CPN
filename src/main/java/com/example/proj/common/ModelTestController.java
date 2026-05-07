@@ -153,7 +153,7 @@ public class ModelTestController {
 
     @PostMapping("post/delete/{id}")
     public String postTestDelete(@PathVariable("id") Long id){
-        postService.deletePostById(id);
+        postService.deletePostByIdForTest(id);
 
         return "redirect:/test/model/postTest";
     }

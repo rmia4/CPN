@@ -68,19 +68,21 @@
                                     <div class="d-flex gap-3">
                                         <div class="form-check">
                                             <input class="form-check-input" type="radio" name="category" id="lost" value="분실물" checked>
-                                            <label class="form-check-label" for="lost">잃어버렸어요</label>
+                                            <label class="form-check-label" for="lost">분실물</label>
                                         </div>
 
                                         <div class="form-check">
-                                            <input class="form-check-input" type="radio" name="category" id="found" value="분실물">
-                                            <label class="form-check-label" for="found">찾아가세요</label>
-                                        </div>
-
-                                        <div class="form-check">
-                                            <input class="form-check-input" type="radio" name="category" id="matching" value="밥친구">
-                                            <label class="form-check-label" for="matching">밥 같이 먹어요</label>
+                                            <input class="form-check-input" type="radio" name="category" id="meal" value="밥친구">
+                                            <label class="form-check-label" for="meal">밥친구</label>
                                         </div>
                                     </div>
+                                </div>
+                                <div class="mb-3" id="lostTypeBox">
+                                    <label class="form-label" for="lostType">분실물 유형</label>
+                                    <select id="lostType" class="form-select">
+                                        <option value="분실했어요">분실했어요</option>
+                                        <option value="습득했어요">습득했어요</option>
+                                    </select>
                                 </div>
                                 <div class="mb-3">
                                     <label class="form-label" for="title">제목 <span class="text-danger">*</span></label>
@@ -156,6 +158,10 @@
             const preview = document.getElementById("preview");
             const fileInput = document.getElementById("fileInput");
             const cameraInput = document.getElementById("cameraInput");
+            const pinTitleInput = document.getElementById("title");
+            const categoryRadios = document.querySelectorAll('input[name="category"]');
+            const lostTypeBox = document.getElementById("lostTypeBox");
+            const lostTypeSelect = document.getElementById("lostType");
 
             /* =========================
                2. 초기화
@@ -178,6 +184,8 @@
                     document.getElementById('pinForm').reset();
                     document.getElementById('pinLat').value = clickedLatLng.lat();
                     document.getElementById('pinLng').value = clickedLatLng.lng();
+                    updateLostTypeVisibility();
+                    syncTitlePrefix();
                     pinModal.show();
                 });
 
@@ -292,6 +300,47 @@
                 return document.querySelector('.filter-btn.bg-blue-500')?.dataset.type || 'all';
             }
 
+            function getSelectedPinCategory() {
+                return document.querySelector('input[name="category"]:checked')?.value || '분실물';
+            }
+
+            function removeTitlePrefix(title) {
+                const value = String(title || '');
+
+                if (value.startsWith('[분실했어요]')) {
+                    return value.substring('[분실했어요]'.length).trimStart();
+                }
+
+                if (value.startsWith('[습득했어요]')) {
+                    return value.substring('[습득했어요]'.length).trimStart();
+                }
+
+                if (value.startsWith('[밥친구]')) {
+                    return value.substring('[밥친구]'.length).trimStart();
+                }
+
+                return value.trimStart();
+            }
+
+            function getTitlePrefix() {
+                const category = getSelectedPinCategory();
+                if (category === '분실물') {
+                    return `[${lostTypeSelect.value}]`;
+                }
+
+                return "";
+            }
+
+            function updateLostTypeVisibility() {
+                lostTypeBox.style.display = getSelectedPinCategory() === '분실물' ? 'block' : 'none';
+            }
+
+            function syncTitlePrefix() {
+                const content = removeTitlePrefix(pinTitleInput.value);
+                const prefix = getTitlePrefix();
+                pinTitleInput.value = prefix ? `${prefix} ${content}`.trimEnd() : content;
+            }
+
             /* =========================
                6. 이벤트
             ========================= */
@@ -300,6 +349,14 @@
                 e.preventDefault();
 
                 const formData = new FormData(this);
+                const title = removeTitlePrefix(formData.get('title'));
+                const prefix = getTitlePrefix();
+
+                if (title && prefix) {
+                    formData.set('title', `${prefix} ${title}`);
+                } else {
+                    formData.set('title', title);
+                }
 
                 fetch(PIN_ADD_URL, {
                     method: 'POST',
@@ -370,6 +427,17 @@
             cameraInput.addEventListener("change", function () {
                 handleImage(this);
             });
+
+            categoryRadios.forEach(radio => {
+                radio.addEventListener("change", () => {
+                    updateLostTypeVisibility();
+                    syncTitlePrefix();
+                });
+            });
+
+            lostTypeSelect.addEventListener("change", syncTitlePrefix);
+            pinTitleInput.addEventListener("focus", syncTitlePrefix);
+            updateLostTypeVisibility();
         </script>
 
         <!-- TODO: tmapApiKey를 application.properties에 설정 후 th:src로 교체 -->

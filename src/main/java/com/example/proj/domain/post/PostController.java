@@ -74,19 +74,61 @@ public class PostController {
 
 
     @GetMapping("/detail/{id}")
-    public String postDetail(@PathVariable("id") Long id, Model model) {
+    public String postDetail(@PathVariable("id") Long id,
+                             @AuthenticationPrincipal CustomUserDetail userDetail,
+                             Model model) {
         PostModel post = postService.getPostById(id);
         model.addAttribute("post", post);
+        model.addAttribute("isOwner", isOwner(post, userDetail));
 
         List<CommentModel> commentList = commentService.findAllByPostId(id);
         model.addAttribute("commentList", commentList);
         return "pages/post/postDetail";
     }
 
+    @GetMapping("/edit/{id}")
+    public String editForm(@PathVariable("id") Long id,
+                           @AuthenticationPrincipal CustomUserDetail userDetail,
+                           Model model) {
+        PostModel post = postService.getPostById(id);
+        if (!isOwner(post, userDetail)) {
+            return "redirect:/post/detail/" + id;
+        }
+
+        model.addAttribute("post", post);
+        model.addAttribute("categoryList", categoryService.findAll());
+        return "pages/post/postEdit";
+    }
+
+    @PostMapping("/edit/{id}")
+    public String postEdit(@PathVariable("id") Long id,
+                           @Valid PostUpdateRequestDto postUpdateRequestDto,
+                           BindingResult bindingResult,
+                           @AuthenticationPrincipal CustomUserDetail userDetail,
+                           Model model) {
+        if (userDetail == null) {
+            return "redirect:/login";
+        }
+
+        if (bindingResult.hasErrors()) {
+            model.addAttribute("post", postService.getPostById(id));
+            model.addAttribute("categoryList", categoryService.findAll());
+            return "pages/post/postEdit";
+        }
+
+        postService.updatePost(id, postUpdateRequestDto, userDetail.getUsername());
+
+        return "redirect:/post/detail/" + id;
+    }
 
     @PostMapping("/delete")
-    public String postDelete(@RequestParam("postId") Long postId) {
-        postService.deletePostById(postId);
+    public String postDelete(@RequestParam("postId") Long postId,
+                             @AuthenticationPrincipal CustomUserDetail userDetail) {
+        if (userDetail == null) {
+            return "redirect:/login";
+        }
+
+        postService.deletePostById(postId, userDetail.getUsername());
         return "redirect:/post/list";
     }
 
@@ -117,6 +159,14 @@ public class PostController {
     }
 
 
+
+
+    private boolean isOwner(PostModel post, CustomUserDetail userDetail) {
+        return userDetail != null
+                && post != null
+                && post.getUser() != null
+                && post.getUser().getUserId().equals(userDetail.getUsername());
+    }
 
 
 }

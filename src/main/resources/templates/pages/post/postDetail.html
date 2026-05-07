@@ -30,6 +30,21 @@
             <span>댓글 <span th:text="${#lists.size(commentList)}"></span></span>
             <span th:text="${post.user.userId}"></span>
           </div>
+
+          <div th:if="${isOwner}" class="mb-4 flex justify-end gap-2 border-y border-neutral-200 py-3 dark:border-neutral-700">
+            <a th:href="@{/post/edit/{id}(id=${post.id})}"
+               class="inline-flex h-9 items-center justify-center rounded-full border border-neutral-300 px-4 text-sm font-semibold text-neutral-700 transition hover:bg-neutral-100 dark:border-neutral-600 dark:text-neutral-100 dark:hover:bg-neutral-800">
+              수정
+            </a>
+            <form th:action="@{/post/delete}" method="post" onsubmit="return confirm('게시글을 삭제할까요?');" class="m-0">
+              <input type="hidden" name="postId" th:value="${post.id}">
+              <button type="submit"
+                      class="inline-flex h-9 items-center justify-center rounded-full border border-red-200 bg-red-50 px-4 text-sm font-semibold text-red-600 transition hover:bg-red-100 dark:border-red-900 dark:bg-red-950 dark:text-red-300 dark:hover:bg-red-900">
+                삭제
+              </button>
+            </form>
+          </div>
+
           <!-- content -->
           <div th:text="${post.content}"
                class="text-sm leading-relaxed whitespace-pre-line">

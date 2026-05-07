@@ -66,8 +66,25 @@ public class PostService {
         return postRepository.findPostById(id);
 
     }
-    public void  deletePostById(Long id) {
-        //여기도 예외처리 해야함
+
+    public void updatePost(Long id, PostUpdateRequestDto dto, String userId) {
+        PostModel post = getEditablePost(id, userId);
+
+        post.setTitle(dto.getTitle().trim());
+        post.setContent(dto.getContent().trim());
+        post.setCategory(getOrCreateCategory(dto.getCategory()));
+        post.setLon(dto.getLon());
+        post.setLat(dto.getLat());
+
+        postRepository.save(post);
+    }
+
+    public void deletePostById(Long id, String userId) {
+        getEditablePost(id, userId);
+        postRepository.deleteById(id);
+    }
+
+    public void deletePostByIdForTest(Long id) {
         postRepository.deleteById(id);
     }
 
@@ -90,6 +107,19 @@ public class PostService {
         CategoryModel newCategory = new CategoryModel();
         newCategory.setCategoryName(categoryName);
         return categoryRepository.save(newCategory);
+    }
+
+    private PostModel getEditablePost(Long id, String userId) {
+        PostModel post = postRepository.findPostById(id);
+        if (post == null) {
+            throw new IllegalArgumentException("존재하지 않는 게시글: " + id);
+        }
+
+        if (post.getUser() == null || !post.getUser().getUserId().equals(userId)) {
+            throw new IllegalStateException("게시글 작성자만 수정 또는 삭제할 수 있습니다.");
+        }
+
+        return post;
     }
 
 

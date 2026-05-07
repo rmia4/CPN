@@ -1,8 +1,297 @@
 <div th:replace="~{layout/layout :: layout(~{::content})}">
-
     <div th:fragment="content">
-        <h1>홈 화면</h1>
-        <p>내용입니다</p>
+        <style>
+            .campus-map {
+                background:
+                        linear-gradient(90deg, rgba(23, 23, 23, 0.06) 1px, transparent 1px),
+                        linear-gradient(rgba(23, 23, 23, 0.06) 1px, transparent 1px),
+                        radial-gradient(circle at 28% 28%, rgba(16, 185, 129, 0.22), transparent 24%),
+                        radial-gradient(circle at 68% 36%, rgba(59, 130, 246, 0.20), transparent 22%),
+                        linear-gradient(135deg, #f8fafc, #eef2ff 55%, #ecfeff);
+                background-size: 42px 42px, 42px 42px, auto, auto, auto;
+            }
+
+            html.dark .campus-map {
+                background:
+                        linear-gradient(90deg, rgba(245, 245, 245, 0.06) 1px, transparent 1px),
+                        linear-gradient(rgba(245, 245, 245, 0.06) 1px, transparent 1px),
+                        radial-gradient(circle at 28% 28%, rgba(16, 185, 129, 0.16), transparent 24%),
+                        radial-gradient(circle at 68% 36%, rgba(59, 130, 246, 0.16), transparent 22%),
+                        linear-gradient(135deg, #171717, #262626 60%, #111827);
+                background-size: 42px 42px, 42px 42px, auto, auto, auto;
+            }
+
+            .campus-road {
+                position: absolute;
+                height: 10px;
+                border-radius: 999px;
+                background: rgba(64, 64, 64, 0.14);
+                transform-origin: left center;
+            }
+
+            html.dark .campus-road {
+                background: rgba(245, 245, 245, 0.16);
+            }
+
+            .campus-pin {
+                position: absolute;
+                width: 18px;
+                height: 18px;
+                border-radius: 999px;
+                border: 3px solid white;
+                box-shadow: 0 12px 30px rgba(0, 0, 0, 0.22);
+            }
+
+            .campus-pin::after {
+                content: "";
+                position: absolute;
+                inset: -12px;
+                border: 1px solid currentColor;
+                border-radius: 999px;
+                opacity: 0.35;
+            }
+        </style>
+
+        <main class="overflow-hidden">
+            <section class="relative min-h-[calc(100vh-4rem)] border-b border-neutral-200 dark:border-neutral-700">
+                <div class="mx-auto grid max-w-7xl gap-8 px-4 py-10 lg:grid-cols-[0.9fr_1.1fr] lg:items-center lg:py-16">
+                    <div class="max-w-2xl">
+                        <p class="text-sm font-semibold text-neutral-500 dark:text-neutral-300">Campus Pin Network</p>
+                        <h1 class="mt-3 text-4xl font-black leading-tight text-neutral-950 dark:text-neutral-100 md:text-6xl">
+                            캠퍼스의 순간을 지도 위 게시글로 연결합니다
+                        </h1>
+                        <p class="mt-5 text-base leading-7 text-neutral-600 dark:text-neutral-300">
+                            CPN은 분실물, 밥친구, 캠퍼스 정보처럼 위치가 중요한 이야기를 지도 핀과 게시판으로 함께 다루는 캠퍼스 커뮤니티입니다.
+                        </p>
+
+                        <div class="mt-7 flex flex-wrap gap-3">
+                            <a href="/mapPin"
+                               class="inline-flex items-center justify-center bg-neutral-950 px-5 py-3 text-sm font-bold text-white hover:bg-neutral-800">
+                                지도에서 시작하기
+                            </a>
+                            <a href="/post/list"
+                               class="inline-flex items-center justify-center border border-neutral-300 px-5 py-3 text-sm font-bold text-neutral-800 hover:bg-neutral-100 dark:border-neutral-600 dark:text-neutral-100 dark:hover:bg-neutral-800">
+                                게시글 둘러보기
+                            </a>
+                        </div>
+
+                        <div class="mt-8 grid max-w-xl grid-cols-3 border border-neutral-200 dark:border-neutral-700">
+                            <div class="border-r border-neutral-200 p-4 dark:border-neutral-700">
+                                <p class="home-count text-2xl font-black text-neutral-950 dark:text-neutral-100" data-count="2">0</p>
+                                <p class="mt-1 text-xs text-neutral-500 dark:text-neutral-300">지도 카테고리</p>
+                            </div>
+                            <div class="border-r border-neutral-200 p-4 dark:border-neutral-700">
+                                <p class="home-count text-2xl font-black text-neutral-950 dark:text-neutral-100" data-count="4">0</p>
+                                <p class="mt-1 text-xs text-neutral-500 dark:text-neutral-300">핵심 기능</p>
+                            </div>
+                            <div class="p-4">
+                                <p class="home-count text-2xl font-black text-neutral-950 dark:text-neutral-100" data-count="1">0</p>
+                                <p class="mt-1 text-xs text-neutral-500 dark:text-neutral-300">통합 게시판</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="home-visual relative">
+                        <div class="campus-map relative h-[520px] overflow-hidden border border-neutral-200 shadow-2xl dark:border-neutral-700">
+                            <div class="campus-road left-[8%] top-[25%] w-[72%] rotate-[12deg]"></div>
+                            <div class="campus-road left-[18%] top-[64%] w-[62%] -rotate-[18deg]"></div>
+                            <div class="campus-road left-[44%] top-[12%] h-[72%] w-[10px] rotate-[8deg]"></div>
+
+                            <div class="absolute left-[8%] top-[10%] border border-neutral-200 bg-white/85 p-3 text-xs font-semibold text-neutral-700 shadow dark:border-neutral-700 dark:bg-neutral-900/85 dark:text-neutral-200">
+                                지도 기반 게시글
+                            </div>
+
+                            <button class="campus-pin home-pin bg-red-500 text-red-500" style="left: 62%; top: 28%;" type="button" data-card="lost"></button>
+                            <button class="campus-pin home-pin bg-emerald-500 text-emerald-500" style="left: 34%; top: 56%;" type="button" data-card="meal"></button>
+                            <button class="campus-pin home-pin bg-blue-500 text-blue-500" style="left: 76%; top: 68%;" type="button" data-card="ai"></button>
+
+                            <div id="homePinCard"
+                                 class="absolute bottom-5 left-5 right-5 border border-neutral-200 bg-white p-4 shadow-xl dark:border-neutral-700 dark:bg-neutral-900">
+                                <div class="flex items-start justify-between gap-4">
+                                    <div>
+                                        <p id="pinCardCategory" class="text-xs font-bold text-neutral-500 dark:text-neutral-300">분실물</p>
+                                        <h2 id="pinCardTitle" class="mt-1 text-lg font-black text-neutral-950 dark:text-neutral-100">학생회관 앞 카드지갑</h2>
+                                        <p id="pinCardText" class="mt-2 text-sm leading-6 text-neutral-600 dark:text-neutral-300">
+                                            지도에서 위치를 찍으면 게시글로 저장되고, 다른 사용자는 핀을 눌러 상세 글을 확인할 수 있습니다.
+                                        </p>
+                                    </div>
+                                    <a href="/mapPin"
+                                       class="shrink-0 bg-neutral-950 px-3 py-2 text-xs font-bold text-white hover:bg-neutral-800">
+                                        열기
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="mx-auto max-w-7xl px-4 py-14">
+                <div class="mb-7 flex flex-col justify-between gap-3 sm:flex-row sm:items-end">
+                    <div>
+                        <p class="text-sm font-semibold text-neutral-500 dark:text-neutral-300">What CPN Does</p>
+                        <h2 class="mt-2 text-3xl font-black text-neutral-950 dark:text-neutral-100">프로젝트 핵심 기능</h2>
+                    </div>
+                    <p class="max-w-xl text-sm leading-6 text-neutral-500 dark:text-neutral-300">
+                        지도, 게시판, 시간표, 날씨 기반 추천을 한 프로젝트 안에서 연결해 캠퍼스 생활 흐름을 다룹니다.
+                    </p>
+                </div>
+
+                <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+                    <a href="/mapPin" class="feature-card block border border-neutral-200 bg-white p-5 hover:-translate-y-1 hover:shadow-lg dark:border-neutral-700 dark:bg-neutral-800">
+                        <p class="text-xs font-bold text-neutral-500 dark:text-neutral-300">01</p>
+                        <h3 class="mt-4 text-lg font-black text-neutral-950 dark:text-neutral-100">캠퍼스 핀</h3>
+                        <p class="mt-2 text-sm leading-6 text-neutral-600 dark:text-neutral-300">
+                            지도에서 위치를 찍어 분실물과 밥친구 게시글을 바로 생성합니다.
+                        </p>
+                    </a>
+                    <a href="/post/list" class="feature-card block border border-neutral-200 bg-white p-5 hover:-translate-y-1 hover:shadow-lg dark:border-neutral-700 dark:bg-neutral-800">
+                        <p class="text-xs font-bold text-neutral-500 dark:text-neutral-300">02</p>
+                        <h3 class="mt-4 text-lg font-black text-neutral-950 dark:text-neutral-100">게시판</h3>
+                        <p class="mt-2 text-sm leading-6 text-neutral-600 dark:text-neutral-300">
+                            위치가 있는 글은 상세 페이지에서 대략적인 지도를 함께 확인합니다.
+                        </p>
+                    </a>
+                    <a href="/timetable" class="feature-card block border border-neutral-200 bg-white p-5 hover:-translate-y-1 hover:shadow-lg dark:border-neutral-700 dark:bg-neutral-800">
+                        <p class="text-xs font-bold text-neutral-500 dark:text-neutral-300">03</p>
+                        <h3 class="mt-4 text-lg font-black text-neutral-950 dark:text-neutral-100">시간표</h3>
+                        <p class="mt-2 text-sm leading-6 text-neutral-600 dark:text-neutral-300">
+                            로그인 사용자별 시간표를 추가하고 수정하며 캠퍼스 일정을 관리합니다.
+                        </p>
+                    </a>
+                    <a href="/grok" class="feature-card block border border-neutral-200 bg-white p-5 hover:-translate-y-1 hover:shadow-lg dark:border-neutral-700 dark:bg-neutral-800">
+                        <p class="text-xs font-bold text-neutral-500 dark:text-neutral-300">04</p>
+                        <h3 class="mt-4 text-lg font-black text-neutral-950 dark:text-neutral-100">날씨 의상 추천</h3>
+                        <p class="mt-2 text-sm leading-6 text-neutral-600 dark:text-neutral-300">
+                            오늘 날씨와 사용자 정보를 바탕으로 캠퍼스에 맞는 옷차림을 추천합니다.
+                        </p>
+                    </a>
+                </div>
+            </section>
+
+            <section class="border-y border-neutral-200 bg-neutral-50 dark:border-neutral-700 dark:bg-neutral-900">
+                <div class="mx-auto grid max-w-7xl gap-8 px-4 py-14 lg:grid-cols-[0.8fr_1.2fr]">
+                    <div>
+                        <p class="text-sm font-semibold text-neutral-500 dark:text-neutral-300">Flow</p>
+                        <h2 class="mt-2 text-3xl font-black text-neutral-950 dark:text-neutral-100">사용 흐름</h2>
+                        <p class="mt-4 text-sm leading-6 text-neutral-600 dark:text-neutral-300">
+                            CPN의 중심은 지도에서 시작해 게시글로 이어지는 짧은 동선입니다.
+                        </p>
+                    </div>
+                    <div class="grid gap-3">
+                        <div class="flow-row flex items-center gap-4 border border-neutral-200 bg-white p-4 dark:border-neutral-700 dark:bg-neutral-800">
+                            <span class="flex h-9 w-9 items-center justify-center bg-neutral-950 text-sm font-black text-white">1</span>
+                            <p class="text-sm font-semibold text-neutral-800 dark:text-neutral-100">지도에서 캠퍼스 위치를 선택합니다.</p>
+                        </div>
+                        <div class="flow-row flex items-center gap-4 border border-neutral-200 bg-white p-4 dark:border-neutral-700 dark:bg-neutral-800">
+                            <span class="flex h-9 w-9 items-center justify-center bg-neutral-950 text-sm font-black text-white">2</span>
+                            <p class="text-sm font-semibold text-neutral-800 dark:text-neutral-100">분실물 또는 밥친구 카테고리로 게시글을 저장합니다.</p>
+                        </div>
+                        <div class="flow-row flex items-center gap-4 border border-neutral-200 bg-white p-4 dark:border-neutral-700 dark:bg-neutral-800">
+                            <span class="flex h-9 w-9 items-center justify-center bg-neutral-950 text-sm font-black text-white">3</span>
+                            <p class="text-sm font-semibold text-neutral-800 dark:text-neutral-100">지도와 게시판에서 같은 글을 확인하고 댓글로 소통합니다.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <script src="https://cdn.jsdelivr.net/npm/animejs@3.2.2/lib/anime.min.js"></script>
+        <script>
+            window.addEventListener("DOMContentLoaded", () => {
+                if (!window.anime) return;
+
+                anime({
+                    targets: ".home-visual",
+                    translateY: [28, 0],
+                    opacity: [0, 1],
+                    duration: 900,
+                    easing: "easeOutExpo"
+                });
+
+                anime({
+                    targets: ".home-pin",
+                    scale: [0.7, 1],
+                    opacity: [0, 1],
+                    delay: anime.stagger(160, {start: 450}),
+                    duration: 700,
+                    easing: "easeOutBack"
+                });
+
+                anime({
+                    targets: ".feature-card",
+                    translateY: [18, 0],
+                    opacity: [0, 1],
+                    delay: anime.stagger(90, {start: 250}),
+                    duration: 700,
+                    easing: "easeOutCubic"
+                });
+
+                anime({
+                    targets: ".flow-row",
+                    translateX: [24, 0],
+                    opacity: [0, 1],
+                    delay: anime.stagger(100, {start: 300}),
+                    duration: 700,
+                    easing: "easeOutCubic"
+                });
+
+                document.querySelectorAll(".home-count").forEach((el) => {
+                    anime({
+                        targets: el,
+                        innerHTML: [0, Number(el.dataset.count || 0)],
+                        round: 1,
+                        duration: 900,
+                        easing: "easeOutExpo"
+                    });
+                });
+
+                const cardData = {
+                    lost: {
+                        category: "분실물",
+                        title: "학생회관 앞 카드지갑",
+                        text: "잃어버린 물건과 찾아가야 할 물건을 위치 기반 게시글로 남깁니다."
+                    },
+                    meal: {
+                        category: "밥친구",
+                        title: "정문 근처 점심 모집",
+                        text: "밥친구 글도 위치와 함께 저장되어 만날 장소를 바로 확인할 수 있습니다."
+                    },
+                    ai: {
+                        category: "AI 추천",
+                        title: "비 오는 날 캠퍼스룩",
+                        text: "날씨와 사용자 정보를 바탕으로 오늘 입기 좋은 의상을 추천합니다."
+                    }
+                };
+
+                document.querySelectorAll(".home-pin").forEach((pin) => {
+                    pin.addEventListener("click", () => {
+                        const data = cardData[pin.dataset.card];
+                        if (!data) return;
+
+                        document.getElementById("pinCardCategory").textContent = data.category;
+                        document.getElementById("pinCardTitle").textContent = data.title;
+                        document.getElementById("pinCardText").textContent = data.text;
+
+                        anime({
+                            targets: "#homePinCard",
+                            translateY: [10, 0],
+                            opacity: [0.65, 1],
+                            duration: 360,
+                            easing: "easeOutCubic"
+                        });
+                    });
+                });
+
+                anime({
+                    targets: ".home-pin",
+                    translateY: [0, -6, 0],
+                    delay: anime.stagger(220),
+                    loop: true,
+                    duration: 1800,
+                    easing: "easeInOutSine"
+                });
+            });
+        </script>
     </div>
-2
 </div>
