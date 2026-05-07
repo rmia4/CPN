@@ -26,7 +26,7 @@ public class GrokService {
     private final ObjectMapper objectMapper;
     private final RestTemplate restTemplate = new RestTemplate();
 
-    public OutfitRecommendation recommendOutfit(String message, String weatherSummary) {
+    public OutfitRecommendation recommendOutfit(String message, String weatherSummary, String gender) {
         String apiKey = dotenv.get("GROQ_API_KEY");
         if (apiKey == null || apiKey.isBlank()) {
             throw new IllegalStateException("GROQ_API_KEY가 설정되어 있지 않습니다.");
@@ -35,6 +35,8 @@ public class GrokService {
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(apiKey);
         headers.setContentType(MediaType.APPLICATION_JSON);
+
+        String userProfile = buildUserProfile(gender);
 
         Map<String, Object> body = Map.of(
                 "model", "llama-3.3-70b-versatile",
@@ -55,7 +57,9 @@ public class GrokService {
                         ),
                         Map.of(
                                 "role", "user",
-                                "content", "오늘 날씨 정보:\n" + weatherSummary + "\n\n사용자 요청:\n" + message
+                                "content", "오늘 날씨 정보:\n" + weatherSummary
+                                        + "\n\n사용자 정보:\n" + userProfile
+                                        + "\n\n사용자 요청:\n" + message
                         )
                 )
         );
@@ -82,6 +86,14 @@ public class GrokService {
         }
 
         return parseRecommendation(content.asText());
+    }
+
+    private String buildUserProfile(String gender) {
+        if (gender == null || gender.isBlank()) {
+            return "성별 정보 없음";
+        }
+
+        return "성별: " + gender.trim();
     }
 
     public String checkOutfitImage(MultipartFile image, String weatherSummary) {

@@ -28,9 +28,9 @@
                             class="inline-flex items-center justify-center px-4 py-2 min-w-[88px] text-sm font-semibold text-white
               bg-neutral-950 hover:bg-neutral-800 active:scale-95 transition-colors duration-150 rounded-lg">login</a>
                     <div sec:authorize="isAuthenticated()" class="flex items-center gap-2">
-                        <span
+                        <a href="/user/detail"
                                 sec:authentication="principal.userModel.userName"
-                                class="max-w-[120px] truncate text-sm font-semibold text-neutral-800"></span>
+                                class="max-w-[120px] truncate text-sm font-semibold text-neutral-800 hover:text-neutral-950 hover:underline dark:text-neutral-100 dark:hover:text-white"></a>
                         <form th:action="@{/logout}" method="post" class="m-0">
                             <button
                                     type="submit"

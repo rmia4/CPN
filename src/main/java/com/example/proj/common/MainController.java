@@ -25,7 +25,7 @@ public class MainController {
 
     @GetMapping("/")
     public String home() {
-        return "pages/home";
+        return "pages/home/home";
     }
 
 //    @GetMapping("/timetable")
@@ -33,7 +33,7 @@ public class MainController {
 
     @GetMapping("/login")
     public String login() {
-        return "pages/login";
+        return "pages/auth/login";
     }
 
     @GetMapping("/admin")
@@ -43,6 +43,6 @@ public class MainController {
         UserModel user = userDetail.getUserModel();
         model.addAttribute("user", user);
 
-        return "pages/adminTest";
+        return "pages/admin/adminTest";
     }
 }

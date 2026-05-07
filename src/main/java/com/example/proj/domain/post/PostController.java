@@ -35,7 +35,7 @@ public class PostController {
         List<PostModel> postList = postService.getAllPosts();
         model.addAttribute("postList", postList);
         model.addAttribute("categoryList", categoryService.findAll());
-        return "pages/postList";
+        return "pages/post/postList";
     }
     //카테고리에 맞는 게시글 검색
     @GetMapping("/list/{category}")
@@ -43,7 +43,7 @@ public class PostController {
         model.addAttribute("postList",postService.getPostsByCategory(category));
         model.addAttribute("categoryList", categoryService.findAll());
 
-        return "pages/postList";
+        return "pages/post/postList";
     }
 
 
@@ -51,7 +51,7 @@ public class PostController {
     public String addForm(Model model)
     {
         model.addAttribute("categoryList", categoryService.findAll());
-        return "pages/postAdd";
+        return "pages/post/postAdd";
     }
 
 
@@ -62,7 +62,7 @@ public class PostController {
                               Model model) throws IOException {
         postSaveRequestDto.setUserId(userDetail.getUsername());
         if (bindingResult.hasErrors()) {
-            return "pages/postAdd";
+            return "pages/post/postAdd";
         }
         // 이미지 저장
         List<String> imagePaths = fileService.saveFiles(files);
@@ -80,7 +80,7 @@ public class PostController {
 
         List<CommentModel> commentList = commentService.findAllByPostId(id);
         model.addAttribute("commentList", commentList);
-        return "pages/postDetail";
+        return "pages/post/postDetail";
     }
 
 

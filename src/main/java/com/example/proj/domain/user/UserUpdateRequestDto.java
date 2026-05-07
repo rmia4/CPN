@@ -8,11 +8,7 @@ import lombok.Setter;
 @NoArgsConstructor
 @Getter
 @Setter
-public class UserSaveRequestDto {
-    //
-    @NotBlank(message = "유저아이디 없음")
-    private String userId;
-
+public class UserUpdateRequestDto {
     @NotBlank(message = "유저 이름 없음")
     private String userName;
 
@@ -20,8 +16,7 @@ public class UserSaveRequestDto {
     private String userNumber;
 
     private String gender;
-
-    @NotBlank(message = "passwd")
-    private String passwd;
-
+    private String style1;
+    private String style2;
+    private String style3;
 }

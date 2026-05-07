@@ -3,8 +3,10 @@ package com.example.proj.domain.grok;
 
 import com.example.proj.domain.grok.weather.WeatherRequestDto;
 import com.example.proj.domain.grok.weather.WeatherService;
+import com.example.proj.domain.user.login.CustomUserDetail;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -45,16 +47,20 @@ public class GrokController {
     }
 
     @PostMapping("/grok/chat")
-    public ResponseEntity<GrokChatResponse> chat(@RequestBody GrokChatRequest request) {
+    public ResponseEntity<GrokChatResponse> chat(@RequestBody GrokChatRequest request,
+                                                 @AuthenticationPrincipal CustomUserDetail userDetail) {
         String message = request.message() == null || request.message().isBlank()
                 ? "오늘 날씨에 맞는 기본 의상을 추천해줘"
                 : request.message();
         String weatherSummary = request.weatherSummary() == null || request.weatherSummary().isBlank()
                 ? "날씨 정보가 없습니다."
                 : request.weatherSummary();
+        String gender = userDetail == null || userDetail.getUserModel() == null
+                ? null
+                : userDetail.getUserModel().getGender();
 
         try {
-            GrokService.OutfitRecommendation recommendation = grokService.recommendOutfit(message, weatherSummary);
+            GrokService.OutfitRecommendation recommendation = grokService.recommendOutfit(message, weatherSummary, gender);
             return ResponseEntity.ok(new GrokChatResponse(
                     recommendation.answer(),
                     naverShoppingService.searchImages(recommendation.shoppingKeyword(), 6)

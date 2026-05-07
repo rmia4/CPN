@@ -28,6 +28,9 @@ public class UserModel {
     private String userNumber;
 
     @Column
+    private String gender;
+
+    @Column
     private String role;
 
     @Column(nullable = false)
@@ -57,4 +60,3 @@ public class UserModel {
 
 
 }
-

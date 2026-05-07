@@ -38,7 +38,7 @@ public class TimeTableController {
     public String listTimeTable(@AuthenticationPrincipal UserDetails userDetails, Model model){
         List<TimeTableModel> timeTable= timeTableService.getAllTimeTable(userDetails.getUsername());
         model.addAttribute("timeTable",timeTable);
-        return "pages/timetable";
+        return "pages/timeTable/timetable";
     }
 
     @PostMapping("/delete")

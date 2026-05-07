@@ -36,7 +36,7 @@ public class ModelTestController {
     @GetMapping("/modelTest")
     public String modelTest() {
 
-        return "pages/modelTest";
+        return "pages/test/modelTest";
     }
 
 
@@ -48,7 +48,7 @@ public class ModelTestController {
         List<UserModel> userList = userService.findAll();
 
         model.addAttribute("userList",userList);
-        return "pages/userView";
+        return "pages/user/userView";
 
     }
 
@@ -60,12 +60,12 @@ public class ModelTestController {
         List<NotificationModel> list = notificationService.findAll();
         model.addAttribute("notificationList",list);
 
-        return "pages/notificationView";
+        return "pages/notification/notificationView";
     }
 
     @GetMapping("/mapPin")
     public String mapPinList(Model model){
-        return "pages/mapPinView";
+        return "pages/map/mapPinView";
 
     }
 
@@ -78,7 +78,7 @@ public class ModelTestController {
         List<MapPinModel> pinList = mapPinService.findAllMapPin();
         model.addAttribute("mapPinList",pinList);
 
-        return "modelView/mapPinView";
+        return "pages/map/mapPinView";
     }
 
 
@@ -108,17 +108,17 @@ public class ModelTestController {
         if(type.equals("user")){
             List<UserModel> userList = userService.findAll();
             model.addAttribute("userList",userList);
-            return "pages/userView";
+            return "pages/user/userView";
         }
         else if(type.equals("notification")){
             List<NotificationModel> notificationList = notificationService.findAll();
             model.addAttribute("notificationList",notificationList);
-            return "pages/notificationView";
+            return "pages/notification/notificationView";
         }
         else if(type.equals("mapPin")){
             List<MapPinModel> mapPinList = mapPinService.findAllMapPin();
             model.addAttribute("mapPinList",mapPinList);
-            return "pages/mapPinView";
+            return "pages/map/mapPinView";
 
         }
         return "redirect:/test/model/modelTest";
@@ -129,7 +129,7 @@ public class ModelTestController {
         List<PostModel> postList = postService.getAllPosts();
         model.addAttribute("postList",postList);
 
-        return "pages/postList";
+        return "pages/post/postList";
     }
 
 //    @PostMapping("/post/add")
@@ -148,7 +148,7 @@ public class ModelTestController {
         List<CommentModel> commentList = commentService.findAllByPostId(id);
         model.addAttribute("commentList",commentList);
 
-        return "pages/postDetail";
+        return "pages/post/postDetail";
     }
 
     @PostMapping("post/delete/{id}")

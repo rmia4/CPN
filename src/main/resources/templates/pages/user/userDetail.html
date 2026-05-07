@@ -1,0 +1,94 @@
+<div th:replace="~{layout/layout :: layout(~{::content})}">
+    <div th:fragment="content">
+        <main class="mx-auto max-w-3xl px-4 py-8">
+            <section class="mb-6">
+                <p class="text-sm font-semibold text-neutral-500">My Page</p>
+                <h1 class="mt-1 text-2xl font-bold text-neutral-950 dark:text-neutral-100">사용자 정보</h1>
+                <p class="mt-2 text-sm text-neutral-500 dark:text-neutral-300">
+                    로그인한 계정의 기본 정보를 확인하고 수정합니다.
+                </p>
+            </section>
+
+            <section class="border border-neutral-200 bg-white p-5 dark:border-neutral-700 dark:bg-neutral-800">
+                <div class="mb-5 grid gap-3 text-sm sm:grid-cols-2">
+                    <div class="border border-neutral-200 p-3 dark:border-neutral-700 dark:bg-neutral-900">
+                        <p class="text-xs text-neutral-500 dark:text-neutral-300">아이디</p>
+                        <p class="mt-1 font-semibold text-neutral-900 dark:text-neutral-100" th:text="${user.userId}">user01</p>
+                    </div>
+                    <div class="border border-neutral-200 p-3 dark:border-neutral-700 dark:bg-neutral-900">
+                        <p class="text-xs text-neutral-500 dark:text-neutral-300">권한</p>
+                        <p class="mt-1 font-semibold text-neutral-900 dark:text-neutral-100" th:text="${user.role}">ROLE_USER</p>
+                    </div>
+                </div>
+
+                <form th:action="@{/user/detail}" method="post" class="space-y-4">
+                    <div>
+                        <label for="userName" class="mb-1 block text-sm font-semibold text-neutral-700 dark:text-neutral-200">이름</label>
+                        <input id="userName"
+                               name="userName"
+                               type="text"
+                               th:value="${user.userName}"
+                               class="w-full border border-neutral-200 px-3 py-2 text-sm dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-100"
+                               required>
+                    </div>
+
+                    <div>
+                        <label for="userNumber" class="mb-1 block text-sm font-semibold text-neutral-700 dark:text-neutral-200">학번</label>
+                        <input id="userNumber"
+                               name="userNumber"
+                               type="text"
+                               th:value="${user.userNumber}"
+                               class="w-full border border-neutral-200 px-3 py-2 text-sm dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-100"
+                               required>
+                    </div>
+
+                    <div>
+                        <label for="gender" class="mb-1 block text-sm font-semibold text-neutral-700 dark:text-neutral-200">성별</label>
+                        <select id="gender"
+                                name="gender"
+                                class="w-full border border-neutral-200 px-3 py-2 text-sm dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-100">
+                            <option value="" th:selected="${user.gender == null || user.gender == ''}">선택 안함</option>
+                            <option value="남성" th:selected="${user.gender == '남성'}">남성</option>
+                            <option value="여성" th:selected="${user.gender == '여성'}">여성</option>
+                            <option value="기타" th:selected="${user.gender == '기타'}">기타</option>
+                        </select>
+                    </div>
+
+                    <div class="grid gap-3 sm:grid-cols-3">
+                        <div>
+                            <label for="style1" class="mb-1 block text-sm font-semibold text-neutral-700 dark:text-neutral-200">스타일 1</label>
+                            <input id="style1"
+                                   name="style1"
+                                   type="text"
+                                   th:value="${user.style1}"
+                                   class="w-full border border-neutral-200 px-3 py-2 text-sm dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-100">
+                        </div>
+                        <div>
+                            <label for="style2" class="mb-1 block text-sm font-semibold text-neutral-700 dark:text-neutral-200">스타일 2</label>
+                            <input id="style2"
+                                   name="style2"
+                                   type="text"
+                                   th:value="${user.style2}"
+                                   class="w-full border border-neutral-200 px-3 py-2 text-sm dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-100">
+                        </div>
+                        <div>
+                            <label for="style3" class="mb-1 block text-sm font-semibold text-neutral-700 dark:text-neutral-200">스타일 3</label>
+                            <input id="style3"
+                                   name="style3"
+                                   type="text"
+                                   th:value="${user.style3}"
+                                   class="w-full border border-neutral-200 px-3 py-2 text-sm dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-100">
+                        </div>
+                    </div>
+
+                    <div class="flex justify-end">
+                        <button type="submit"
+                                class="px-4 py-2 text-sm font-semibold text-white bg-neutral-950 hover:bg-neutral-800">
+                            수정 저장
+                        </button>
+                    </div>
+                </form>
+            </section>
+        </main>
+    </div>
+</div>

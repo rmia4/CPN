@@ -22,6 +22,7 @@ public class UserService implements UserDetailsService {
         user.setUserId(userSaveRequestDto.getUserId());
         user.setUserName(userSaveRequestDto.getUserName());
         user.setUserNumber(userSaveRequestDto.getUserNumber());
+        user.setGender(userSaveRequestDto.getGender());
         user.setPasswd(passwordEncoder.encode(userSaveRequestDto.getPasswd()));
         //TODO:관리자 계정은 어떻게 만들지 정하기
         user.setRole("ROLE_USER");
@@ -60,6 +61,26 @@ public class UserService implements UserDetailsService {
         return userRepository.findByUserId(userId);
     }
 
+    public UserModel updateUser(String userId, UserUpdateRequestDto dto) {
+        UserModel user = userRepository.findByUserId(userId);
+        if (user == null) {
+            throw new IllegalArgumentException("존재하지 않는 유저: " + userId);
+        }
+
+        user.setUserName(dto.getUserName().trim());
+        user.setUserNumber(dto.getUserNumber().trim());
+        user.setGender(blankToNull(dto.getGender()));
+        user.setStyle1(blankToNull(dto.getStyle1()));
+        user.setStyle2(blankToNull(dto.getStyle2()));
+        user.setStyle3(blankToNull(dto.getStyle3()));
+
+        return userRepository.save(user);
+    }
+
+    private String blankToNull(String value) {
+        return value == null || value.isBlank() ? null : value.trim();
+    }
+
     //spring security에서 자동호출하는 메서드 구현
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
@@ -70,8 +91,6 @@ public class UserService implements UserDetailsService {
         return new CustomUserDetail(user);
     }
 }
-
-
 
 
 
