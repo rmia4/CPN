@@ -7,9 +7,9 @@
             role="navigation"
             aria-label="Main navigation"
     >
-        <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div class="mx-auto w-full px-4 sm:px-6 lg:px-8 bg-white/80 backdrop-blur-md rounded-b-lg shadow-md">
             <div class="flex h-16 items-center justify-between md:h-18">
-                
+
                 <!-- Logo -->
                 <a
                         class="relative z-50 flex items-center gap-2 text-xl font-extrabold"
@@ -20,27 +20,6 @@
               CPN
             </span>
                 </a>
-
-                <!-- user status -->
-                <div class="flex flex-1 justify-center px-4">
-                    <a sec:authorize="isAnonymous()"
-                            href="/login"
-                            class="inline-flex items-center justify-center px-4 py-2 min-w-[88px] text-sm font-semibold text-white
-              bg-neutral-950 hover:bg-neutral-800 active:scale-95 transition-colors duration-150 rounded-lg">login</a>
-                    <div sec:authorize="isAuthenticated()" class="flex items-center gap-2">
-                        <a href="/user/detail"
-                                sec:authentication="principal.userModel.userName"
-                                class="max-w-[120px] truncate text-sm font-semibold text-neutral-800 hover:text-neutral-950 hover:underline dark:text-neutral-100 dark:hover:text-white"></a>
-                        <form th:action="@{/logout}" method="post" class="m-0">
-                            <button
-                                    type="submit"
-                                    class="inline-flex items-center justify-center px-4 py-2 min-w-[88px] text-sm font-semibold text-white
-                      bg-neutral-950 hover:bg-neutral-800 active:scale-95 transition-colors duration-150 rounded-lg">
-                                logout
-                            </button>
-                        </form>
-                    </div>
-                </div>
 
                 <!-- Desktop Nav (lg 이상에서 활성화) -->
                 <nav class="hidden lg:!flex lg:items-center lg:gap-1">
@@ -72,12 +51,12 @@
                            hover:scale-125 hover:-translate-y-1
                            shadow-md hover:shadow-[0_0_25px_rgba(168,85,247,0.8)]">🚀 AI</a>
                 </nav>
-                
+
                 <!-- Language Switcher (md 이상에서만 표시) -->
-                <div class="hidden md:flex md:items-center md:gap-8">
+                <div class="md:flex md:items-center md:gap-8">
                     <!-- Language Switcher -->
                     <div
-                            class="relative inline-flex items-center p-1 bg-neutral-100 rounded-full"
+                            class="hidden relative inline-flex items-center p-1 bg-neutral-100 rounded-full"
                             role="radiogroup"
                             aria-label="Language"
                     >
@@ -104,38 +83,64 @@
                             <span>한국어</span>
                         </button>
                     </div>
+                    <!-- user status -->
+                    <div class="flex flex-1 justify-center px-4">
+                        <a sec:authorize="isAnonymous()"
+                           href="/login"
+                           class="inline-flex items-center justify-center px-4 py-2 min-w-[88px] text-sm font-semibold text-white
+              bg-neutral-950 hover:bg-neutral-800 active:scale-95 transition-colors duration-150 rounded-lg">login</a>
+                        <div sec:authorize="isAuthenticated()" class="flex items-center gap-2">
+                            <a href="/user/detail"
+                               sec:authentication="principal.userModel.userName"
+                               class="max-w-[120px] truncate text-sm font-semibold text-neutral-800 hover:text-neutral-950 hover:underline dark:text-neutral-100 dark:hover:text-white"></a>
+                            <form th:action="@{/logout}" method="post" class="m-0">
+                                <button
+                                        type="submit"
+                                        class="inline-flex items-center justify-center px-4 py-2 min-w-[88px] text-sm font-semibold text-white
+                      bg-neutral-950 hover:bg-neutral-800 active:scale-95 transition-colors duration-150 rounded-lg">
+                                    logout
+                                </button>
+                            </form>
+                        </div>
+                    </div>
                 </div>
-                
+
+
                 <!-- Mobile Button (모바일에서만 표시) -->
                 <button
                         id="menuBtn"
                         type="button"
-                        class="md:hidden flex h-10 w-10 items-center justify-center text-neutral-700
+                        class="md:hidden flex h-10 w-10 z-50 items-center justify-center text-neutral-700
             bg-transparent hover:bg-neutral-100 transition-colors rounded-lg"
                         aria-expanded="false"
                         aria-label="메뉴 열기"
                 >
-                    <div class="flex flex-col items-center w-5 gap-[5px]">
-              <span
-                      class="block h-[2px] w-5 bg-current transition-all duration-300 rounded-full"
-              ></span>
-                        <span
-                                class="block h-[2px] w-5 bg-current transition-all duration-300 rounded-full"
-                        ></span>
-                        <span
-                                class="block h-[2px] w-5 bg-current transition-all duration-300 rounded-full"
-                        ></span>
-                    </div>
+                    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                    </svg>
                 </button>
             </div>
         </div>
-        
+
         <!-- Mobile Menu (전체 뷰를 덮는 오버레이) -->
         <div
                 id="mobileMenu"
                 class="fixed inset-0 z-40 md:hidden bg-white opacity-0 translate-y-6
         pointer-events-none transition-opacity transition-transform duration-400 ease-out">
             <div class="flex flex-col h-full pt-20 px-6 pb-8">
+                <!-- Close Button -->
+                <button
+                        id="closeMenuBtn"
+                        type="button"
+                        class="absolute top-6 right-6 flex h-10 w-10 items-center justify-center text-neutral-700
+            bg-neutral-100 hover:bg-neutral-200 transition-colors rounded-lg"
+                        aria-label="메뉴 닫기"
+                >
+                    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+
                 <!-- Mobile Nav -->
                 <nav id="mobileNavLinks" class="flex flex-col gap-1">
                     <a href="/mapPin"
@@ -211,26 +216,23 @@
     <script>
         function initMenu() {
             const btn = document.getElementById("menuBtn");
+            const closeBtn = document.getElementById("closeMenuBtn");
             const menu = document.getElementById("mobileMenu");
-            const spans = btn.querySelectorAll("span");
 
-            btn.addEventListener("click", () => {
+            const toggleMenu = () => {
                 menu.classList.toggle("opacity-0");
                 menu.classList.toggle("pointer-events-none");
                 menu.classList.toggle("translate-y-6");
 
-                spans[0].classList.toggle("translate-y-[7px]");
-                spans[0].classList.toggle("rotate-45");
-                spans[1].classList.toggle("opacity-0");
-                spans[2].classList.toggle("-translate-y-[7px]");
-                spans[2].classList.toggle("-rotate-45");
 
                 const expanded = btn.getAttribute("aria-expanded") === "true";
 
                 btn.setAttribute("aria-expanded", !expanded);
                 btn.setAttribute("aria-label", expanded ? "메뉴 열기" : "메뉴 닫기");
+            };
 
-            });
+            btn.addEventListener("click", toggleMenu);
+            closeBtn.addEventListener("click", toggleMenu);
         }
 
         initMenu();
