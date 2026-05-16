@@ -40,11 +40,11 @@ public class LoginTest implements CommandLineRunner {
     @Override
     @Transactional
     public void run(String... args) throws Exception {
-        CategoryModel testCategory = new CategoryModel();
-        testCategory.setCategoryName("test");
-        categoryRepository.save(testCategory);
-
-
+        for (String categoryName : java.util.List.of("자유", "새내기", "장터", "취업", "동아리", "학사이벤트")) {
+            CategoryModel category = new CategoryModel();
+            category.setCategoryName(categoryName);
+            categoryRepository.save(category);
+        }
 
         UserModel user = new UserModel();
         user.setUserName("testUser");

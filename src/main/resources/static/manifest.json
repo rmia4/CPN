@@ -1,0 +1,18 @@
+{
+  "name": "Campus Pin Network",
+  "short_name": "CPN",
+  "description": "Campus map, posts, timetable, and daily campus helpers.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#262626",
+  "icons": [
+    {
+      "src": "/dummyImages/ks.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

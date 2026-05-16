@@ -35,6 +35,7 @@ public class PostController {
         List<PostModel> postList = postService.getAllPosts();
         model.addAttribute("postList", postList);
         model.addAttribute("categoryList", categoryService.findAll());
+        model.addAttribute("currentCategory", "전체");
         return "pages/post/postList";
     }
     //카테고리에 맞는 게시글 검색
@@ -42,6 +43,7 @@ public class PostController {
     public String postListByCategory(@PathVariable("category") String category, Model model) {
         model.addAttribute("postList",postService.getPostsByCategory(category));
         model.addAttribute("categoryList", categoryService.findAll());
+        model.addAttribute("currentCategory", category);
 
         return "pages/post/postList";
     }

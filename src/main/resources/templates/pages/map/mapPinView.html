@@ -7,6 +7,9 @@
                 <div id="map"
                      class="w-full min-h-screen bg-gray-200"
                      style="width: 100%; height: 500px; border-radius: 8px; border: 1px solid #dee2e6;"></div>
+                <div id="buildingTooltip"
+                     class="pointer-events-none absolute z-[40] hidden rounded bg-neutral-900 px-2 py-1 text-xs font-semibold text-white shadow">
+                </div>
                 <!-- 필터 UI -->
                 <div id="filterBox"
                      class="absolute top-3 left-3 z-[30] flex gap-2 bg-white p-1.5 rounded-full shadow">
@@ -43,7 +46,7 @@
                     <button class="btn-close" onclick="closeDetail()"></button>
                 </div>
                 <div class="card-body">
-                    <img id="detailImage" alt="핀 이미지" style="display:none;" class="w-full max-h-64 object-cover rounded-lg mb-3"/>
+                    <img id="detailImage" alt="핀 이미지" style="display:none;" class="w-full max-h-64 object-contain rounded-lg mb-3"/>
                     <p id="detailDescription" class="text-muted small mb-3"></p>
                     <a id="detailPostLink" href="#" class="btn btn-dark btn-sm w-100">게시글 보기</a>
                     <!-- is_owner 미구현 (로그인 기능 추가 후 활성화) -->
@@ -156,6 +159,9 @@
             }
             let map, clickedLatLng, pinModal;
             const markers = {};
+            const buildingMarkers = [];
+            let busMarker = null;
+            let ksMarker = null;
             const preview = document.getElementById("preview");
             const fileInput = document.getElementById("fileInput");
             const cameraInput = document.getElementById("cameraInput");
@@ -190,6 +196,34 @@
                     label: "P"
                 }
             };
+            const BUILDING_LABELS = [
+                {label: "8호관", name: "공학2관", lat: 35.14301041062783, lon: 129.0954902100567},
+                {label: "6호관", name: "인문관", lat: 35.14171782135296, lon: 129.09772896051447},
+                {label: "30호관", name: "건학기념관", lat: 35.140518794850834, lon: 129.09810804605524},
+                {label: "25호관", name: "용무관", lat: 35.139296354527616, lon: 129.0989949631695},
+                {label: "2호관", name: "자연관", lat: 35.13903314727153, lon: 129.09861587762873},
+                {label: "27호관", name: "도서관", lat: 35.138834279002545, lon: 129.10063289880793},
+                {label: "1호관", name: "한성관", lat: 35.13798615887203, lon: 129.09873747110407},
+                {label: "26호관", name: "멀티미디어관", lat: 35.138869373438254, lon: 129.09750007867854},
+                {label: "4호관", name: "상학관", lat: 35.137477282552524, lon: 129.0967633652691},
+                {label: "5호관", name: "사회관", lat: 35.13900975102981, lon: 129.09659885644953},
+                {label: "23호관", name: "학생회관", lat: 35.13832540798454, lon: 129.09990333795588},
+                {label: "9호관", name: "약과학관", lat: 35.142957773986055, lon: 129.09601234674494},
+                {label: "7호관", name: "공학1관", lat: 35.14296362276344, lon: 129.09601234674494}
+            ];
+            const BUS_TIME_INFO = {
+                title: "공대버스 시간표",
+                description: "공대버스 운행 시간표입니다.",
+                lat: 35.1393608600623,
+                lon: 129.099335432053,
+                imageUrl: "/dummyImages/bustime.jpg"
+            };
+            const KS_MARKER_INFO = {
+                title: "KS",
+                lat: 35.141979265274074,
+                lon: 129.09504890441934,
+                imageUrl: "/dummyImages/ks.svg"
+            };
 
             /* =========================
                2. 초기화
@@ -198,7 +232,7 @@
                 pinModal = new bootstrap.Modal(document.getElementById('pinModal'));
 
                 map = new Tmapv2.Map('map', {
-                    center: new Tmapv2.LatLng(35.139550, 129.098581),
+                    center: new Tmapv2.LatLng(35.14064279255668, 129.09759521484415),
                     width: '100%',
                     height: '100%',
                     zoom: 17,
@@ -228,6 +262,9 @@
                 });
 
                 renderPins();
+                renderBuildingLabels();
+                renderBusTimeMarker();
+                renderKsMarker();
             }
 
             /* =========================
@@ -266,6 +303,62 @@
                 });
             }
 
+            function renderBuildingLabels() {
+                buildingMarkers.forEach(marker => marker.setMap(null));
+                buildingMarkers.length = 0;
+
+                BUILDING_LABELS.forEach(building => {
+                    const markerLabel = getBuildingMarkerLabel(building.label);
+                    const marker = new Tmapv2.Marker({
+                        position: new Tmapv2.LatLng(building.lat, building.lon),
+                        title: `${building.label}, ${building.name}`,
+                        icon: getBuildingLabelIcon(markerLabel),
+                        iconSize: new Tmapv2.Size(62, 26),
+                        map: map
+                    });
+
+                    marker.addListener("mouseover", (event) => showBuildingTooltip(building, event));
+                    marker.addListener("mousemove", (event) => moveBuildingTooltip(event));
+                    marker.addListener("mouseout", hideBuildingTooltip);
+
+                    buildingMarkers.push(marker);
+                });
+            }
+
+            function getBuildingMarkerLabel(label) {
+                return `(${String(label).replace("호관", "")})`;
+            }
+
+            function renderBusTimeMarker() {
+                if (busMarker) {
+                    busMarker.setMap(null);
+                }
+
+                busMarker = new Tmapv2.Marker({
+                    position: new Tmapv2.LatLng(BUS_TIME_INFO.lat, BUS_TIME_INFO.lon),
+                    title: BUS_TIME_INFO.title,
+                    icon: getBusMarkerIcon(),
+                    iconSize: new Tmapv2.Size(42, 42),
+                    map: map
+                });
+
+                busMarker.addListener("click", () => showBusTimeDetail());
+            }
+
+            function renderKsMarker() {
+                if (ksMarker) {
+                    ksMarker.setMap(null);
+                }
+
+                ksMarker = new Tmapv2.Marker({
+                    position: new Tmapv2.LatLng(KS_MARKER_INFO.lat, KS_MARKER_INFO.lon),
+                    title: KS_MARKER_INFO.title,
+                    icon: KS_MARKER_INFO.imageUrl,
+                    iconSize: new Tmapv2.Size(101, 101),
+                    map: map
+                });
+            }
+
             /* =========================
                4. UI 관련
             ========================= */
@@ -276,6 +369,7 @@
                 const detailPostLink = document.getElementById('detailPostLink');
                 detailPostLink.href = `/post/detail/${pin.id}`;
                 detailPostLink.textContent = '게시글 보기';
+                detailPostLink.style.display = 'block';
                 detailPostLink.classList.remove('disabled');
 
                 const img = document.getElementById('detailImage');
@@ -298,6 +392,24 @@
                 document.getElementById('pinDetail').style.display = 'block';
             }
 
+            function showBusTimeDetail() {
+                document.getElementById('detailName').textContent = BUS_TIME_INFO.title;
+                document.getElementById('detailDescription').textContent = BUS_TIME_INFO.description;
+
+                const detailPostLink = document.getElementById('detailPostLink');
+                detailPostLink.href = '#';
+                detailPostLink.style.display = 'none';
+
+                const img = document.getElementById('detailImage');
+                img.src = BUS_TIME_INFO.imageUrl;
+                img.style.display = 'block';
+                img.onerror = () => {
+                    img.style.display = 'none';
+                };
+
+                document.getElementById('pinDetail').style.display = 'block';
+            }
+
             function closeDetail() {
                 document.getElementById('pinDetail').style.display = 'none';
             }
@@ -313,6 +425,33 @@
                     toast.classList.remove('opacity-100');
                     toast.classList.add('opacity-0', 'pointer-events-none');
                 }, 2000);
+            }
+
+            function showBuildingTooltip(building, event) {
+                const tooltip = document.getElementById('buildingTooltip');
+                tooltip.textContent = `${building.label}, ${building.name}`;
+                tooltip.classList.remove('hidden');
+                moveBuildingTooltip(event);
+            }
+
+            function moveBuildingTooltip(event) {
+                const tooltip = document.getElementById('buildingTooltip');
+                const mapElement = document.getElementById('map');
+                const mapRect = mapElement.getBoundingClientRect();
+                const sourceEvent = event && (event.originalEvent || event.domEvent || event);
+                const clientX = sourceEvent && typeof sourceEvent.clientX === 'number'
+                    ? sourceEvent.clientX
+                    : mapRect.left + (mapRect.width / 2);
+                const clientY = sourceEvent && typeof sourceEvent.clientY === 'number'
+                    ? sourceEvent.clientY
+                    : mapRect.top + (mapRect.height / 2);
+
+                tooltip.style.left = `${clientX - mapRect.left + 12}px`;
+                tooltip.style.top = `${clientY - mapRect.top - 34}px`;
+            }
+
+            function hideBuildingTooltip() {
+                document.getElementById('buildingTooltip').classList.add('hidden');
             }
 
             // 사진 미리보기
@@ -407,6 +546,27 @@
                     icon: `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`,
                     iconSize: new Tmapv2.Size(36, 46)
                 };
+            }
+
+            function getBuildingLabelIcon(label) {
+                const svg = `
+                    <svg xmlns="http://www.w3.org/2000/svg" width="62" height="26" viewBox="0 0 62 26">
+                        <text x="31" y="17" text-anchor="middle" font-size="12" font-family="Arial, sans-serif" font-weight="700" fill="#262626">${label}</text>
+                    </svg>
+                `.trim();
+
+                return `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`;
+            }
+
+            function getBusMarkerIcon() {
+                const svg = `
+                    <svg xmlns="http://www.w3.org/2000/svg" width="42" height="42" viewBox="0 0 42 42">
+                        <circle cx="21" cy="21" r="19" fill="#2563eb" stroke="white" stroke-width="3"/>
+                        <text x="21" y="27" text-anchor="middle" font-size="21" font-family="Arial, sans-serif">🚌</text>
+                    </svg>
+                `.trim();
+
+                return `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`;
             }
 
             function updateLostTypeVisibility() {

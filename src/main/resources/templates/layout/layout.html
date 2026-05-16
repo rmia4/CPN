@@ -6,6 +6,9 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#262626" />
+    <link rel="manifest" href="/manifest.json" />
+    <link rel="icon" href="/dummyImages/ks.svg" type="image/svg+xml" />
     <script>
       if (localStorage.getItem("theme") === "dark") {
         document.documentElement.classList.add("dark");
@@ -101,6 +104,10 @@
           document.documentElement.classList.remove("dark");
           updateThemeIcons("🌙");
         }
+
+        if ("serviceWorker" in navigator) {
+          navigator.serviceWorker.register("/service-worker.js");
+        }
       });
     </script>
   </head>
@@ -115,8 +122,6 @@
     <div class="pt-16 md:pt-18">
       <div th:replace="${content}"></div>
     </div>
-    <a href="/test/model/modelTest">modelTest</a>
-    <br>
 
     <!-- Footer -->
     <div th:replace="~{fragments/footer :: footer}"></div>
