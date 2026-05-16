@@ -1,6 +1,9 @@
 package com.example.proj.domain.user.login;
 
 
+import com.example.proj.common.MainService;
+import com.example.proj.domain.post.PostSaveRequestDto;
+import com.example.proj.domain.post.PostService;
 import com.example.proj.domain.post.category.CategoryModel;
 import com.example.proj.domain.post.category.CategoryRepository;
 import com.example.proj.domain.timeTable.TimeSlotModel;
@@ -20,13 +23,18 @@ public class LoginTest implements CommandLineRunner {
     private final CategoryRepository categoryRepository;
     private final PasswordEncoder passwordEncoder; // 주입
     private final TimeTableRepository  timeTableRepository;
+    private final PostService postService;
+    private final MainService mainService;
 
     public LoginTest(UserRepository userRepository, PasswordEncoder passwordEncoder,
-                     CategoryRepository categoryRepository,  TimeTableRepository timeTableRepository) {
+                     CategoryRepository categoryRepository, TimeTableRepository timeTableRepository,
+                     PostService postService, MainService mainService) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.categoryRepository = categoryRepository;
         this.timeTableRepository = timeTableRepository;
+        this.postService = postService;
+        this.mainService = mainService;
     }
 
     @Override
@@ -93,6 +101,18 @@ public class LoginTest implements CommandLineRunner {
         slot3.setEndTime(13);
         table2.addTimeSlot(slot3);
         timeTableRepository.save(table2);
+
+        for (MainService.DummyPostSeed seed : mainService.getDummyPostSeedList()) {
+            PostSaveRequestDto postDto = new PostSaveRequestDto();
+            postDto.setTitle(seed.title());
+            postDto.setContent(seed.content());
+            postDto.setCategory(seed.category());
+            postDto.setLat(seed.lat());
+            postDto.setLon(seed.lon());
+            postDto.setUserId(user2.getUserId());
+
+            postService.addPost(postDto, java.util.List.of(seed.imageUrl()));
+        }
 
 
 

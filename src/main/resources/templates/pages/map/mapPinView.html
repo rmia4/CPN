@@ -207,17 +207,21 @@
                 map.addListener('click', function(e) {
                     closeDetail();
 
+                    const clickedLat = e.latLng.lat();
+                    const clickedLon = e.latLng.lng();
+                    console.log(`lat: ${clickedLat}, lon: ${clickedLon}`);
+
                     if (!IS_AUTHENTICATED) {
                         showToast('로그인 후 핀을 추가할 수 있어요');
                         return;
                     }
 
                     clickedLatLng = e.latLng;
-                    document.getElementById('pinLat').value = clickedLatLng.lat();
-                    document.getElementById('pinLng').value = clickedLatLng.lng();
+                    document.getElementById('pinLat').value = clickedLat;
+                    document.getElementById('pinLng').value = clickedLon;
                     document.getElementById('pinForm').reset();
-                    document.getElementById('pinLat').value = clickedLatLng.lat();
-                    document.getElementById('pinLng').value = clickedLatLng.lng();
+                    document.getElementById('pinLat').value = clickedLat;
+                    document.getElementById('pinLng').value = clickedLon;
                     updateLostTypeVisibility();
                     syncTitlePrefix();
                     pinModal.show();
@@ -268,7 +272,11 @@
             function showDetail(pin) {
                 document.getElementById('detailName').textContent = pin.title;
                 document.getElementById('detailDescription').textContent = pin.description || '';
-                document.getElementById('detailPostLink').href = `/post/detail/${pin.id}`;
+
+                const detailPostLink = document.getElementById('detailPostLink');
+                detailPostLink.href = `/post/detail/${pin.id}`;
+                detailPostLink.textContent = '게시글 보기';
+                detailPostLink.classList.remove('disabled');
 
                 const img = document.getElementById('detailImage');
 
