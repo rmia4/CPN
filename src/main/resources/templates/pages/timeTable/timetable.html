@@ -4,7 +4,80 @@
         <!-- MAIN START -->
         <!--        <div class="relative max-w-[1200px] m-auto bg-white rounded-2xl shadow p-4 overflow-x-auto ">-->
 
-        <div class="relative max-w-[1200px] m-auto bg-white rounded-2xl shadow p-4 overflow-x-auto dark:bg-neutral-800 dark:border-neutral-700">
+        <style>
+            .helper-tab-label {
+                writing-mode: vertical-rl;
+                text-orientation: mixed;
+            }
+        </style>
+
+        <button type="button"
+                id="helper-tab"
+                onclick="toggleHelperPanel()"
+                class="fixed left-0 z-40 -translate-y-1/2 rounded-r-lg bg-gray-900 px-2 py-4 text-xs font-bold text-white shadow-lg hover:bg-gray-700">
+            <span class="helper-tab-label">시간표 도우미</span>
+        </button>
+
+        <div id="helper-overlay"
+             onclick="closeHelperPanel()"
+             class="fixed inset-0 z-40 hidden bg-black/30"></div>
+
+        <aside id="helper-panel"
+               class="fixed left-0 top-0 z-50 h-screen w-[340px] max-w-[calc(100vw-48px)] -translate-x-full overflow-y-auto bg-white p-4 shadow-2xl transition-transform duration-300 dark:bg-neutral-800 dark:border-neutral-700">
+            <div class="mb-4 flex items-start justify-between gap-3">
+                <div>
+                    <p class="text-xs font-bold text-gray-500 dark:text-neutral-300">시간표 도우미</p>
+                    <h2 class="mt-1 text-xl font-black text-gray-900 dark:text-neutral-100">문장으로 수업 추가</h2>
+                </div>
+                <button type="button"
+                        onclick="closeHelperPanel()"
+                        class="rounded-lg border border-gray-300 px-2 py-1 text-sm font-bold text-gray-600 hover:bg-gray-100 dark:border-neutral-600 dark:text-neutral-100 dark:hover:bg-neutral-700">
+                    닫기
+                </button>
+            </div>
+
+            <div id="helper-chat"
+                 class="mb-3 h-56 overflow-y-auto rounded-xl border border-gray-200 bg-gray-50 p-3 text-sm dark:border-neutral-700 dark:bg-neutral-900">
+                <div class="mb-2 rounded-lg bg-white p-3 text-gray-700 shadow-sm dark:bg-neutral-800 dark:text-neutral-100">
+                    예: 월수 10시부터 12시까지 자료구조 319호
+                </div>
+                <div class="rounded-lg bg-white p-3 text-gray-700 shadow-sm dark:bg-neutral-800 dark:text-neutral-100">
+                    여러 과목은 쉼표로 구분해요.
+                </div>
+            </div>
+
+            <textarea id="helper-input"
+                      class="mb-2 h-24 w-full resize-none rounded-xl border border-gray-200 p-3 text-sm dark:border-neutral-700"
+                      placeholder="수업 문장을 입력하세요"></textarea>
+
+            <div class="flex gap-2">
+                <button type="button"
+                        onclick="parseHelperInput()"
+                        class="flex-1 rounded-lg bg-gray-900 px-3 py-2 text-sm font-bold text-white hover:bg-gray-700">
+                    분석
+                </button>
+                <button type="button"
+                        onclick="resetHelperInput()"
+                        class="rounded-lg border border-gray-300 px-3 py-2 text-sm font-bold text-gray-700 hover:bg-gray-100 dark:border-neutral-600 dark:text-neutral-100 dark:hover:bg-neutral-700">
+                    지우기
+                </button>
+            </div>
+
+            <div id="helper-preview"
+                 class="mt-4 hidden rounded-xl border border-blue-200 bg-blue-50 p-3 text-sm text-blue-950 dark:border-blue-800 dark:bg-blue-950 dark:text-blue-100">
+                <p class="mb-2 font-bold">분석 결과</p>
+                <div id="helper-preview-content" class="space-y-1"></div>
+                <button type="button"
+                        onclick="submitHelperResult()"
+                        class="mt-3 w-full rounded-lg bg-blue-600 px-3 py-2 text-sm font-bold text-white hover:bg-blue-500">
+                    시간표에 바로 추가
+                </button>
+            </div>
+        </aside>
+
+        <div class="relative max-w-[1200px] m-auto px-4">
+        <div id="timetable-card"
+             class="relative bg-white rounded-2xl shadow p-4 overflow-x-auto dark:bg-neutral-800 dark:border-neutral-700">
             <div>
                 <!-- 추가 버튼 -->
                 <button onclick="openAddModal()"
@@ -19,7 +92,11 @@
                     <div class="bg-white dark:bg-neutral-800 p-6 rounded-xl w-80 shadow-lg">
                         <h2 id="modal-title" class="text-lg font-bold mb-4">수업 추가</h2>
 
-                        <form method="post" th:action="@{/timetable/add}">
+                        <form id="timetable-form" method="post" th:action="@{/timetable/add}">
+                            <input type="hidden"
+                                   th:if="${_csrf != null}"
+                                   th:name="${_csrf.parameterName}"
+                                   th:value="${_csrf.token}">
 
                             <input type="hidden" name="id" id="form-id">
 
@@ -51,6 +128,10 @@
 
                 <!-- 수업 삭제 히든 폼 -->
                 <form id="delete-form" method="post" th:action="@{/timetable/delete}">
+                    <input type="hidden"
+                           th:if="${_csrf != null}"
+                           th:name="${_csrf.parameterName}"
+                           th:value="${_csrf.token}">
                     <input type="hidden" name="id" id="delete-id">
                 </form>
             </div>
@@ -107,18 +188,28 @@
                                     </div>
                                 </div>
 
-                                <div th:text="${item.title}"></div>
-                                <div th:text="${slot.place}"></div>
+                                <div class="pr-8" th:text="${item.title}"></div>
+                                <div class="pr-8" th:text="${slot.place}"></div>
 
-                                <div class="absolute bottom-1 right-1 flex gap-1">
-                                    <button type="button" onclick="handleEdit(this)"
-                                            class="text-xs px-2 py-1 bg-blue-500 text-white rounded edit-btn">
-                                        수정
+                                <div class="absolute right-2 top-1">
+                                    <button type="button"
+                                            onclick="toggleSubjectMenu(event, this)"
+                                            aria-label="수업 메뉴 열기"
+                                            class="text-base leading-none text-gray-500 hover:text-gray-800 dark:text-neutral-500 dark:hover:text-neutral-200">
+                                        <span aria-hidden="true">✎</span>
                                     </button>
-                                    <button type="button" onclick="deleteClass(this)"
-                                            class="text-xs px-2 py-1 bg-red-500 text-white rounded">
-                                        삭제
-                                    </button>
+                                    <div class="subject-menu absolute right-0 top-6 z-20 hidden min-w-20 overflow-hidden rounded border border-gray-200 bg-white text-xs shadow-lg dark:border-neutral-600 dark:bg-neutral-800">
+                                        <button type="button"
+                                                onclick="handleEdit(this)"
+                                                class="block w-full px-3 py-2 text-left text-gray-700 hover:bg-gray-100 dark:text-neutral-100 dark:hover:bg-neutral-700">
+                                            수정
+                                        </button>
+                                        <button type="button"
+                                                onclick="deleteClass(this)"
+                                                class="block w-full px-3 py-2 text-left text-gray-700 hover:bg-gray-100 dark:text-neutral-100 dark:hover:bg-neutral-700">
+                                            삭제
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
 
@@ -128,9 +219,76 @@
                 </div>
             </div>
         </div>
+        </div>
 
         <script>
             let slotIndex = 0;
+            let helperResult = null;
+            const dayMap = {
+                "월": 1,
+                "화": 2,
+                "수": 3,
+                "목": 4,
+                "금": 5
+            };
+            const dayNames = {
+                1: "월",
+                2: "화",
+                3: "수",
+                4: "목",
+                5: "금"
+            };
+
+            function openHelperPanel() {
+                document.getElementById("helper-panel").classList.remove("-translate-x-full");
+                document.getElementById("helper-overlay").classList.remove("hidden");
+                document.getElementById("helper-tab").classList.add("hidden");
+            }
+
+            function closeHelperPanel() {
+                document.getElementById("helper-panel").classList.add("-translate-x-full");
+                document.getElementById("helper-overlay").classList.add("hidden");
+                document.getElementById("helper-tab").classList.remove("hidden");
+            }
+
+            function toggleHelperPanel() {
+                const panel = document.getElementById("helper-panel");
+
+                if (panel.classList.contains("-translate-x-full")) {
+                    openHelperPanel();
+                } else {
+                    closeHelperPanel();
+                }
+            }
+
+            function positionHelperTab() {
+                const tab = document.getElementById("helper-tab");
+                const card = document.getElementById("timetable-card");
+
+                if (!tab || !card) return;
+
+                const rect = card.getBoundingClientRect();
+                const centerY = rect.top + (rect.height / 2);
+                const minTop = 96;
+                const maxTop = window.innerHeight - 96;
+
+                tab.style.top = `${Math.min(Math.max(centerY, minTop), maxTop)}px`;
+            }
+
+            window.addEventListener("keydown", (event) => {
+                if (event.key === "Escape") {
+                    closeHelperPanel();
+                    closeSubjectMenus();
+                }
+            });
+
+            window.addEventListener("DOMContentLoaded", () => {
+                positionHelperTab();
+                setTimeout(positionHelperTab, 100);
+            });
+            window.addEventListener("resize", positionHelperTab);
+            window.addEventListener("scroll", positionHelperTab, {passive: true});
+            window.addEventListener("click", closeSubjectMenus);
 
             function openModal() {
                 document.getElementById("modal").classList.remove("hidden");
@@ -150,7 +308,26 @@
                 slotIndex = 0;
             }
 
+            function toggleSubjectMenu(event, btn) {
+                event.stopPropagation();
+                const menu = btn.parentElement.querySelector(".subject-menu");
+                const isHidden = menu.classList.contains("hidden");
+
+                closeSubjectMenus();
+
+                if (isHidden) {
+                    menu.classList.remove("hidden");
+                }
+            }
+
+            function closeSubjectMenus() {
+                document.querySelectorAll(".subject-menu").forEach(menu => {
+                    menu.classList.add("hidden");
+                });
+            }
+
             function handleEdit(btn) {
+                closeSubjectMenus();
                 const subject = btn.closest(".subject");
 
                 const slots = [];
@@ -203,6 +380,25 @@
                     setSelectValue(currentSlot.querySelector('[name*="startTime"]'), slot.startTime, slot.startTime + "시");
                     setSelectValue(currentSlot.querySelector('[name*="endTime"]'), slot.endTime, slot.endTime + "시");
                     currentSlot.querySelector('[name*="place"]').value = slot.place;
+                });
+
+                openModal();
+            }
+
+            function openAddModalWithData(data) {
+                document.getElementById("modal-title").innerText = "수업 추가";
+                resetForm();
+
+                document.getElementById("form-title").value = data.title;
+
+                data.slots.forEach(slot => {
+                    addTimeSlot();
+
+                    const currentSlot = document.getElementById("time-slot-container").lastElementChild;
+                    setSelectValue(currentSlot.querySelector('[name*="day"]'), slot.day, dayNames[slot.day]);
+                    setSelectValue(currentSlot.querySelector('[name*="startTime"]'), slot.startTime, slot.startTime + "시");
+                    setSelectValue(currentSlot.querySelector('[name*="endTime"]'), slot.endTime, slot.endTime + "시");
+                    currentSlot.querySelector('[name*="place"]').value = slot.place || "";
                 });
 
                 openModal();
@@ -312,6 +508,7 @@
             }
 
             function deleteClass(btn) {
+                closeSubjectMenus();
                 const subject = btn.closest(".subject");
                 const id = subject.dataset.id;
 
@@ -323,6 +520,260 @@
 
                 document.getElementById("delete-id").value = id;
                 document.getElementById("delete-form").submit();
+            }
+
+            function parseHelperInput() {
+                const input = document.getElementById("helper-input");
+                const text = input.value.trim();
+
+                addHelperMessage(text || "내용 없음", "user");
+
+                if (!text) {
+                    addHelperMessage("수업 정보를 문장으로 입력해 주세요.", "bot");
+                    hideHelperPreview();
+                    return;
+                }
+
+                const parsed = parseTimetableTexts(text);
+
+                if (parsed.error) {
+                    addHelperMessage(parsed.error, "bot");
+                    hideHelperPreview();
+                    return;
+                }
+
+                helperResult = parsed;
+                addHelperMessage("좋아요. 아래 내용으로 바로 추가할 수 있어요.", "bot");
+                showHelperPreview(parsed);
+            }
+
+            function resetHelperInput() {
+                document.getElementById("helper-input").value = "";
+                helperResult = null;
+                hideHelperPreview();
+            }
+
+            function submitHelperResult() {
+                if (!helperResult) return;
+
+                submitHelperCourses(helperResult.courses);
+            }
+
+            async function submitHelperCourses(courses) {
+                const submitButton = document.querySelector('#helper-preview button');
+                const originalText = submitButton.textContent;
+
+                submitButton.disabled = true;
+                submitButton.textContent = "추가 중...";
+
+                try {
+                    for (const course of courses) {
+                        const formData = new FormData();
+                        appendCsrfFormData(formData);
+                        formData.append("title", course.title);
+
+                        course.slots.forEach((slot, index) => {
+                            formData.append(`timeSlots[${index}].day`, slot.day);
+                            formData.append(`timeSlots[${index}].startTime`, slot.startTime);
+                            formData.append(`timeSlots[${index}].endTime`, slot.endTime);
+                            formData.append(`timeSlots[${index}].place`, slot.place || "");
+                        });
+
+                        const response = await fetch("/timetable/add", {
+                            method: "POST",
+                            body: formData,
+                            credentials: "same-origin"
+                        });
+
+                        if (!response.ok) {
+                            throw new Error("시간표 추가에 실패했어요.");
+                        }
+                    }
+
+                    window.location.href = "/timetable";
+                } catch (error) {
+                    submitButton.disabled = false;
+                    submitButton.textContent = originalText;
+                    addHelperMessage(error.message || "시간표 추가 중 문제가 생겼어요.", "bot");
+                }
+            }
+
+            function appendCsrfFormData(formData) {
+                const csrfInput = document.querySelector('#timetable-form input[name^="_csrf"]');
+
+                if (csrfInput) {
+                    formData.append(csrfInput.name, csrfInput.value);
+                }
+            }
+
+            function parseTimetableTexts(text) {
+                const parts = text
+                    .split(",")
+                    .map(part => part.trim())
+                    .filter(Boolean);
+
+                if (parts.length === 0) {
+                    return {error: "수업 정보를 문장으로 입력해 주세요."};
+                }
+
+                const courses = [];
+
+                for (let i = 0; i < parts.length; i++) {
+                    const parsed = parseTimetableText(parts[i]);
+
+                    if (parsed.error) {
+                        return {error: `${i + 1}번째 과목: ${parsed.error}`};
+                    }
+
+                    courses.push(parsed);
+                }
+
+                return {courses};
+            }
+
+            function parseTimetableText(text) {
+                const normalized = text
+                    .replace(/\s+/g, " ")
+                    .replace(/[~]/g, " ")
+                    .trim();
+
+                if (/(반|30분|:30)/.test(normalized)) {
+                    return {error: "현재 시간표는 정각 단위만 지원해요. 예: 10시부터 12시까지"};
+                }
+
+                const days = extractDays(normalized);
+                if (days.length === 0) {
+                    return {error: "요일을 찾지 못했어요. 월, 화, 수, 목, 금 중 하나를 넣어주세요."};
+                }
+
+                const timeRange = extractTimeRange(normalized);
+                if (!timeRange) {
+                    return {error: "시간을 찾지 못했어요. 예: 10시부터 12시까지, 오후 2시부터 5시까지"};
+                }
+
+                if (timeRange.startTime < 9 || timeRange.endTime > 18 || timeRange.startTime >= timeRange.endTime) {
+                    return {error: "시간은 9시부터 18시 사이의 올바른 범위로 입력해 주세요."};
+                }
+
+                const place = extractPlace(normalized);
+                const title = extractTitle(normalized, place);
+
+                if (!title) {
+                    return {error: "과목명을 찾지 못했어요. 예: 월수 10시부터 12시까지 자료구조 319호"};
+                }
+
+                return {
+                    title,
+                    slots: days.map(day => ({
+                        day,
+                        startTime: timeRange.startTime,
+                        endTime: timeRange.endTime,
+                        place
+                    }))
+                };
+            }
+
+            function extractDays(text) {
+                const compact = text.replace(/\s+/g, "");
+                const days = [];
+
+                Object.keys(dayMap).forEach(dayName => {
+                    const pattern = new RegExp(`${dayName}(요일)?`);
+                    if (pattern.test(compact)) {
+                        days.push(dayMap[dayName]);
+                    }
+                });
+
+                return [...new Set(days)].sort((a, b) => a - b);
+            }
+
+            function extractTimeRange(text) {
+                const rangeMatch = text.match(/(오전|오후)?\s*(\d{1,2})\s*시?\s*(?:부터|에서|-|~)\s*(오전|오후)?\s*(\d{1,2})\s*시?/);
+                if (!rangeMatch) return null;
+
+                const startTime = normalizeHour(Number(rangeMatch[2]), rangeMatch[1]);
+                const endTime = normalizeHour(Number(rangeMatch[4]), rangeMatch[3] || rangeMatch[1], startTime);
+
+                return {startTime, endTime};
+            }
+
+            function normalizeHour(hour, meridiem, startTime) {
+                if (meridiem === "오후" && hour < 12) {
+                    return hour + 12;
+                }
+
+                if (!meridiem && startTime && startTime >= 12 && hour <= 6) {
+                    return hour + 12;
+                }
+
+                return hour;
+            }
+
+            function extractPlace(text) {
+                const placeMatch = text.match(/([가-힣A-Za-z0-9]+(?:관|동|실|호|층|벤치|강의실|식당|도서관|체육관|운동장)(?:\s*\d{1,4}호?)?)\s*$/);
+                return placeMatch ? placeMatch[1].trim() : "";
+            }
+
+            function extractTitle(text, place) {
+                let title = text
+                    .replace(/(월|화|수|목|금)(요일)?/g, " ")
+                    .replace(/(오전|오후)?\s*\d{1,2}\s*시?\s*(?:부터|에서|-|~)\s*(오전|오후)?\s*\d{1,2}\s*시?(까지)?/g, " ")
+                    .replace(/\s+/g, " ")
+                    .trim();
+
+                if (place) {
+                    title = title.replace(place, "").trim();
+                }
+
+                return title;
+            }
+
+            function showHelperPreview(data) {
+                const preview = document.getElementById("helper-preview");
+                const content = document.getElementById("helper-preview-content");
+                const coursesHtml = data.courses
+                    .map((course, index) => {
+                        const slotsText = course.slots
+                            .map(slot => `${dayNames[slot.day]} ${slot.startTime}:00-${slot.endTime}:00${slot.place ? " / " + escapeHtml(slot.place) : ""}`)
+                            .join("<br>");
+
+                        return `
+                            <div class="${index > 0 ? "mt-3 border-t border-blue-200 pt-3 dark:border-blue-800" : ""}">
+                                <p>과목명: <strong>${escapeHtml(course.title)}</strong></p>
+                                <p>시간: ${slotsText}</p>
+                            </div>
+                        `;
+                    })
+                    .join("");
+
+                content.innerHTML = coursesHtml;
+                preview.classList.remove("hidden");
+            }
+
+            function hideHelperPreview() {
+                document.getElementById("helper-preview").classList.add("hidden");
+                document.getElementById("helper-preview-content").innerHTML = "";
+            }
+
+            function addHelperMessage(message, type) {
+                const chat = document.getElementById("helper-chat");
+                const bubble = document.createElement("div");
+                const userClass = "ml-8 bg-gray-900 text-white";
+                const botClass = "mr-8 bg-white text-gray-700 dark:bg-neutral-800 dark:text-neutral-100";
+
+                bubble.className = `mb-2 rounded-lg p-3 shadow-sm ${type === "user" ? userClass : botClass}`;
+                bubble.textContent = message;
+                chat.appendChild(bubble);
+                chat.scrollTop = chat.scrollHeight;
+            }
+
+            function escapeHtml(value) {
+                return String(value)
+                    .replace(/&/g, "&amp;")
+                    .replace(/</g, "&lt;")
+                    .replace(/>/g, "&gt;")
+                    .replace(/"/g, "&quot;")
+                    .replace(/'/g, "&#039;");
             }
         </script>
     </div>
