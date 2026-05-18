@@ -1,6 +1,5 @@
 package com.example.proj.domain.user;
 
-
 import com.example.proj.domain.user.login.CustomUserDetail;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -10,7 +9,11 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 @Controller
 @RequiredArgsConstructor
@@ -18,31 +21,42 @@ import org.springframework.web.bind.annotation.*;
 public class UserController {
     private final UserService userService;
 
+    @GetMapping("/add")
+    public String userAddForm(Model model) {
+        model.addAttribute("userSaveRequestDto", new UserSaveRequestDto());
+        return "pages/user/userAdd";
+    }
 
     @PostMapping("/add")
-    public String userAdd(@Valid @RequestBody UserSaveRequestDto userSaveRequestDto
-            , BindingResult bindingResult, Model model){
-        if(bindingResult.hasErrors()){
-
-            //오류 시
-
+    public String userAdd(@Valid @ModelAttribute UserSaveRequestDto userSaveRequestDto,
+                          BindingResult bindingResult,
+                          Model model) {
+        if (userSaveRequestDto.getUserId() != null && userService.existsByUserId(userSaveRequestDto.getUserId())) {
+            bindingResult.rejectValue("userId", "duplicate", "이미 사용 중인 아이디입니다.");
         }
+        if (userSaveRequestDto.getUserNumber() != null && userService.existsByUserNumber(userSaveRequestDto.getUserNumber())) {
+            bindingResult.rejectValue("userNumber", "duplicate", "이미 사용 중인 학번입니다.");
+        }
+
+        if (bindingResult.hasErrors()) {
+            model.addAttribute("signupError", true);
+            return "pages/auth/login";
+        }
+
         userService.addUser(userSaveRequestDto);
 
-
-        return "";
+        return "redirect:/login?signupSuccess";
     }
 
     @PostMapping("/delete")
-    public String userDelete(@RequestParam("userId") String userId){
+    public String userDelete(@RequestParam("userId") String userId) {
         userService.deleteUserByUserId(userId);
 
         return "";
     }
 
-
     @GetMapping("/detail")
-    public String userDetail(@AuthenticationPrincipal CustomUserDetail userDetail, Model model){
+    public String userDetail(@AuthenticationPrincipal CustomUserDetail userDetail, Model model) {
         model.addAttribute("user", userService.findByUserId(userDetail.getUsername()));
         model.addAttribute("userUpdateRequestDto", new UserUpdateRequestDto());
 
@@ -75,7 +89,4 @@ public class UserController {
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
     }
-
-
-
 }

@@ -80,6 +80,7 @@ public class PostService {
     }
 
     public void deletePostById(Long id, String userId) {
+
         getEditablePost(id, userId);
         postRepository.deleteById(id);
     }

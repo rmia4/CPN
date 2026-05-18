@@ -5,6 +5,7 @@ import com.example.proj.domain.mapPin.MapPinService;
 import com.example.proj.domain.notification.NotificationService;
 import com.example.proj.domain.post.PostService;
 import com.example.proj.domain.user.UserModel;
+import com.example.proj.domain.user.UserSaveRequestDto;
 import com.example.proj.domain.user.UserService;
 import com.example.proj.domain.user.login.CustomUserDetail;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -32,17 +33,11 @@ public class MainController {
 //    public String timetable() { return "pages/timetable"; }
 
     @GetMapping("/login")
-    public String login() {
+    public String login(Model model) {
+        if (!model.containsAttribute("userSaveRequestDto")) {
+            model.addAttribute("userSaveRequestDto", new UserSaveRequestDto());
+        }
         return "pages/auth/login";
     }
 
-    @GetMapping("/admin")
-    public String admin(@AuthenticationPrincipal CustomUserDetail userDetail,
-            Model model) {
-
-        UserModel user = userDetail.getUserModel();
-        model.addAttribute("user", user);
-
-        return "pages/admin/adminTest";
-    }
 }

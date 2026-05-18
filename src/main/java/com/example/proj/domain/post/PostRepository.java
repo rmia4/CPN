@@ -14,6 +14,12 @@ public interface PostRepository extends JpaRepository<PostModel, Long> {
 
     List<PostModel> findAllByCategory_categoryName(String category);
 
+    List<PostModel> findAllByUser_Id(Long userId);
+
+    List<PostModel> findAllByCategory_Id(Long categoryId);
+
+    long countByCategory_Id(Long categoryId);
+
     @EntityGraph(attributePaths = {"category", "images"})
     List<PostModel> findDistinctByLatIsNotNullAndLonIsNotNull();
 

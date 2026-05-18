@@ -24,4 +24,5 @@ public class UserSaveRequestDto {
     @NotBlank(message = "passwd")
     private String passwd;
 
+
 }

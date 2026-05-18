@@ -25,7 +25,7 @@ public class SecurityConfig {
                 //url 권한 설정
                 //유저 상세 정보 같은거만 접근제어
 //                .requestMatchers("","").permitAll()
-                .requestMatchers("/admin/**").hasRole("ADMIN")
+                .requestMatchers("/admin/**","/category/**").hasRole("ADMIN")
                 .requestMatchers("/timetable/**").hasRole("USER")
                 .anyRequest().permitAll()
         )

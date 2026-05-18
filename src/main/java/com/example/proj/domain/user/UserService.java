@@ -18,15 +18,21 @@ public class UserService implements UserDetailsService {
     private final PasswordEncoder passwordEncoder;
 
     public void addUser(UserSaveRequestDto userSaveRequestDto) {
+        if (existsByUserId(userSaveRequestDto.getUserId())) {
+            throw new IllegalArgumentException("이미 사용 중인 아이디입니다.");
+        }
+        if (existsByUserNumber(userSaveRequestDto.getUserNumber())) {
+            throw new IllegalArgumentException("이미 사용 중인 학번입니다.");
+        }
+
         UserModel user = new UserModel();
-        user.setUserId(userSaveRequestDto.getUserId());
-        user.setUserName(userSaveRequestDto.getUserName());
-        user.setUserNumber(userSaveRequestDto.getUserNumber());
-        user.setGender(userSaveRequestDto.getGender());
+        user.setUserId(userSaveRequestDto.getUserId().trim());
+        user.setUserName(userSaveRequestDto.getUserName().trim());
+        user.setUserNumber(userSaveRequestDto.getUserNumber().trim());
+        user.setGender(blankToNull(userSaveRequestDto.getGender()));
         user.setPasswd(passwordEncoder.encode(userSaveRequestDto.getPasswd()));
         //TODO:관리자 계정은 어떻게 만들지 정하기
         user.setRole("ROLE_USER");
-
         // 비밀번호를 추가하는 로직이 필요하지만, 현재 DTO에 없으므로 임시로 빈 문자열을 사용합니다.
 //        user.setPasswd("temp_password");
 
@@ -34,6 +40,14 @@ public class UserService implements UserDetailsService {
 
         //userId 중복일 경우 나오는 에러 처리 필요
         userRepository.save(user);
+    }
+
+    public boolean existsByUserId(String userId) {
+        return userId != null && userRepository.existsByUserId(userId.trim());
+    }
+
+    public boolean existsByUserNumber(String userNumber) {
+        return userNumber != null && userRepository.existsByUserNumber(userNumber.trim());
     }
 
     // @Transactional
@@ -74,6 +88,7 @@ public class UserService implements UserDetailsService {
         user.setStyle2(blankToNull(dto.getStyle2()));
         user.setStyle3(blankToNull(dto.getStyle3()));
 
+
         return userRepository.save(user);
     }
 
@@ -90,6 +105,7 @@ public class UserService implements UserDetailsService {
         }
         return new CustomUserDetail(user);
     }
+
 }
 
 

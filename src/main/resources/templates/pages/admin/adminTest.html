@@ -1,25 +1,65 @@
-<!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
-<head>
-    <meta charset="UTF-8">
-    <title>로그인</title>
-</head>
-<body>
+<div th:replace="~{layout/layout :: layout(~{::content})}">
+    <div th:fragment="content">
+        <main class="mx-auto max-w-6xl px-4 py-8">
+            <section class="mb-6 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+                <div>
+                    <p class="text-sm font-semibold text-neutral-500">Admin</p>
+                    <h1 class="mt-1 text-2xl font-bold text-neutral-950 dark:text-neutral-100">사용자 관리</h1>
+                    <p class="mt-2 text-sm text-neutral-500 dark:text-neutral-300">
+                        전체 사용자 정보를 확인하고 관리자 권한으로 수정할 수 있습니다.
+                    </p>
+                </div>
+                <a href="/admin/categories"
+                   class="inline-flex items-center justify-center border border-neutral-300 px-4 py-2 text-sm font-semibold hover:bg-neutral-100 dark:border-neutral-600 dark:hover:bg-neutral-700">
+                    카테고리 관리
+                </a>
+            </section>
 
-    <h2>admin</h2>
-
-    <th:block>
-        <div th:text="${user.userName}" > </div>
-        <div th:text="${user.userId}" > </div>
-        <div th:text="${user.passwd}" > </div>
-
-
-    </th:block>
-
-    <form th:action="@{/logout}" method="post">
-        <button type="submit">submit</button>
-    </form>
-
-
-</body>
-</html>
+            <section class="border border-neutral-200 bg-white dark:border-neutral-700 dark:bg-neutral-800">
+                <div class="overflow-x-auto">
+                    <table class="w-full min-w-[760px] text-sm">
+                        <thead class="border-b border-neutral-200 bg-neutral-100 text-left text-neutral-600 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-300">
+                        <tr>
+                            <th class="px-4 py-3 font-semibold">ID</th>
+                            <th class="px-4 py-3 font-semibold">아이디</th>
+                            <th class="px-4 py-3 font-semibold">이름</th>
+                            <th class="px-4 py-3 font-semibold">학번</th>
+                            <th class="px-4 py-3 font-semibold">성별</th>
+                            <th class="px-4 py-3 font-semibold">권한</th>
+                            <th class="px-4 py-3 font-semibold">매너점수</th>
+                            <th class="px-4 py-3 font-semibold text-right">관리</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:if="${userList == null or #lists.isEmpty(userList)}">
+                            <td colspan="8" class="px-4 py-8 text-center text-neutral-500">등록된 사용자가 없습니다.</td>
+                        </tr>
+                        <tr th:each="user : ${userList}" class="border-b border-neutral-100 dark:border-neutral-700">
+                            <td class="px-4 py-3" th:text="${user.id}">1</td>
+                            <td class="px-4 py-3 font-semibold" th:text="${user.userId}">user01</td>
+                            <td class="px-4 py-3" th:text="${user.userName}">홍길동</td>
+                            <td class="px-4 py-3" th:text="${user.userNumber}">20240001</td>
+                            <td class="px-4 py-3" th:text="${user.gender ?: '-'}">-</td>
+                            <td class="px-4 py-3">
+                                <span class="inline-flex rounded-full bg-neutral-200 px-2 py-1 text-xs font-semibold dark:bg-neutral-700"
+                                      th:text="${user.role}">ROLE_USER</span>
+                            </td>
+                            <td class="px-4 py-3" th:text="${user.mannerPoint ?: '-'}">36.5</td>
+                            <td class="px-4 py-3 text-right">
+                                <a th:href="@{/admin/users/{id}/posts(id=${user.id})}"
+                                   class="mr-2 inline-flex items-center justify-center rounded border border-neutral-300 px-3 py-1.5 text-xs font-semibold hover:bg-neutral-100 dark:border-neutral-600 dark:hover:bg-neutral-700">
+                                    게시글
+                                </a>
+                                <a th:href="@{/admin/users/{id}/edit(id=${user.id})}"
+                                   class="inline-flex items-center justify-center rounded border border-neutral-300 px-3 py-1.5 text-xs font-semibold hover:bg-neutral-100 dark:border-neutral-600 dark:hover:bg-neutral-700">
+                                    수정
+                                </a>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </main>
+    </div>
+</div>
