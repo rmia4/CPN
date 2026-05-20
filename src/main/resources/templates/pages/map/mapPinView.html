@@ -37,6 +37,27 @@
             transition-all duration-300">
             </div>
 
+            <div id="confirmModal"
+                 class="fixed inset-0 z-[3000] hidden items-center justify-center bg-black/40 px-4 opacity-0 transition-opacity duration-150">
+                <div id="confirmModalPanel"
+                     class="w-full max-w-sm scale-95 rounded-xl bg-white p-6 shadow-xl transition-all duration-150 dark:bg-neutral-800">
+                    <p id="confirmModalMessage"
+                       class="whitespace-pre-line text-sm font-medium text-gray-800 dark:text-neutral-100"></p>
+                    <div class="mt-6 flex justify-end gap-2">
+                        <button type="button"
+                                id="confirmModalCancel"
+                                class="rounded-lg border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 transition hover:bg-gray-100 dark:border-neutral-600 dark:text-neutral-100 dark:hover:bg-neutral-700">
+                            취소
+                        </button>
+                        <button type="button"
+                                id="confirmModalOk"
+                                class="rounded-lg bg-red-600 px-4 py-2 text-sm font-semibold text-white shadow transition hover:bg-red-700">
+                            확인
+                        </button>
+                    </div>
+                </div>
+            </div>
+
             <!-- 핀 디테일 패널 -->
             <div id="pinDetail"
                  style="display:none; position:fixed; top:80px; right:20px; width:300px; z-index:30;"
@@ -48,9 +69,23 @@
                 <div class="card-body">
                     <img id="detailImage" alt="핀 이미지" style="display:none;" class="w-full max-h-64 object-contain rounded-lg mb-3"/>
                     <p id="detailDescription" class="text-muted small mb-3"></p>
-                    <a id="detailPostLink" href="#" class="btn btn-dark btn-sm w-100">게시글 보기</a>
-                    <!-- is_owner 미구현 (로그인 기능 추가 후 활성화) -->
-                    <!-- <button id="detailDeleteBtn" class="btn btn-danger btn-sm w-100">삭제</button> -->
+                    <div class="flex items-center gap-2">
+                        <a id="detailPostLink"
+                           href="#"
+                           class="flex-1 rounded-lg bg-neutral-900 px-4 py-2 text-center text-sm font-semibold text-white transition hover:bg-neutral-700">
+                            게시글 보기
+                        </a>
+                        <button id="detailDeleteBtn"
+                                type="button"
+                                aria-label="핀 삭제"
+                                class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-neutral-100 text-neutral-500 transition hover:bg-red-800 hover:text-white dark:bg-neutral-700 dark:text-neutral-200 dark:hover:bg-red-800">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                 stroke-width="1.5" stroke="currentColor" class="size-5">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                      d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
+                            </svg>
+                        </button>
+                    </div>
                 </div>
             </div>
 
@@ -178,7 +213,7 @@
                 "분실했어요": {
                     color: "#f97316",
                     stroke: "#c2410c",
-                    label: "?"
+                    label: "🍚"
                 },
                 "습득했어요": {
                     color: "#22c55e",
@@ -188,7 +223,7 @@
                 "밥친구": {
                     color: "#3b82f6",
                     stroke: "#1d4ed8",
-                    label: "B"
+                    label: "meal"
                 },
                 default: {
                     color: "#64748b",
@@ -385,9 +420,14 @@
                     img.style.display = 'none';
                 };
 
-                // is_owner 미구현 (로그인 기능 추가 후 활성화)
-                // const deleteBtn = document.getElementById('detailDeleteBtn');
-                // deleteBtn.style.display = 'none';
+                const deleteBtn = document.getElementById('detailDeleteBtn');
+                deleteBtn.onclick = () => deletePin(pin.id);
+
+                // if (pin.ownedByCurrentUser) {
+                //     deleteBtn.classList.remove('hidden');
+                // } else {
+                //     deleteBtn.classList.add('hidden');
+                // }
 
                 document.getElementById('pinDetail').style.display = 'block';
             }
@@ -399,6 +439,7 @@
                 const detailPostLink = document.getElementById('detailPostLink');
                 detailPostLink.href = '#';
                 detailPostLink.style.display = 'none';
+                document.getElementById('detailDeleteBtn').classList.add('hidden');
 
                 const img = document.getElementById('detailImage');
                 img.src = BUS_TIME_INFO.imageUrl;
@@ -425,6 +466,44 @@
                     toast.classList.remove('opacity-100');
                     toast.classList.add('opacity-0', 'pointer-events-none');
                 }, 2000);
+            }
+
+            function showConfirmModal(message) {
+                const modal = document.getElementById('confirmModal');
+                const panel = document.getElementById('confirmModalPanel');
+                const messageBox = document.getElementById('confirmModalMessage');
+                const cancelButton = document.getElementById('confirmModalCancel');
+                const okButton = document.getElementById('confirmModalOk');
+
+                messageBox.textContent = message;
+                modal.classList.remove('hidden');
+                modal.classList.add('flex');
+
+                requestAnimationFrame(() => {
+                    modal.classList.remove('opacity-0');
+                    panel.classList.remove('scale-95');
+                    panel.classList.add('scale-100');
+                });
+
+                return new Promise(resolve => {
+                    const close = (result) => {
+                        modal.classList.add('opacity-0');
+                        panel.classList.remove('scale-100');
+                        panel.classList.add('scale-95');
+
+                        setTimeout(() => {
+                            modal.classList.add('hidden');
+                            modal.classList.remove('flex');
+                            resolve(result);
+                        }, 150);
+                    };
+
+                    cancelButton.onclick = () => close(false);
+                    okButton.onclick = () => close(true);
+                    modal.onclick = event => {
+                        if (event.target === modal) close(false);
+                    };
+                });
             }
 
             function showBuildingTooltip(building, event) {
@@ -533,12 +612,45 @@
 
             function getPinMarkerOptions(pin) {
                 const tag = getPinTag(pin);
-                const style = PIN_TAG_STYLES[tag] || PIN_TAG_STYLES.default;
+                const tagText = `${tag || ''} ${pin.category || ''} ${pin.title || ''}`;
+                const isFoundPin = tagText.includes("습득");
+                const isLostPin = tagText.includes("분실");
+                const style = isFoundPin
+                    ? {color: "#14b8a6", stroke: "#047857", label: ""}
+                    : isLostPin
+                        ? {color: "#f97316", stroke: "#c2410c", label: ""}
+                        : (PIN_TAG_STYLES[tag] || PIN_TAG_STYLES.default);
+                const label = isFoundPin
+                    ? `
+                        <g transform="translate(10 9.5) scale(0.66)" fill="none" stroke="${style.stroke}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="m20.25 7.5-.625 10.632a2.25 2.25 0 0 1-2.247 2.118H6.622a2.25 2.25 0 0 1-2.247-2.118L3.75 7.5"/>
+                            <path d="M10 11.25h4"/>
+                            <path d="M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125Z"/>
+                        </g>
+                    `
+                    : isLostPin
+                        ? `
+                            <g transform="translate(10 9.5) scale(0.66)" fill="none" stroke="${style.stroke}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M12 9v3.75"/>
+                                <path d="M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/>
+                                <path d="M12 15.75h.008v.008H12v-.008Z"/>
+                            </g>
+                        `
+                        : tag === "밥친구" || pin.category === "밥친구"
+                    ? `
+                        <g transform="translate(9.5 9) scale(0.265)">
+                            <ellipse cx="26" cy="24" rx="5" ry="7" fill="${style.stroke}"/>
+                            <rect x="24" y="30" width="4" height="16" rx="2" fill="${style.stroke}"/>
+                            <rect x="36" y="18" width="3" height="28" rx="1.5" transform="rotate(12 36 18)" fill="${style.stroke}"/>
+                            <rect x="42" y="18" width="3" height="28" rx="1.5" transform="rotate(12 42 18)" fill="${style.stroke}"/>
+                        </g>
+                    `
+                    : `<text x="18" y="21" text-anchor="middle" font-size="12" font-family="Arial, sans-serif" font-weight="700" fill="${style.stroke}">${style.label}</text>`;
                 const svg = `
                     <svg xmlns="http://www.w3.org/2000/svg" width="36" height="46" viewBox="0 0 36 46">
                         <path d="M18 44C13 36 5 29 5 17.5C5 10.3 10.8 4 18 4s13 6.3 13 13.5C31 29 23 36 18 44Z" fill="${style.color}" stroke="${style.stroke}" stroke-width="2"/>
                         <circle cx="18" cy="17.5" r="8.5" fill="white" fill-opacity="0.95"/>
-                        <text x="18" y="21" text-anchor="middle" font-size="12" font-family="Arial, sans-serif" font-weight="700" fill="${style.stroke}">${style.label}</text>
+                        ${label}
                     </svg>
                 `.trim();
 
@@ -665,8 +777,8 @@
             });
 
             // 핀 삭제
-            function deletePin(id) {
-                if (!confirm('핀을 삭제할까요?')) return;
+            async function deletePin(id) {
+                if (!await showConfirmModal('핀을 삭제할까요?')) return;
                 fetch(`${PIN_DELETE_URL}${id}/delete/`, {
                     method: 'POST',
                     // TODO: Spring Security 추가 시 CSRF 헤더 설정

@@ -36,7 +36,7 @@
                class="inline-flex h-9 items-center justify-center rounded-full border border-neutral-300 px-4 text-sm font-semibold text-neutral-700 transition hover:bg-neutral-100 dark:border-neutral-600 dark:text-neutral-100 dark:hover:bg-neutral-800">
               수정
             </a>
-            <form th:action="@{/post/delete}" method="post" onsubmit="return confirm('게시글을 삭제할까요?');" class="m-0">
+            <form th:action="@{/post/delete}" method="post" onsubmit="handlePostDeleteSubmit(event)" class="m-0">
               <input type="hidden" name="postId" th:value="${post.id}">
               <button type="submit"
                       class="inline-flex h-9 items-center justify-center rounded-full border border-red-200 bg-red-50 px-4 text-sm font-semibold text-red-600 transition hover:bg-red-100 dark:border-red-900 dark:bg-red-950 dark:text-red-300 dark:hover:bg-red-900">
@@ -117,6 +117,27 @@
         </section>
       </div>
 
+      <div id="confirm-modal"
+           class="fixed inset-0 z-[1000] hidden items-center justify-center bg-black/40 px-4 opacity-0 transition-opacity duration-150">
+        <div id="confirm-modal-panel"
+             class="w-full max-w-sm scale-95 rounded-xl bg-white p-6 shadow-xl transition-all duration-150 dark:bg-neutral-800">
+          <p id="confirm-modal-message"
+             class="whitespace-pre-line text-sm font-medium text-gray-800 dark:text-neutral-100"></p>
+          <div class="mt-6 flex justify-end gap-2">
+            <button type="button"
+                    id="confirm-modal-cancel"
+                    class="rounded-lg border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 transition hover:bg-gray-100 dark:border-neutral-600 dark:text-neutral-100 dark:hover:bg-neutral-700">
+              취소
+            </button>
+            <button type="button"
+                    id="confirm-modal-ok"
+                    class="rounded-lg bg-red-600 px-4 py-2 text-sm font-semibold text-white shadow transition hover:bg-red-700">
+              확인
+            </button>
+          </div>
+        </div>
+      </div>
+
       <script th:if="${post.lat != null and post.lon != null}">
         (() => {
           let initialized = false;
@@ -167,6 +188,53 @@
               onload="window.initPostLocationMap && window.initPostLocationMap()"></script>
       </script>
       <script>
+        function showConfirmModal(message) {
+          const modal = document.getElementById("confirm-modal");
+          const panel = document.getElementById("confirm-modal-panel");
+          const messageBox = document.getElementById("confirm-modal-message");
+          const cancelButton = document.getElementById("confirm-modal-cancel");
+          const okButton = document.getElementById("confirm-modal-ok");
+
+          messageBox.textContent = message;
+          modal.classList.remove("hidden");
+          modal.classList.add("flex");
+
+          requestAnimationFrame(() => {
+            modal.classList.remove("opacity-0");
+            panel.classList.remove("scale-95");
+            panel.classList.add("scale-100");
+          });
+
+          return new Promise(resolve => {
+            const close = (result) => {
+              modal.classList.add("opacity-0");
+              panel.classList.remove("scale-100");
+              panel.classList.add("scale-95");
+
+              setTimeout(() => {
+                modal.classList.add("hidden");
+                modal.classList.remove("flex");
+                resolve(result);
+              }, 150);
+            };
+
+            cancelButton.onclick = () => close(false);
+            okButton.onclick = () => close(true);
+            modal.onclick = event => {
+              if (event.target === modal) close(false);
+            };
+          });
+        }
+
+        async function handlePostDeleteSubmit(event) {
+          event.preventDefault();
+
+          const confirmed = await showConfirmModal("게시글을 삭제할까요?");
+          if (confirmed) {
+            event.target.submit();
+          }
+        }
+
         // URL에서 id 가져오기
         const params = new URLSearchParams(window.location.search);
         const postId = Number(params.get("id"));

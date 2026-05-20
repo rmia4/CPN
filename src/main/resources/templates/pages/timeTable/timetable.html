@@ -134,6 +134,27 @@
                            th:value="${_csrf.token}">
                     <input type="hidden" name="id" id="delete-id">
                 </form>
+
+                <div id="confirm-modal"
+                     class="fixed inset-0 z-[80] hidden items-center justify-center bg-black/40 px-4 opacity-0 transition-opacity duration-150">
+                    <div id="confirm-modal-panel"
+                         class="w-full max-w-sm scale-95 rounded-xl bg-white p-6 shadow-xl transition-all duration-150 dark:bg-neutral-800">
+                        <p id="confirm-modal-message"
+                           class="whitespace-pre-line text-sm font-medium text-gray-800 dark:text-neutral-100"></p>
+                        <div class="mt-6 flex justify-end gap-2">
+                            <button type="button"
+                                    id="confirm-modal-cancel"
+                                    class="rounded-lg border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 transition hover:bg-gray-100 dark:border-neutral-600 dark:text-neutral-100 dark:hover:bg-neutral-700">
+                                취소
+                            </button>
+                            <button type="button"
+                                    id="confirm-modal-ok"
+                                    class="rounded-lg bg-red-600 px-4 py-2 text-sm font-semibold text-white shadow transition hover:bg-red-700">
+                                확인
+                            </button>
+                        </div>
+                    </div>
+                </div>
             </div>
             <div class="relative">
 
@@ -296,6 +317,44 @@
 
             function closeModal() {
                 document.getElementById("modal").classList.add("hidden");
+            }
+
+            function showConfirmModal(message) {
+                const modal = document.getElementById("confirm-modal");
+                const panel = document.getElementById("confirm-modal-panel");
+                const messageBox = document.getElementById("confirm-modal-message");
+                const cancelButton = document.getElementById("confirm-modal-cancel");
+                const okButton = document.getElementById("confirm-modal-ok");
+
+                messageBox.textContent = message;
+                modal.classList.remove("hidden");
+                modal.classList.add("flex");
+
+                requestAnimationFrame(() => {
+                    modal.classList.remove("opacity-0");
+                    panel.classList.remove("scale-95");
+                    panel.classList.add("scale-100");
+                });
+
+                return new Promise(resolve => {
+                    const close = (result) => {
+                        modal.classList.add("opacity-0");
+                        panel.classList.remove("scale-100");
+                        panel.classList.add("scale-95");
+
+                        setTimeout(() => {
+                            modal.classList.add("hidden");
+                            modal.classList.remove("flex");
+                            resolve(result);
+                        }, 150);
+                    };
+
+                    cancelButton.onclick = () => close(false);
+                    okButton.onclick = () => close(true);
+                    modal.onclick = event => {
+                        if (event.target === modal) close(false);
+                    };
+                });
             }
 
             function resetForm() {
@@ -507,12 +566,12 @@
                 slotIndex = slots.length;
             }
 
-            function deleteClass(btn) {
+            async function deleteClass(btn) {
                 closeSubjectMenus();
                 const subject = btn.closest(".subject");
                 const id = subject.dataset.id;
 
-                const confirmed = confirm(
+                const confirmed = await showConfirmModal(
                     "이 수업 전체를 삭제하시겠습니까?\n(부분 삭제는 수정에서 가능합니다.)"
                 );
 
