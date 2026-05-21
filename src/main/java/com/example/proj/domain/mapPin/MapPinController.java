@@ -5,6 +5,7 @@ import com.example.proj.domain.post.PostModel;
 import com.example.proj.domain.post.PostSaveRequestDto;
 import com.example.proj.domain.post.PostService;
 import com.example.proj.domain.post.category.CategoryService;
+import com.example.proj.domain.user.login.CustomUserDetail;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
