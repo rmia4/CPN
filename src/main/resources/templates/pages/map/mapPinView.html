@@ -10,6 +10,16 @@
                 <div id="buildingTooltip"
                      class="pointer-events-none absolute z-[40] hidden rounded bg-neutral-900 px-2 py-1 text-xs font-semibold text-white shadow">
                 </div>
+                <div id="mapLoginPrompt"
+                     class="absolute bottom-4 left-1/2 z-[35] hidden w-[calc(100%-32px)] max-w-md -translate-x-1/2 rounded-xl border border-neutral-200 bg-white p-4 text-sm shadow-lg dark:border-neutral-700 dark:bg-neutral-800">
+                    <p class="font-semibold text-neutral-900 dark:text-neutral-100">로그인 후 핀을 추가할 수 있습니다.</p>
+                    <div class="mt-3 flex justify-end">
+                        <a href="/login"
+                           class="rounded-lg bg-neutral-900 px-4 py-2 text-xs font-bold text-white hover:bg-neutral-700">
+                            로그인 페이지로 이동
+                        </a>
+                    </div>
+                </div>
                 <!-- 필터 UI -->
                 <div id="filterBox"
                      class="absolute top-3 left-3 z-[30] flex gap-2 bg-white p-1.5 rounded-full shadow">
@@ -20,6 +30,14 @@
 
                     <button class="filter-btn px-3 py-1 text-sm rounded-full text-gray-600" data-type="분실물">
                         분실물
+                    </button>
+
+                    <button class="filter-btn px-3 py-1 text-sm rounded-full text-gray-600" data-type="분실했어요">
+                        분실
+                    </button>
+
+                    <button class="filter-btn px-3 py-1 text-sm rounded-full text-gray-600" data-type="습득했어요">
+                        습득
                     </button>
 
                     <button class="filter-btn px-3 py-1 text-sm rounded-full text-gray-600" data-type="밥친구">
@@ -68,6 +86,7 @@
                 </div>
                 <div class="card-body">
                     <img id="detailImage" alt="핀 이미지" style="display:none;" class="w-full max-h-64 object-contain rounded-lg mb-3"/>
+                    <p id="detailMeetingTime" class="hidden text-sm font-semibold text-blue-600 mb-2"></p>
                     <p id="detailDescription" class="text-muted small mb-3"></p>
                     <div class="flex items-center gap-2">
                         <a id="detailPostLink"
@@ -78,13 +97,32 @@
                         <button id="detailDeleteBtn"
                                 type="button"
                                 aria-label="핀 삭제"
-                                class="hidden h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-neutral-100 text-neutral-500 transition hover:bg-red-800 hover:text-white dark:bg-neutral-700 dark:text-neutral-200 dark:hover:bg-red-800">
+                                class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-neutral-100 text-neutral-500 transition hover:bg-red-800 hover:text-white dark:bg-neutral-700 dark:text-neutral-200 dark:hover:bg-red-800">
                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
                                  stroke-width="1.5" stroke="currentColor" class="size-5">
                                 <path stroke-linecap="round" stroke-linejoin="round"
                                       d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
                             </svg>
                         </button>
+                    </div>
+                    <div class="mt-4 border-t pt-3">
+                        <p class="mb-2 text-sm font-semibold">댓글</p>
+                        <div id="detailComments" class="space-y-2 text-sm text-neutral-700"></div>
+                        <form id="detailCommentForm" class="mt-3 flex gap-2">
+                            <input id="detailCommentInput"
+                                   name="content"
+                                   type="text"
+                                   class="flex-1 rounded border px-2 py-1 text-sm"
+                                   placeholder="댓글을 입력하세요">
+                            <button type="submit"
+                                    class="rounded bg-neutral-900 px-3 py-1 text-sm font-semibold text-white">
+                                등록
+                            </button>
+                        </form>
+                        <div id="detailLoginPrompt" class="mt-2 hidden text-xs text-neutral-500">
+                            로그인 후 댓글을 작성할 수 있습니다.
+                            <a href="/login" class="font-semibold underline">로그인 페이지로 이동</a>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -122,9 +160,16 @@
                                         <option value="습득했어요">습득했어요</option>
                                     </select>
                                 </div>
+                                <div class="mb-3 hidden" id="meetingTimeBox">
+                                    <label class="form-label" for="meetingTime">밥친구 약속 시간</label>
+                                    <input type="datetime-local" id="meetingTime" name="meetingTime" class="form-control">
+                                </div>
                                 <div class="mb-3">
                                     <label class="form-label" for="title">제목 <span class="text-danger">*</span></label>
-                                    <input type="text" id="title" name="title" class="form-control" required>
+                                    <div class="input-group">
+                                        <span id="titlePrefixBadge" class="input-group-text bg-light fw-semibold text-secondary"></span>
+                                        <input type="text" id="title" name="title" class="form-control" required>
+                                    </div>
                                 </div>
                                 <div class="mb-3">
                                     <label class="form-label" for="description">설명</label>
@@ -193,7 +238,6 @@
                 savedPins = [];
             }
             let map, clickedLatLng, pinModal;
-            let activeDetailPinId = null;
             const markers = {};
             const buildingMarkers = [];
             let busMarker = null;
@@ -202,9 +246,17 @@
             const fileInput = document.getElementById("fileInput");
             const cameraInput = document.getElementById("cameraInput");
             const pinTitleInput = document.getElementById("title");
+            const titlePrefixBadge = document.getElementById("titlePrefixBadge");
             const categoryRadios = document.querySelectorAll('input[name="category"]');
             const lostTypeBox = document.getElementById("lostTypeBox");
             const lostTypeSelect = document.getElementById("lostType");
+            const meetingTimeBox = document.getElementById("meetingTimeBox");
+            const meetingTimeInput = document.getElementById("meetingTime");
+            const detailCommentForm = document.getElementById("detailCommentForm");
+            const detailCommentInput = document.getElementById("detailCommentInput");
+            const detailLoginPrompt = document.getElementById("detailLoginPrompt");
+            const mapLoginPrompt = document.getElementById("mapLoginPrompt");
+            let selectedDetailPin = null;
             const PIN_TAG_STYLES = {
                 "분실물": {
                     color: "#ef4444",
@@ -283,6 +335,7 @@
 
                     if (!IS_AUTHENTICATED) {
                         showToast('로그인 후 핀을 추가할 수 있어요');
+                        showMapLoginPrompt();
                         return;
                     }
 
@@ -293,7 +346,7 @@
                     document.getElementById('pinLat').value = clickedLat;
                     document.getElementById('pinLng').value = clickedLon;
                     updateLostTypeVisibility();
-                    syncTitlePrefix();
+                    updateTitlePrefixBadge();
                     pinModal.show();
                 });
 
@@ -324,7 +377,8 @@
 
                 // 4. 다시 생성
                 savedPins.forEach(pin => {
-                    if (type === 'all' || pin.category === type) {
+                    const pinTag = getPinTag(pin);
+                    if (type === 'all' || pin.category === type || pinTag === type) {
 
                         const marker = new Tmapv2.Marker(Object.assign({
                             position: new Tmapv2.LatLng(pin.lat, pin.lon),
@@ -399,9 +453,11 @@
                4. UI 관련
             ========================= */
             function showDetail(pin) {
-                activeDetailPinId = String(pin.id);
+                selectedDetailPin = pin;
                 document.getElementById('detailName').textContent = pin.title;
                 document.getElementById('detailDescription').textContent = pin.description || '';
+                renderMeetingTime(pin);
+                loadPinComments(pin.id);
 
                 const detailPostLink = document.getElementById('detailPostLink');
                 detailPostLink.href = `/post/detail/${pin.id}`;
@@ -423,29 +479,30 @@
                 };
 
                 const deleteBtn = document.getElementById('detailDeleteBtn');
-                deleteBtn.classList.add('hidden');
-                deleteBtn.classList.remove('flex');
-                deleteBtn.disabled = true;
-                deleteBtn.removeAttribute('data-delete-action');
-                deleteBtn.removeAttribute('data-csrf-name');
-                deleteBtn.removeAttribute('data-csrf-value');
                 deleteBtn.onclick = () => deletePin(pin.id);
 
+                // if (pin.ownedByCurrentUser) {
+                //     deleteBtn.classList.remove('hidden');
+                // } else {
+                //     deleteBtn.classList.add('hidden');
+                // }
+
                 document.getElementById('pinDetail').style.display = 'block';
-                updateDetailDeleteButton(pin);
             }
 
             function showBusTimeDetail() {
                 document.getElementById('detailName').textContent = BUS_TIME_INFO.title;
                 document.getElementById('detailDescription').textContent = BUS_TIME_INFO.description;
+                selectedDetailPin = null;
+                document.getElementById('detailComments').innerHTML = "";
+                detailCommentForm.classList.add("hidden");
+                detailLoginPrompt.classList.add("hidden");
+                document.getElementById('detailMeetingTime').classList.add("hidden");
 
                 const detailPostLink = document.getElementById('detailPostLink');
                 detailPostLink.href = '#';
                 detailPostLink.style.display = 'none';
-                const deleteBtn = document.getElementById('detailDeleteBtn');
-                deleteBtn.classList.add('hidden');
-                deleteBtn.classList.remove('flex');
-                deleteBtn.disabled = true;
+                document.getElementById('detailDeleteBtn').classList.add('hidden');
 
                 const img = document.getElementById('detailImage');
                 img.src = BUS_TIME_INFO.imageUrl;
@@ -459,7 +516,76 @@
 
             function closeDetail() {
                 document.getElementById('pinDetail').style.display = 'none';
-                activeDetailPinId = null;
+                selectedDetailPin = null;
+            }
+
+            function renderMeetingTime(pin) {
+                const meetingTime = document.getElementById('detailMeetingTime');
+                if (pin.category === "밥친구" && pin.meetingTime) {
+                    meetingTime.textContent = `약속 시간 ${formatDateTime(pin.meetingTime)}`;
+                    meetingTime.classList.remove("hidden");
+                    return;
+                }
+
+                meetingTime.classList.add("hidden");
+            }
+
+            function formatDateTime(value) {
+                if (typeof value === "string" && /^\d{4}\.\d{2}\.\d{2}\s\d{2}:\d{2}$/.test(value)) {
+                    return value;
+                }
+
+                if (Array.isArray(value)) {
+                    const [year, month, day, hour = 0, minute = 0] = value;
+                    const pad = number => String(number).padStart(2, "0");
+                    return `${year}.${pad(month)}.${pad(day)} ${pad(hour)}:${pad(minute)}`;
+                }
+
+                const date = new Date(value);
+                if (Number.isNaN(date.getTime())) return value;
+
+                const pad = number => String(number).padStart(2, "0");
+                return `${date.getFullYear()}.${pad(date.getMonth() + 1)}.${pad(date.getDate())} ${pad(date.getHours())}:${pad(date.getMinutes())}`;
+            }
+
+            async function loadPinComments(postId) {
+                const commentsBox = document.getElementById('detailComments');
+                commentsBox.innerHTML = '<p class="text-xs text-neutral-500">댓글을 불러오는 중입니다.</p>';
+                detailCommentForm.classList.toggle("hidden", !IS_AUTHENTICATED);
+                detailLoginPrompt.classList.toggle("hidden", IS_AUTHENTICATED);
+
+                try {
+                    const response = await fetch(`/mapPin/${postId}/comments`);
+                    if (!response.ok) throw new Error();
+                    const comments = await response.json();
+                    renderPinComments(comments);
+                } catch (error) {
+                    commentsBox.innerHTML = '<p class="text-xs text-red-500">댓글을 불러오지 못했습니다.</p>';
+                }
+            }
+
+            function renderPinComments(comments) {
+                const commentsBox = document.getElementById('detailComments');
+                if (!comments || comments.length === 0) {
+                    commentsBox.innerHTML = '<p class="text-xs text-neutral-500">아직 댓글이 없습니다.</p>';
+                    return;
+                }
+
+                commentsBox.innerHTML = comments.map(comment => `
+                    <div class="border-t pt-2">
+                        <div class="text-xs text-neutral-400">${escapeHtml(comment.userName || "")} ${escapeHtml(formatDateTime(comment.createdAt))}</div>
+                        <p class="whitespace-pre-line">${escapeHtml(comment.content || "")}</p>
+                    </div>
+                `).join("");
+            }
+
+            function escapeHtml(value) {
+                return String(value)
+                    .replace(/&/g, "&amp;")
+                    .replace(/</g, "&lt;")
+                    .replace(/>/g, "&gt;")
+                    .replace(/"/g, "&quot;")
+                    .replace(/'/g, "&#039;");
             }
 
             function showToast(message) {
@@ -473,6 +599,10 @@
                     toast.classList.remove('opacity-100');
                     toast.classList.add('opacity-0', 'pointer-events-none');
                 }, 2000);
+            }
+
+            function showMapLoginPrompt() {
+                mapLoginPrompt.classList.remove("hidden");
             }
 
             function showConfirmModal(message) {
@@ -739,12 +869,20 @@
 
             function updateLostTypeVisibility() {
                 lostTypeBox.style.display = getSelectedPinCategory() === '분실물' ? 'block' : 'none';
+                const isMealPin = getSelectedPinCategory() === '밥친구';
+                meetingTimeBox.classList.toggle('hidden', !isMealPin);
+                meetingTimeInput.required = isMealPin;
+                if (!isMealPin) {
+                    meetingTimeInput.value = "";
+                }
             }
 
-            function syncTitlePrefix() {
+            function updateTitlePrefixBadge() {
                 const content = removeTitlePrefix(pinTitleInput.value);
                 const prefix = getTitlePrefix();
-                pinTitleInput.value = prefix ? `${prefix} ${content}`.trimEnd() : content;
+                pinTitleInput.value = content;
+                titlePrefixBadge.textContent = prefix;
+                titlePrefixBadge.classList.toggle("d-none", !prefix);
             }
 
             function getPinSubmitError(formData) {
@@ -757,6 +895,10 @@
 
                 if (!description) {
                     return '내용을 입력해 주세요';
+                }
+
+                if (getSelectedPinCategory() === '밥친구' && !formData.get('meetingTime')) {
+                    return '밥친구 약속 시간을 선택해 주세요';
                 }
 
                 return '';
@@ -832,6 +974,42 @@
                     });
             });
 
+            detailCommentForm.addEventListener("submit", async (event) => {
+                event.preventDefault();
+
+                if (!selectedDetailPin) return;
+
+                if (!IS_AUTHENTICATED) {
+                    showToast("로그인 후 댓글을 작성할 수 있어요");
+                    return;
+                }
+
+                const content = detailCommentInput.value.trim();
+                if (!content) {
+                    showToast("댓글을 입력해 주세요");
+                    return;
+                }
+
+                const formData = new FormData();
+                formData.append("content", content);
+
+                try {
+                    const response = await fetch(`/mapPin/${selectedDetailPin.id}/comment/add`, {
+                        method: "POST",
+                        body: formData
+                    });
+
+                    if (!response.ok) {
+                        throw new Error(response.status === 401 ? "로그인 후 댓글을 작성할 수 있어요" : "댓글을 저장하지 못했어요");
+                    }
+
+                    detailCommentInput.value = "";
+                    await loadPinComments(selectedDetailPin.id);
+                } catch (error) {
+                    showToast(error.message || "댓글을 저장하지 못했어요");
+                }
+            });
+
             // 핀 삭제
             async function deletePin(id) {
                 if (!await showConfirmModal('핀을 삭제할까요?')) return;
@@ -890,13 +1068,14 @@
             categoryRadios.forEach(radio => {
                 radio.addEventListener("change", () => {
                     updateLostTypeVisibility();
-                    syncTitlePrefix();
+                    updateTitlePrefixBadge();
                 });
             });
 
-            lostTypeSelect.addEventListener("change", syncTitlePrefix);
-            pinTitleInput.addEventListener("focus", syncTitlePrefix);
+            lostTypeSelect.addEventListener("change", updateTitlePrefixBadge);
+            pinTitleInput.addEventListener("input", updateTitlePrefixBadge);
             updateLostTypeVisibility();
+            updateTitlePrefixBadge();
         </script>
 
         <!-- TODO: tmapApiKey를 application.properties에 설정 후 th:src로 교체 -->
