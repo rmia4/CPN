@@ -3,16 +3,26 @@
   <div th:fragment="content">
     <div class="max-w-4xl w-full mx-auto px-4 py-6">
       <!-- 탭 -->
-      <div id="tabs" class="flex gap-2 border-b pb-2 mb-4 overflow-x-auto">
-        <a class="px-4 py-2 text-sm font-semibold rounded-full text-neutral-600 hover:bg-neutral-100 dark:hover:bg-white/20"
+      <div id="tabs" class="flex gap-2 border-b pb-2 mb-4 overflow-x-auto whitespace-nowrap">
+        <a class="px-4 py-2 text-sm font-semibold rounded-full text-neutral-600 hover:bg-neutral-100"
            th:classappend="${currentCategory == '전체'} ? 'bg-neutral-900 dark:bg-white/20 text-white' : ''"
-           href="/post/list">전체</a>
+           th:href="@{/post/list}">전체</a>
         <a
                 th:each="tab : ${categoryList}"
                 th:text="${tab.categoryName}"
                 th:href="@{/post/list/{id}(id=${tab.categoryName})}"
-                class="px-4 py-2 text-sm font-semibold rounded-full text-neutral-600 hover:bg-neutral-100 dark:hover:bg-white/20"
+                class="px-4 py-2 text-sm font-semibold rounded-full text-neutral-600 hover:bg-neutral-100"
                 th:classappend="${tab.categoryName == currentCategory} ? 'bg-neutral-900 dark:bg-white/20 text-white' : ''">
+        </a>
+        <a th:href="@{/post/list/{id}(id='분실했어요')}"
+           class="px-4 py-2 text-sm font-semibold rounded-full text-neutral-600 hover:bg-neutral-100"
+           th:classappend="${currentCategory == '분실했어요'} ? 'bg-neutral-900 dark:bg-white/20 text-white' : ''">
+          분실
+        </a>
+        <a th:href="@{/post/list/{id}(id='습득했어요')}"
+           class="px-4 py-2 text-sm font-semibold rounded-full text-neutral-600 hover:bg-neutral-100"
+           th:classappend="${currentCategory == '습득했어요'} ? 'bg-neutral-900 dark:bg-white/20 text-white' : ''">
+          습득
         </a>
       </div>
       <!-- 게시판 정보 -->
@@ -23,7 +33,7 @@
               th:text="${currentCategory == '전체' ? '전체 게시판' : currentCategory + ' 게시판'}"></h1>
           <p id="boardCount"
              class="text-sm text-neutral-500"
-             th:text="|전체 글 ${#lists.size(postList)}|"></p>
+             th:text="|전체 글 ${totalPosts}|"></p>
         </div>
         <a
                 href="/post/add"
@@ -52,9 +62,8 @@
       <div id="postList" class="flex flex-col gap-4" th:if="${!#lists.isEmpty(postList)}">
         <a th:each="post, iterStat: ${postList}"
            th:href="@{/post/detail/{id}(id=${post.id})}"
-           class="post-item"
-           th:classappend="${iterStat.index >= 8} ? ' hidden' : ''"> <!-- 타임리프 링크 생성 문법 @{URL(param)} -->
-          <div class="flex gap-4 p-4 border rounded-xl hover:bg-neutral-50 dark:hover:bg-white/20 transition cursor-pointer">
+           class="post-item"> <!-- 타임리프 링크 생성 문법 @{URL(param)} -->
+          <div class="flex gap-4 p-4 border rounded-xl hover:bg-neutral-50 transition cursor-pointer">
             <div class="bg-neutral-200 rounded-lg flex-shrink-0" style="width: 96px; height: 96px;">
 <!--              첫 번째 이미지만 표시-->
               <img th:if="${post.images != null and !#lists.isEmpty(post.images)}"
@@ -70,6 +79,9 @@
                   <span th:text="${post.category.categoryName}" class="text-xs px-2 py-1 bg-neutral-200 rounded"></span>
                 <h2 th:text="${post.title}" class="font-semibold text-sm"></h2>
               </div>
+              <p th:if="${post.category.categoryName == '밥친구' and post.meetingTime != null}"
+                 class="mb-1 text-xs font-semibold text-blue-600"
+                 th:text="|약속 시간 ${#temporals.format(post.meetingTime, 'yyyy.MM.dd HH:mm')}|"></p>
 
               <p th:text="${post.content} " class="text-sm text-neutral-600 line-clamp-2  whitespace-pre-line"></p>
 
@@ -83,33 +95,30 @@
         </a>
       </div>
 
-      <div class="mt-6 flex justify-center" th:if="${#lists.size(postList) > 8}">
-        <button id="loadMorePosts"
-                type="button"
-                class="px-5 py-3 text-sm font-bold text-neutral-700 border border-neutral-300 rounded-lg hover:bg-neutral-100 dark:text-neutral-100 dark:border-neutral-600 dark:hover:bg-neutral-700">
-          게시글 더보기
-        </button>
+      <div class="mt-6 flex items-center justify-center gap-2" th:if="${totalPages > 1}">
+        <a th:if="${currentPage > 0 and currentCategory == '전체'}"
+           th:href="@{/post/list(page=${currentPage - 1})}"
+           class="px-4 py-2 text-sm font-bold text-neutral-700 border border-neutral-300 rounded-lg hover:bg-neutral-100 dark:text-neutral-100 dark:border-neutral-600 dark:hover:bg-neutral-700">
+          이전
+        </a>
+        <a th:if="${currentPage > 0 and currentCategory != '전체'}"
+           th:href="@{/post/list/{category}(category=${currentCategory}, page=${currentPage - 1})}"
+           class="px-4 py-2 text-sm font-bold text-neutral-700 border border-neutral-300 rounded-lg hover:bg-neutral-100 dark:text-neutral-100 dark:border-neutral-600 dark:hover:bg-neutral-700">
+          이전
+        </a>
+        <span class="px-4 py-2 text-sm text-neutral-500"
+              th:text="|${currentPage + 1} / ${totalPages}|">1 / 1</span>
+        <a th:if="${currentPage + 1 < totalPages and currentCategory == '전체'}"
+           th:href="@{/post/list(page=${currentPage + 1})}"
+           class="px-4 py-2 text-sm font-bold text-neutral-700 border border-neutral-300 rounded-lg hover:bg-neutral-100 dark:text-neutral-100 dark:border-neutral-600 dark:hover:bg-neutral-700">
+          다음
+        </a>
+        <a th:if="${currentPage + 1 < totalPages and currentCategory != '전체'}"
+           th:href="@{/post/list/{category}(category=${currentCategory}, page=${currentPage + 1})}"
+           class="px-4 py-2 text-sm font-bold text-neutral-700 border border-neutral-300 rounded-lg hover:bg-neutral-100 dark:text-neutral-100 dark:border-neutral-600 dark:hover:bg-neutral-700">
+          다음
+        </a>
       </div>
     </div>
-
-    <script>
-      const POSTS_PER_PAGE = 8;
-
-      window.addEventListener("DOMContentLoaded", () => {
-        const loadMoreButton = document.getElementById("loadMorePosts");
-        const postItems = [...document.querySelectorAll(".post-item")];
-
-        if (!loadMoreButton) return;
-
-        loadMoreButton.addEventListener("click", () => {
-          const hiddenItems = postItems.filter(item => item.classList.contains("hidden"));
-          hiddenItems.slice(0, POSTS_PER_PAGE).forEach(item => item.classList.remove("hidden"));
-
-          if (!postItems.some(item => item.classList.contains("hidden"))) {
-            loadMoreButton.classList.add("hidden");
-          }
-        });
-      });
-    </script>
   </div>
 </div>

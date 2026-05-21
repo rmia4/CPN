@@ -6,6 +6,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.time.LocalDateTime;
+
 @NoArgsConstructor
 @Getter
 @Setter
@@ -24,4 +26,6 @@ public class MapPostRequestDto {
 
     @NotBlank(message = "카테고리가 없음")
     private String category;
+
+    private LocalDateTime meetingTime;
 }

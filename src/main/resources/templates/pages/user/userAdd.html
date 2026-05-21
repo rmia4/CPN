@@ -31,6 +31,11 @@
                 <input type="password" id="passwd" th:field="*{passwd}" required>
                 <p th:if="${#fields.hasErrors('passwd')}" th:errors="*{passwd}"></p>
             </div>
+            <div>
+                <label for="passwdConfirm">비밀번호 확인</label>
+                <input type="password" id="passwdConfirm" th:field="*{passwdConfirm}" required>
+                <p th:if="${#fields.hasErrors('passwdConfirm')}" th:errors="*{passwdConfirm}"></p>
+            </div>
             <button type="submit">가입하기</button>
         </form>
     </div>

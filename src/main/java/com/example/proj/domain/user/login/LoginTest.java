@@ -16,6 +16,8 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDateTime;
+
 //로그인 기능 테스트용 유저 생성 클래스파일
 @Component
 public class LoginTest implements CommandLineRunner {
@@ -102,6 +104,7 @@ public class LoginTest implements CommandLineRunner {
         table2.addTimeSlot(slot3);
         timeTableRepository.save(table2);
 
+        int mealPostIndex = 0;
         for (MainService.DummyPostSeed seed : mainService.getDummyPostSeedList()) {
             PostSaveRequestDto postDto = new PostSaveRequestDto();
             postDto.setTitle(seed.title());
@@ -110,6 +113,15 @@ public class LoginTest implements CommandLineRunner {
             postDto.setLat(seed.lat());
             postDto.setLon(seed.lon());
             postDto.setUserId(user2.getUserId());
+            if ("밥친구".equals(seed.category())) {
+                postDto.setMeetingTime(LocalDateTime.now()
+                        .plusDays(mealPostIndex / 2)
+                        .withHour(mealPostIndex % 2 == 0 ? 12 : 18)
+                        .withMinute(0)
+                        .withSecond(0)
+                        .withNano(0));
+                mealPostIndex++;
+            }
 
             postService.addPost(postDto, java.util.List.of(seed.imageUrl()));
         }

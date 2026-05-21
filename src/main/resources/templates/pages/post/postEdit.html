@@ -35,12 +35,28 @@
                     <label for="title" class="mb-1 block text-sm font-semibold text-neutral-700 dark:text-neutral-200">
                         제목
                     </label>
+                    <p th:if="${post.category.categoryName == '분실물'}"
+                       class="mb-2 text-xs text-neutral-500 dark:text-neutral-400">
+                        분실물 제목 태그는 수정할 수 없습니다.
+                    </p>
                     <input id="title"
                            type="text"
                            name="title"
                            th:value="${post.title}"
+                           th:readonly="${post.category.categoryName == '분실물'}"
                            class="w-full border border-neutral-200 bg-white px-3 py-2 text-sm text-neutral-950 focus:outline-none focus:ring-2 focus:ring-neutral-300 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-100"
                            required>
+                </div>
+
+                <div id="meetingTimeBox">
+                    <label for="meetingTime" class="mb-1 block text-sm font-semibold text-neutral-700 dark:text-neutral-200">
+                        밥친구 약속 시간
+                    </label>
+                    <input id="meetingTime"
+                           type="datetime-local"
+                           name="meetingTime"
+                           th:value="${post.meetingTime == null ? '' : #temporals.format(post.meetingTime, 'yyyy-MM-dd''T''HH:mm')}"
+                           class="w-full border border-neutral-200 bg-white px-3 py-2 text-sm text-neutral-950 focus:outline-none focus:ring-2 focus:ring-neutral-300 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-100">
                 </div>
 
                 <div>
@@ -70,5 +86,22 @@
                 </div>
             </form>
         </main>
+        <script>
+            const categorySelect = document.getElementById("category");
+            const meetingTimeBox = document.getElementById("meetingTimeBox");
+            const meetingTimeInput = document.getElementById("meetingTime");
+
+            function updateMeetingTimeVisibility() {
+                const isMealPost = categorySelect.value === "밥친구";
+                meetingTimeBox.classList.toggle("hidden", !isMealPost);
+                meetingTimeInput.required = isMealPost;
+                if (!isMealPost) {
+                    meetingTimeInput.value = "";
+                }
+            }
+
+            categorySelect.addEventListener("change", updateMeetingTimeVisibility);
+            updateMeetingTimeVisibility();
+        </script>
     </div>
 </div>

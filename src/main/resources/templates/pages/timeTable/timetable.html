@@ -190,7 +190,7 @@
                     <th:block th:each="item : ${timeTable}">
                         <th:block th:each="slot : ${item.timeSlotModels}">
 
-                            <div class="subject relative border rounded p-2 text-sm z-10 dark:text-black"
+                            <div class="subject relative border rounded p-2 text-sm z-10"
                                  th:data-id="${item.id}"
                                  th:data-title="${item.title}"
 
@@ -482,7 +482,7 @@
                     <div class="slot-item mb-3 relative">
 
                         <div class="flex gap-2 mb-2">
-                            <select name="timeSlots[${slotIndex}].day" class="flex-1 p-2 border rounded" required>
+                            <select name="timeSlots[${slotIndex}].day" class="flex-1 p-2 border rounded dark:bg-neutral-900 dark:text-neutral-100" required>
                                 <option value="" disabled selected hidden>요일</option>
                                 <option value="1">월</option>
                                 <option value="2">화</option>
@@ -491,12 +491,12 @@
                                 <option value="5">금</option>
                             </select>
 
-                            <select name="timeSlots[${slotIndex}].startTime" class="flex-1 p-2 border rounded" required>
+                            <select name="timeSlots[${slotIndex}].startTime" class="flex-1 p-2 border rounded dark:bg-neutral-900 dark:text-neutral-100" required>
                                 <option value="" disabled selected hidden>시작</option>
                                 ${generateTimeOptions()}
                             </select>
 
-                            <select name="timeSlots[${slotIndex}].endTime" class="flex-1 p-2 border rounded" required>
+                            <select name="timeSlots[${slotIndex}].endTime" class="flex-1 p-2 border rounded dark:bg-neutral-900 dark:text-neutral-100" required>
                                 <option value="" disabled selected hidden>종료</option>
                                 ${generateTimeOptions()}
                             </select>
@@ -506,7 +506,7 @@
                             <input name="timeSlots[${slotIndex}].place"
                                    type="text"
                                    placeholder="수업장소"
-                                   class="flex-1 p-2 border rounded">
+                                   class="flex-1 p-2 border rounded dark:bg-neutral-900 dark:text-neutral-100">
                             <button type="button"
                                     onclick="removeSlot(this)"
                                     class="text-xs px-2 py-1 bg-red-400 text-white rounded">
@@ -750,8 +750,13 @@
                 const rangeMatch = text.match(/(오전|오후)?\s*(\d{1,2})\s*시?\s*(?:부터|에서|-|~)\s*(오전|오후)?\s*(\d{1,2})\s*시?/);
                 if (!rangeMatch) return null;
 
-                const startTime = normalizeHour(Number(rangeMatch[2]), rangeMatch[1]);
-                const endTime = normalizeHour(Number(rangeMatch[4]), rangeMatch[3] || rangeMatch[1], startTime);
+                let startTime = normalizeHour(Number(rangeMatch[2]), rangeMatch[1]);
+                let endTime = normalizeHour(Number(rangeMatch[4]), rangeMatch[3] || rangeMatch[1], startTime);
+
+                if (!rangeMatch[1] && !rangeMatch[3] && startTime >= 1 && startTime <= 6 && endTime >= 1 && endTime <= 6) {
+                    startTime += 12;
+                    endTime += 12;
+                }
 
                 return {startTime, endTime};
             }

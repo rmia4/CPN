@@ -32,6 +32,9 @@ public class PostModel {
     private LocalDateTime createdAt;
 
     @Column(nullable = true)
+    private LocalDateTime meetingTime;
+
+    @Column(nullable = true)
     private Float lon;
     @Column(nullable = true)
     private Float lat;
@@ -57,4 +60,3 @@ public class PostModel {
 
 
 }
-

@@ -37,6 +37,11 @@ public class UserController {
         if (userSaveRequestDto.getUserNumber() != null && userService.existsByUserNumber(userSaveRequestDto.getUserNumber())) {
             bindingResult.rejectValue("userNumber", "duplicate", "이미 사용 중인 학번입니다.");
         }
+        if (userSaveRequestDto.getPasswd() != null
+                && userSaveRequestDto.getPasswdConfirm() != null
+                && !userSaveRequestDto.getPasswd().equals(userSaveRequestDto.getPasswdConfirm())) {
+            bindingResult.rejectValue("passwdConfirm", "passwordMismatch", "비밀번호가 일치하지 않습니다.");
+        }
 
         if (bindingResult.hasErrors()) {
             model.addAttribute("signupError", true);
