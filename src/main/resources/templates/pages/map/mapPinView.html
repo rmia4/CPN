@@ -97,7 +97,7 @@
                         <button id="detailDeleteBtn"
                                 type="button"
                                 aria-label="핀 삭제"
-                                class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-neutral-100 text-neutral-500 transition hover:bg-red-800 hover:text-white dark:bg-neutral-700 dark:text-neutral-200 dark:hover:bg-red-800">
+                                class="hidden h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-neutral-100 text-neutral-500 transition hover:bg-red-800 hover:text-white dark:bg-neutral-700 dark:text-neutral-200 dark:hover:bg-red-800">
                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
                                  stroke-width="1.5" stroke="currentColor" class="size-5">
                                 <path stroke-linecap="round" stroke-linejoin="round"
@@ -257,6 +257,7 @@
             const detailLoginPrompt = document.getElementById("detailLoginPrompt");
             const mapLoginPrompt = document.getElementById("mapLoginPrompt");
             let selectedDetailPin = null;
+            let activeDetailPinId = null;
             const PIN_TAG_STYLES = {
                 "분실물": {
                     color: "#ef4444",
@@ -454,6 +455,7 @@
             ========================= */
             function showDetail(pin) {
                 selectedDetailPin = pin;
+                activeDetailPinId = String(pin.id);
                 document.getElementById('detailName').textContent = pin.title;
                 document.getElementById('detailDescription').textContent = pin.description || '';
                 renderMeetingTime(pin);
@@ -479,21 +481,23 @@
                 };
 
                 const deleteBtn = document.getElementById('detailDeleteBtn');
+                deleteBtn.classList.add('hidden');
+                deleteBtn.classList.remove('flex');
+                deleteBtn.disabled = true;
+                deleteBtn.removeAttribute('data-delete-action');
+                deleteBtn.removeAttribute('data-csrf-name');
+                deleteBtn.removeAttribute('data-csrf-value');
                 deleteBtn.onclick = () => deletePin(pin.id);
 
-                // if (pin.ownedByCurrentUser) {
-                //     deleteBtn.classList.remove('hidden');
-                // } else {
-                //     deleteBtn.classList.add('hidden');
-                // }
-
                 document.getElementById('pinDetail').style.display = 'block';
+                updateDetailDeleteButton(pin);
             }
 
             function showBusTimeDetail() {
                 document.getElementById('detailName').textContent = BUS_TIME_INFO.title;
                 document.getElementById('detailDescription').textContent = BUS_TIME_INFO.description;
                 selectedDetailPin = null;
+                activeDetailPinId = null;
                 document.getElementById('detailComments').innerHTML = "";
                 detailCommentForm.classList.add("hidden");
                 detailLoginPrompt.classList.add("hidden");
@@ -502,7 +506,10 @@
                 const detailPostLink = document.getElementById('detailPostLink');
                 detailPostLink.href = '#';
                 detailPostLink.style.display = 'none';
-                document.getElementById('detailDeleteBtn').classList.add('hidden');
+                const deleteBtn = document.getElementById('detailDeleteBtn');
+                deleteBtn.classList.add('hidden');
+                deleteBtn.classList.remove('flex');
+                deleteBtn.disabled = true;
 
                 const img = document.getElementById('detailImage');
                 img.src = BUS_TIME_INFO.imageUrl;
@@ -517,6 +524,7 @@
             function closeDetail() {
                 document.getElementById('pinDetail').style.display = 'none';
                 selectedDetailPin = null;
+                activeDetailPinId = null;
             }
 
             function renderMeetingTime(pin) {
