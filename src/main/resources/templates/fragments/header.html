@@ -27,17 +27,17 @@
                         <span class="themeIcon">🌙</span>
                     </button>
                     <a href="/mapPin"
-                       class="px-3 py-2 text-sm font-medium text-neutral-600 hover:text-neutral-950 hover:bg-neutral-100 rounded-lg transition duration-150">
+                       class="px-3 py-2 text-sm font-medium text-neutral-600 hover:text-neutral-950 hover:bg-neutral-100 dark:hover:bg-white/20 rounded-lg transition duration-150">
                         지도
                     </a>
 
                     <a href="/timetable"
-                       class="px-3 py-2 text-sm font-medium text-neutral-600 hover:text-neutral-950 hover:bg-neutral-100 rounded-lg transition duration-150">
+                       class="px-3 py-2 text-sm font-medium text-neutral-600 hover:text-neutral-950 hover:bg-neutral-100 dark:hover:bg-white/20 rounded-lg transition duration-150">
                         시간표
                     </a>
 
                     <a href="/post/list"
-                       class="px-3 py-2 text-sm font-medium text-neutral-600 hover:text-neutral-950 hover:bg-neutral-100 rounded-lg transition duration-150">
+                       class="px-3 py-2 text-sm font-medium text-neutral-600 hover:text-neutral-950 hover:bg-neutral-100 dark:hover:bg-white/20 rounded-lg transition duration-150">
                         게시판
                     </a>
 
@@ -54,35 +54,6 @@
 
                 <!-- Language Switcher (md 이상에서만 표시) -->
                 <div class="md:flex md:items-center md:gap-8">
-                    <!-- Language Switcher -->
-                    <div
-                            class="hidden relative inline-flex items-center p-1 bg-neutral-100 rounded-full"
-                            role="radiogroup"
-                            aria-label="Language"
-                    >
-                        <button
-                                class="relative z-10 flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium
-                text-neutral-500 hover:text-neutral-900 transition-colors duration-200 rounded-full"
-                               role="radio"
-                               aria-checked="false"
-                               aria-label="English"
-                        >
-                            <a href="#en">
-                               <span>🇺🇸</span>
-                               <span>EN</span>
-                            </a>
-                        </button>
-                        <button
-                                class="relative z-10 flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium
-                text-white bg-neutral-950 transition-colors duration-200 rounded-full"
-                                role="radio"
-                                aria-checked="true"
-                                aria-label="한국어"
-                        >
-                            <span>🇰🇷</span>
-                            <span>한국어</span>
-                        </button>
-                    </div>
                     <!-- user status -->
                     <div class="flex flex-1 justify-center px-4">
                         <a sec:authorize="isAnonymous()"
@@ -144,17 +115,17 @@
                 <!-- Mobile Nav -->
                 <nav id="mobileNavLinks" class="flex flex-col gap-1">
                     <a href="/mapPin"
-                       class="px-4 py-3 text-lg font-semibold text-neutral-800 hover:bg-neutral-100 rounded-xl transition duration-150">
+                       class="px-4 py-3 text-lg font-semibold text-neutral-800 hover:bg-neutral-100 dark:hover:bg-white/20 rounded-xl transition duration-150">
                         지도
                     </a>
 
                     <a href="/timetable"
-                       class="px-4 py-3 text-lg font-semibold text-neutral-800 hover:bg-neutral-100 rounded-xl transition duration-150">
+                       class="px-4 py-3 text-lg font-semibold text-neutral-800 hover:bg-neutral-100 dark:hover:bg-white/20 rounded-xl transition duration-150">
                         시간표
                     </a>
 
                     <a href="/post/list"
-                       class="px-4 py-3 text-lg font-semibold text-neutral-800 hover:bg-neutral-100 rounded-xl transition duration-150">
+                       class="px-4 py-3 text-lg font-semibold text-neutral-800 hover:bg-neutral-100 dark:hover:bg-white/20 rounded-xl transition duration-150">
                         게시판
                     </a>
 
@@ -176,37 +147,6 @@
                     >
                         <span class="themeIcon">🌙</span>
                     </button>
-                    <div class="flex justify-center gap-3">
-                        <!-- Language Switcher -->
-                        <div
-                                class="relative inline-flex items-center p-1 bg-neutral-100 rounded-full"
-                                role="radiogroup"
-                                aria-label="Language"
-                        >
-                            <button
-                                    class="relative z-10 flex items-center px-3 py-1.5 gap-1.5 text-sm font-medium
-                  text-neutral-600 hover:text-neutral-900 transition-colors duration-200 rounded-full"
-                                    role="radio"
-                                    aria-checked="false"
-                                    aria-label="English"
-                            >
-                                <a href="#en">
-                                    <span>🇺🇸</span>
-                                    <span>EN</span>
-                                </a>
-                            </button>
-                            <button
-                                    class="relative z-10 flex items-center px-3 py-1.5 gap-1.5
-                  text-sm font-medium text-white bg-neutral-950 rounded-full"
-                                    role="radio"
-                                    aria-checked="true"
-                                    aria-label="한국어"
-                            >
-                                <span>🇰🇷</span>
-                                <span>한국어</span>
-                            </button>
-                        </div>
-                    </div>
                 </div>
             </div>
         </div>

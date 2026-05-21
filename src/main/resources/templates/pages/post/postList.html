@@ -4,15 +4,15 @@
     <div class="max-w-4xl w-full mx-auto px-4 py-6">
       <!-- 탭 -->
       <div id="tabs" class="flex gap-2 border-b pb-2 mb-4 overflow-x-auto">
-        <a class="px-4 py-2 text-sm font-semibold rounded-full text-neutral-600 hover:bg-neutral-100"
-           th:classappend="${currentCategory == '전체'} ? 'bg-neutral-900 text-white' : ''"
+        <a class="px-4 py-2 text-sm font-semibold rounded-full text-neutral-600 hover:bg-neutral-100 dark:hover:bg-white/20"
+           th:classappend="${currentCategory == '전체'} ? 'bg-neutral-900 dark:bg-white/20 text-white' : ''"
            href="/post/list">전체</a>
         <a
                 th:each="tab : ${categoryList}"
                 th:text="${tab.categoryName}"
                 th:href="@{/post/list/{id}(id=${tab.categoryName})}"
-                class="px-4 py-2 text-sm font-semibold rounded-full text-neutral-600 hover:bg-neutral-100"
-                th:classappend="${tab.categoryName == currentCategory} ? 'bg-neutral-900 text-white' : ''">
+                class="px-4 py-2 text-sm font-semibold rounded-full text-neutral-600 hover:bg-neutral-100 dark:hover:bg-white/20"
+                th:classappend="${tab.categoryName == currentCategory} ? 'bg-neutral-900 dark:bg-white/20 text-white' : ''">
         </a>
       </div>
       <!-- 게시판 정보 -->
@@ -28,7 +28,7 @@
         <a
                 href="/post/add"
                 class="inline-flex items-center justify-center px-4 py-2 w-[90px] text-sm font-semibold text-white
-          bg-neutral-900 hover:bg-neutral-800 active:scale-95 transition-colors duration-150 rounded-lg"
+          bg-neutral-900 hover:bg-neutral-800 dark:hover:bg-white/20 active:scale-95 transition-colors duration-150 rounded-lg"
                 aria-label="게시글 작성"
         >
           글쓰기
@@ -43,7 +43,7 @@
           첫 게시글을 작성해서 캠퍼스 이야기를 시작해보세요.
         </p>
         <a href="/post/add"
-           class="mt-5 inline-flex items-center justify-center rounded-lg bg-neutral-900 px-4 py-2 text-sm font-bold text-white hover:bg-neutral-800">
+           class="mt-5 inline-flex items-center justify-center rounded-lg bg-neutral-900 px-4 py-2 text-sm font-bold text-white hover:bg-neutral-800 dark:hover:bg-white/20">
           글쓰기
         </a>
       </div>
@@ -54,7 +54,7 @@
            th:href="@{/post/detail/{id}(id=${post.id})}"
            class="post-item"
            th:classappend="${iterStat.index >= 8} ? ' hidden' : ''"> <!-- 타임리프 링크 생성 문법 @{URL(param)} -->
-          <div class="flex gap-4 p-4 border rounded-xl hover:bg-neutral-50 transition cursor-pointer">
+          <div class="flex gap-4 p-4 border rounded-xl hover:bg-neutral-50 dark:hover:bg-white/20 transition cursor-pointer">
             <div class="bg-neutral-200 rounded-lg flex-shrink-0" style="width: 96px; height: 96px;">
 <!--              첫 번째 이미지만 표시-->
               <img th:if="${post.images != null and !#lists.isEmpty(post.images)}"
