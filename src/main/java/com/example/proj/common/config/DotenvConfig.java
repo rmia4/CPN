@@ -9,6 +9,8 @@ public class DotenvConfig {
 
     @Bean
     public Dotenv dotenv() {
-        return Dotenv.load();
+        return Dotenv.configure()
+                .ignoreIfMissing()
+                .load();
     }
 }
