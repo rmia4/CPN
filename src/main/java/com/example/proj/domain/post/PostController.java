@@ -8,6 +8,8 @@ import com.example.proj.domain.post.comment.CommentService;
 import com.example.proj.domain.user.login.CustomUserDetail;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -31,27 +33,37 @@ public class PostController {
 
     // 게시글 리스트 페이지
     @GetMapping({"/list", "/list/"})
-    public String postList(Model model) {
-        List<PostModel> postList = postService.getAllPosts();
-        model.addAttribute("postList", postList);
-        model.addAttribute("categoryList", categoryService.findAll());
-        model.addAttribute("currentCategory", "전체");
-        return "pages/post/postList";
+    public String postList(@RequestParam(defaultValue = "0") int page,
+                           Model model) {
+        return addPostListModel(postService.getPosts(PageRequest.of(normalizePage(page), 8)),
+                "전체",
+                model);
     }
     //카테고리에 맞는 게시글 검색
     @GetMapping("/list/{category}")
-    public String postListByCategory(@PathVariable("category") String category, Model model) {
-        model.addAttribute("postList",postService.getPostsByCategory(category));
-        model.addAttribute("categoryList", categoryService.findAll());
-        model.addAttribute("currentCategory", category);
+    public String postListByCategory(@PathVariable("category") String category,
+                                     @RequestParam(defaultValue = "0") int page,
+                                     Model model) {
+        PageRequest pageRequest = PageRequest.of(normalizePage(page), 8);
+        Page<PostModel> postPage = isLostType(category)
+                ? postService.getLostPostsByType(category, pageRequest)
+                : postService.getPostsByCategory(category, pageRequest);
 
-        return "pages/post/postList";
+        return addPostListModel(postPage,
+                category,
+                model);
     }
 
 
     @GetMapping("/add")
-    public String addForm(Model model)
+    public String addForm(@AuthenticationPrincipal CustomUserDetail userDetail, Model model)
     {
+        if (userDetail == null) {
+            model.addAttribute("loginRequiredMessage", "게시글 작성은 로그인 후 사용할 수 있습니다.");
+            model.addAttribute("loginRequiredAction", "로그인하고 글쓰기");
+            return "pages/auth/loginRequired";
+        }
+
         model.addAttribute("categoryList", categoryService.findAll());
         return "pages/post/postAdd";
     }
@@ -62,8 +74,15 @@ public class PostController {
                               @AuthenticationPrincipal CustomUserDetail userDetail,
                               @RequestParam("image") List<MultipartFile> files,
                               Model model) throws IOException {
+        if (userDetail == null) {
+            model.addAttribute("loginRequiredMessage", "게시글 작성은 로그인 후 사용할 수 있습니다.");
+            model.addAttribute("loginRequiredAction", "로그인하고 글쓰기");
+            return "pages/auth/loginRequired";
+        }
+
         postSaveRequestDto.setUserId(userDetail.getUsername());
         if (bindingResult.hasErrors()) {
+            model.addAttribute("categoryList", categoryService.findAll());
             return "pages/post/postAdd";
         }
         // 이미지 저장
@@ -168,6 +187,25 @@ public class PostController {
                 && post != null
                 && post.getUser() != null
                 && post.getUser().getUserId().equals(userDetail.getUsername());
+    }
+
+    private String addPostListModel(Page<PostModel> postPage, String currentCategory, Model model) {
+        model.addAttribute("postPage", postPage);
+        model.addAttribute("postList", postPage.getContent());
+        model.addAttribute("categoryList", categoryService.findAll());
+        model.addAttribute("currentCategory", currentCategory);
+        model.addAttribute("currentPage", postPage.getNumber());
+        model.addAttribute("totalPages", postPage.getTotalPages());
+        model.addAttribute("totalPosts", postPage.getTotalElements());
+        return "pages/post/postList";
+    }
+
+    private int normalizePage(int page) {
+        return Math.max(page, 0);
+    }
+
+    private boolean isLostType(String category) {
+        return "분실했어요".equals(category) || "습득했어요".equals(category);
     }
 
 

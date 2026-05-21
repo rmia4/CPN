@@ -27,6 +27,8 @@
           <!-- meta -->
           <div class="text-sm text-neutral-400 mb-4 flex gap-3">
             <span th:text="${#temporals.format(post.createdAt, 'yyyy.MM.dd HH:mm')}"></span>
+            <span th:if="${post.category.categoryName == '밥친구' and post.meetingTime != null}"
+                  th:text="|약속 ${#temporals.format(post.meetingTime, 'yyyy.MM.dd HH:mm')}|"></span>
             <span>댓글 <span th:text="${#lists.size(commentList)}"></span></span>
             <span th:text="${post.user.userId}"></span>
           </div>
@@ -112,7 +114,11 @@
           </form>
 
           <div sec:authorize="isAnonymous()" class="mt-4 text-sm text-neutral-500">
-            <a href="/login" class="underline">로그인</a> 후 댓글을 작성할 수 있습니다.
+            로그인 후 댓글을 작성할 수 있습니다.
+            <a href="/login"
+               class="ml-2 inline-flex items-center justify-center rounded bg-neutral-900 px-3 py-1.5 text-xs font-bold text-white hover:bg-neutral-800">
+              로그인 페이지로 이동
+            </a>
           </div>
         </section>
       </div>

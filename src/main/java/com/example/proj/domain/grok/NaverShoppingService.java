@@ -23,7 +23,7 @@ public class NaverShoppingService {
     private final ObjectMapper objectMapper;
     private final RestTemplate restTemplate = new RestTemplate();
 
-    public List<String> searchImages(String keyword, int display) {
+    public List<String> searchImages(String keyword, String gender, int display) {
         String clientId = dotenv.get("NAVER_CLIENT_ID");
         String clientSecret = dotenv.get("NAVER_CLIENT_SECRET");
 
@@ -35,9 +35,11 @@ public class NaverShoppingService {
         headers.set("X-Naver-Client-Id", clientId);
         headers.set("X-Naver-Client-Secret", clientSecret);
 
+        String query = buildGenderAwareKeyword(keyword, gender);
+
         String url = UriComponentsBuilder
                 .fromUriString("https://openapi.naver.com/v1/search/shop.json")
-                .queryParam("query", keyword)
+                .queryParam("query", query)
                 .queryParam("display", display)
                 .queryParam("sort", "sim")
                 .build(false)
@@ -65,5 +67,22 @@ public class NaverShoppingService {
         } catch (HttpClientErrorException e) {
             return List.of();
         }
+    }
+
+    private String buildGenderAwareKeyword(String keyword, String gender) {
+        String baseKeyword = keyword == null || keyword.isBlank() ? "오늘 의상" : keyword.trim();
+        if (gender == null || gender.isBlank()) {
+            return baseKeyword;
+        }
+
+        String trimmedGender = gender.trim();
+        if (trimmedGender.contains("남")) {
+            return "남성 " + baseKeyword;
+        }
+        if (trimmedGender.contains("여")) {
+            return "여성 " + baseKeyword;
+        }
+
+        return baseKeyword;
     }
 }

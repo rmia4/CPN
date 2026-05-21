@@ -3,6 +3,8 @@ package com.example.proj.domain.grok;
 
 import com.example.proj.domain.grok.weather.WeatherRequestDto;
 import com.example.proj.domain.grok.weather.WeatherService;
+import com.example.proj.domain.user.UserModel;
+import com.example.proj.domain.user.UserService;
 import com.example.proj.domain.user.login.CustomUserDetail;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -24,9 +26,10 @@ public class GrokController {
     private final GrokService grokService;
     private final WeatherService weatherService;
     private final NaverShoppingService naverShoppingService;
+    private final UserService userService;
 
     @GetMapping("/grok")
-    public String grokMain(Model model) {
+    public String grokMain(Model model, @AuthenticationPrincipal CustomUserDetail userDetail) {
         WeatherRequestDto weatherData;
         String weatherSummary;
 
@@ -42,6 +45,7 @@ public class GrokController {
 
         model.addAttribute("weatherData", weatherData);
         model.addAttribute("weatherSummary", weatherSummary);
+        model.addAttribute("userGender", getProfileGender(userDetail));
 
         return "pages/grok/grokIndex";
     }
@@ -55,15 +59,18 @@ public class GrokController {
         String weatherSummary = request.weatherSummary() == null || request.weatherSummary().isBlank()
                 ? "날씨 정보가 없습니다."
                 : request.weatherSummary();
-        String gender = userDetail == null || userDetail.getUserModel() == null
+        String profileGender = userDetail == null || userDetail.getUserModel() == null
                 ? null
-                : userDetail.getUserModel().getGender();
+                : getProfileGender(userDetail);
+        String gender = request.gender() == null || request.gender().isBlank()
+                ? profileGender
+                : request.gender();
 
         try {
             GrokService.OutfitRecommendation recommendation = grokService.recommendOutfit(message, weatherSummary, gender);
             return ResponseEntity.ok(new GrokChatResponse(
                     recommendation.answer(),
-                    naverShoppingService.searchImages(recommendation.shoppingKeyword(), 6)
+                    naverShoppingService.searchImages(recommendation.shoppingKeyword(), gender, 6)
             ));
         } catch (Exception e) {
             return ResponseEntity.internalServerError()
@@ -106,7 +113,39 @@ public class GrokController {
         return value == null || value.isBlank() ? "-" : value;
     }
 
-    public record GrokChatRequest(String message, String weatherSummary) {
+    private String getProfileGender(CustomUserDetail userDetail) {
+        if (userDetail == null || userDetail.getUsername() == null || userDetail.getUsername().isBlank()) {
+            return "";
+        }
+
+        UserModel user = userService.findByUserId(userDetail.getUsername());
+        if (user == null) {
+            return "";
+        }
+
+        return normalizeGender(user.getGender());
+    }
+
+    private String normalizeGender(String gender) {
+        if (gender == null || gender.isBlank()) {
+            return "";
+        }
+
+        String trimmedGender = gender.trim();
+        if (trimmedGender.contains("남")) {
+            return "남성";
+        }
+        if (trimmedGender.contains("여")) {
+            return "여성";
+        }
+        if (trimmedGender.contains("기타")) {
+            return "기타";
+        }
+
+        return trimmedGender;
+    }
+
+    public record GrokChatRequest(String message, String weatherSummary, String gender) {
     }
 
     public record GrokChatResponse(String answer, List<String> images) {

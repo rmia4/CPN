@@ -19,7 +19,7 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http.csrf(csrf -> csrf
-                .ignoringRequestMatchers("/grok/chat", "/grok/outfit-check", "/mapPin/add")
+                .ignoringRequestMatchers("/grok/chat", "/grok/outfit-check", "/mapPin/add", "/mapPin/*/comment/add")
         )
                 .authorizeHttpRequests(auth -> auth
                 //url 권한 설정

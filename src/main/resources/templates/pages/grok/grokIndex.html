@@ -78,6 +78,12 @@
                                     class="h-12 shrink-0 border border-neutral-300 px-4 text-sm font-semibold text-neutral-700 hover:bg-neutral-100 dark:border-neutral-600 dark:text-neutral-100 dark:hover:bg-neutral-700">
                                 이미지 올리기
                             </button>
+                            <select id="genderSelect"
+                                    class="h-12 shrink-0 border border-neutral-300 px-3 text-sm font-semibold text-neutral-700 dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-100">
+                                <option value="" th:selected="${userGender == null or userGender == ''}">성별 선택 안 함</option>
+                                <option value="남성" th:selected="${userGender == '남성'}">남성</option>
+                                <option value="여성" th:selected="${userGender == '여성'}">여성</option>
+                            </select>
                             <textarea id="messageInput"
                                       class="min-h-[48px] flex-1 resize-none border border-neutral-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-neutral-300 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-100"
                                       placeholder="예: 오늘 비 올 것 같아? 후드 입어도 괜찮을까?"
@@ -157,6 +163,7 @@
             const chatStatus = document.getElementById("chatStatus");
             const sendButton = document.getElementById("sendButton");
             const imageCheckButton = document.getElementById("imageCheckButton");
+            const genderSelect = document.getElementById("genderSelect");
             const weatherSummary = document.getElementById("weatherSummary")?.textContent?.trim() || "";
 
             function appendMessage(role, text) {
@@ -284,7 +291,8 @@
                         },
                         body: JSON.stringify({
                             message,
-                            weatherSummary
+                            weatherSummary,
+                            gender: genderSelect.value
                         })
                     });
 

@@ -18,7 +18,7 @@ public class CommentService {
     private final UserRepository userRepository;
     private final PostRepository postRepository;
 
-    public void addComment(CommentSaveRequestDto commentDto, Long postId, String userId) {
+    public CommentModel addComment(CommentSaveRequestDto commentDto, Long postId, String userId) {
         CommentModel comment =  new CommentModel();
 
         UserModel user = userRepository.findByUserId(userId);
@@ -35,7 +35,7 @@ public class CommentService {
         comment.setPost(post);
         comment.setContent(commentDto.getContent());
         comment.setCreatedAt(LocalDateTime.now());
-        commentRepository.save(comment);
+        return commentRepository.save(comment);
     }
 
     public List<CommentModel> findAllByPostId(Long postId) {

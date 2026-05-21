@@ -7,6 +7,8 @@ import com.example.proj.domain.post.category.CategoryRepository;
 import com.example.proj.domain.user.UserModel;
 import com.example.proj.domain.user.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -25,6 +27,7 @@ public class PostService {
         post.setTitle(postDto.getTitle());
         post.setContent(postDto.getContent());
         post.setCreatedAt(LocalDateTime.now());
+        post.setMeetingTime(postDto.getMeetingTime());
         post.setLon(postDto.getLon());
         post.setLat(postDto.getLat());
 
@@ -61,6 +64,18 @@ public class PostService {
 
     }
 
+    public Page<PostModel> getPosts(Pageable pageable) {
+        return postRepository.findAllByOrderByCreatedAtDesc(pageable);
+    }
+
+    public Page<PostModel> getPostsByCategory(String category, Pageable pageable) {
+        return postRepository.findAllByCategory_categoryNameOrderByCreatedAtDesc(category, pageable);
+    }
+
+    public Page<PostModel> getLostPostsByType(String lostType, Pageable pageable) {
+        return postRepository.findAllByTitleStartingWithOrderByCreatedAtDesc("[" + lostType + "]", pageable);
+    }
+
     public PostModel getPostById(Long id) {
         //여기도 예외처리 해야함
         return postRepository.findPostById(id);
@@ -70,9 +85,12 @@ public class PostService {
     public void updatePost(Long id, PostUpdateRequestDto dto, String userId) {
         PostModel post = getEditablePost(id, userId);
 
-        post.setTitle(dto.getTitle().trim());
+        if (!"분실물".equals(post.getCategory().getCategoryName())) {
+            post.setTitle(dto.getTitle().trim());
+        }
         post.setContent(dto.getContent().trim());
         post.setCategory(getOrCreateCategory(dto.getCategory()));
+        post.setMeetingTime(dto.getMeetingTime());
         post.setLon(dto.getLon());
         post.setLat(dto.getLat());
 
