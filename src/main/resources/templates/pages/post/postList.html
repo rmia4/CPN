@@ -4,23 +4,23 @@
     <div class="max-w-4xl w-full mx-auto px-4 py-6">
       <!-- 탭 -->
       <div id="tabs" class="flex gap-2 border-b pb-2 mb-4 overflow-x-auto whitespace-nowrap">
-        <a class="px-4 py-2 text-sm font-semibold rounded-full text-neutral-600 hover:bg-neutral-100"
+        <a class="px-4 py-2 text-sm font-semibold rounded-full text-neutral-600 hover:bg-neutral-100 dark:hover:bg-white/20"
            th:classappend="${currentCategory == '전체'} ? 'bg-neutral-900 dark:bg-white/20 text-white' : ''"
            th:href="@{/post/list}">전체</a>
         <a
                 th:each="tab : ${categoryList}"
                 th:text="${tab.categoryName}"
                 th:href="@{/post/list/{id}(id=${tab.categoryName})}"
-                class="px-4 py-2 text-sm font-semibold rounded-full text-neutral-600 hover:bg-neutral-100"
+                class="px-4 py-2 text-sm font-semibold rounded-full text-neutral-600 hover:bg-neutral-100 dark:hover:bg-white/20"
                 th:classappend="${tab.categoryName == currentCategory} ? 'bg-neutral-900 dark:bg-white/20 text-white' : ''">
         </a>
         <a th:href="@{/post/list/{id}(id='분실했어요')}"
-           class="px-4 py-2 text-sm font-semibold rounded-full text-neutral-600 hover:bg-neutral-100"
+           class="px-4 py-2 text-sm font-semibold rounded-full text-neutral-600 hover:bg-neutral-100 dark:hover:bg-white/20"
            th:classappend="${currentCategory == '분실했어요'} ? 'bg-neutral-900 dark:bg-white/20 text-white' : ''">
           분실
         </a>
         <a th:href="@{/post/list/{id}(id='습득했어요')}"
-           class="px-4 py-2 text-sm font-semibold rounded-full text-neutral-600 hover:bg-neutral-100"
+           class="px-4 py-2 text-sm font-semibold rounded-full text-neutral-600 hover:bg-neutral-100 dark:hover:bg-white/20"
            th:classappend="${currentCategory == '습득했어요'} ? 'bg-neutral-900 dark:bg-white/20 text-white' : ''">
           습득
         </a>
@@ -63,7 +63,7 @@
         <a th:each="post, iterStat: ${postList}"
            th:href="@{/post/detail/{id}(id=${post.id})}"
            class="post-item"> <!-- 타임리프 링크 생성 문법 @{URL(param)} -->
-          <div class="flex gap-4 p-4 border rounded-xl hover:bg-neutral-50 transition cursor-pointer">
+          <div class="flex gap-4 p-4 border rounded-xl hover:bg-neutral-50 dark:hover:bg-white/20 transition cursor-pointer">
             <div class="bg-neutral-200 rounded-lg flex-shrink-0" style="width: 96px; height: 96px;">
 <!--              첫 번째 이미지만 표시-->
               <img th:if="${post.images != null and !#lists.isEmpty(post.images)}"
