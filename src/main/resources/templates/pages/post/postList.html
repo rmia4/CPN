@@ -1,124 +1,414 @@
 <div th:replace="~{layout/layout :: layout(~{::content})}">
 
   <div th:fragment="content">
-    <div class="max-w-4xl w-full mx-auto px-4 py-6">
-      <!-- 탭 -->
-      <div id="tabs" class="flex gap-2 border-b pb-2 mb-4 overflow-x-auto whitespace-nowrap">
-        <a class="px-4 py-2 text-sm font-semibold rounded-full text-neutral-600 hover:bg-neutral-100 dark:hover:bg-white/20"
+    <div class="max-w-4xl w-full mx-auto px-4 py-6"
+         th:with="isLocationCategory=${currentCategory == '분실물' or currentCategory == '분실했어요' or currentCategory == '습득했어요' or currentCategory == '밥친구'}">
+      <!-- 스타일 영역 -->
+      <style>
+        #categoryCarousel {
+          -webkit-overflow-scrolling: touch;
+          -ms-overflow-style: none;
+          overscroll-behavior-inline: contain;
+          scrollbar-width: none;
+          scroll-behavior: smooth;
+          touch-action: pan-x pan-y;
+        }
+
+        #categoryCarousel::-webkit-scrollbar {
+          display: none;
+        }
+
+        #categoryCarousel.is-dragging {
+          cursor: grabbing;
+          scroll-behavior: auto;
+          user-select: none;
+        }
+
+        .tab-scroll-indicator {
+          opacity: 0;
+          pointer-events: none;
+          transition: opacity 180ms ease;
+        }
+
+        .tab-scroll-indicator.is-visible {
+          opacity: 1;
+        }
+      </style>
+
+      <!-- 탭 영역 -->
+      <div id="tabs" class="flex items-center gap-2 border-b pb-2 mb-4 whitespace-nowrap">
+        <a th:href="@{/post/list}"
            th:classappend="${currentCategory == '전체'} ? 'bg-neutral-900 dark:bg-white/20 text-white' : ''"
-           th:href="@{/post/list}">전체</a>
-        <a
-                th:each="tab : ${categoryList}"
-                th:text="${tab.categoryName}"
-                th:href="@{/post/list/{id}(id=${tab.categoryName})}"
-                class="px-4 py-2 text-sm font-semibold rounded-full text-neutral-600 hover:bg-neutral-100 dark:hover:bg-white/20"
-                th:classappend="${tab.categoryName == currentCategory} ? 'bg-neutral-900 dark:bg-white/20 text-white' : ''">
+           class="flex-shrink-0 px-4 py-2 text-sm font-semibold rounded-full text-neutral-600 hover:bg-neutral-100 dark:hover:bg-white/20">
+          전체
         </a>
-        <a th:href="@{/post/list/{id}(id='분실했어요')}"
-           class="px-4 py-2 text-sm font-semibold rounded-full text-neutral-600 hover:bg-neutral-100 dark:hover:bg-white/20"
-           th:classappend="${currentCategory == '분실했어요'} ? 'bg-neutral-900 dark:bg-white/20 text-white' : ''">
-          분실
-        </a>
-        <a th:href="@{/post/list/{id}(id='습득했어요')}"
-           class="px-4 py-2 text-sm font-semibold rounded-full text-neutral-600 hover:bg-neutral-100 dark:hover:bg-white/20"
-           th:classappend="${currentCategory == '습득했어요'} ? 'bg-neutral-900 dark:bg-white/20 text-white' : ''">
-          습득
-        </a>
+
+        <div id="tabCarouselFrame" class="relative min-w-0 flex-1 overflow-hidden">
+          <div id="categoryCarousel" class="flex gap-2 overflow-x-auto cursor-grab">
+            <a th:each="tab : ${categoryList}"
+               th:if="${tab.categoryName != '분실했어요' and tab.categoryName != '습득했어요'}"
+               th:text="${tab.categoryName}"
+               th:href="@{/post/list/{id}(id=${tab.categoryName})}"
+               th:attr="data-active=${tab.categoryName == currentCategory}"
+               th:classappend="${tab.categoryName == currentCategory} ? 'bg-neutral-900 dark:bg-white/20 text-white' : ''"
+               class="flex-shrink-0 px-4 py-2 text-sm font-semibold rounded-full text-neutral-600 hover:bg-neutral-100 dark:hover:bg-white/20">
+            </a>
+
+            <a th:href="@{/post/list/{id}(id='분실했어요')}"
+               th:attr="data-active=${currentCategory == '분실했어요'}"
+               th:classappend="${currentCategory == '분실했어요'} ? 'bg-neutral-900 dark:bg-white/20 text-white' : ''"
+               class="flex-shrink-0 px-4 py-2 text-sm font-semibold rounded-full text-neutral-600 hover:bg-neutral-100 dark:hover:bg-white/20">
+              분실
+            </a>
+
+            <a th:href="@{/post/list/{id}(id='습득했어요')}"
+               th:attr="data-active=${currentCategory == '습득했어요'}"
+               th:classappend="${currentCategory == '습득했어요'} ? 'bg-neutral-900 dark:bg-white/20 text-white' : ''"
+               class="flex-shrink-0 px-4 py-2 text-sm font-semibold rounded-full text-neutral-600 hover:bg-neutral-100 dark:hover:bg-white/20">
+              습득
+            </a>
+          </div>
+
+          <div id="tabLeftIndicator"
+               class="tab-scroll-indicator absolute inset-y-0 left-0 flex w-10 items-center justify-start bg-gradient-to-r from-white via-white/90 to-transparent text-neutral-600 dark:from-neutral-950 dark:via-neutral-950/90">
+            <span class="pl-1 text-lg font-bold">&lt;</span>
+          </div>
+
+          <div id="tabRightIndicator"
+               class="tab-scroll-indicator absolute inset-y-0 right-0 flex w-10 items-center justify-end bg-gradient-to-l from-white via-white/90 to-transparent text-neutral-600 dark:from-neutral-950 dark:via-neutral-950/90">
+            <span class="pr-1 text-lg font-bold">&gt;</span>
+          </div>
+        </div>
       </div>
+
       <!-- 게시판 정보 -->
       <div class="flex justify-between items-center mb-4">
         <div>
           <h1 id="boardTitle"
-              class="text-xl font-bold"
-              th:text="${currentCategory == '전체' ? '전체 게시판' : currentCategory + ' 게시판'}"></h1>
+              th:text="${currentCategory == '전체' ? '전체 게시판' : currentCategory + ' 게시판'}"
+              class="text-xl font-bold">
+          </h1>
           <p id="boardCount"
-             class="text-sm text-neutral-500"
-             th:text="|전체 글 ${totalPosts}|"></p>
+             th:text="|전체 글 ${totalPosts}|"
+             class="text-sm text-neutral-500">
+          </p>
         </div>
-        <a
-                href="/post/add"
-                class="inline-flex items-center justify-center px-4 py-2 w-[90px] text-sm font-semibold text-white
-          bg-neutral-900 hover:bg-neutral-800 dark:hover:bg-white/20 active:scale-95 transition-colors duration-150 rounded-lg"
-                aria-label="게시글 작성"
-        >
+
+        <a th:if="${!isLocationCategory}"
+           th:href="${currentCategory == '전체'} ? @{/post/add} : @{/post/add(category=${currentCategory})}"
+           aria-label="게시글 작성"
+           class="inline-flex items-center justify-center px-4 py-2 w-[90px] text-sm font-semibold text-white bg-neutral-900 hover:bg-neutral-800 dark:hover:bg-white/20 active:scale-95 transition-colors duration-150 rounded-lg">
           글쓰기
         </a>
+        <button th:if="${isLocationCategory}"
+                type="button"
+                th:attr="data-category=${currentCategory}"
+                class="location-write-btn inline-flex items-center justify-center px-4 py-2 w-[90px] text-sm font-semibold text-white bg-neutral-900 hover:bg-neutral-800 dark:hover:bg-white/20 active:scale-95 transition-colors duration-150 rounded-lg">
+          글쓰기
+        </button>
       </div>
 
+      <!-- 빈 게시글 안내 -->
       <div th:if="${#lists.isEmpty(postList)}"
            class="border border-dashed border-neutral-300 rounded-xl bg-neutral-50 px-6 py-16 text-center dark:border-neutral-700 dark:bg-neutral-900">
-        <p class="text-lg font-bold text-neutral-800 dark:text-neutral-100"
-           th:text="${currentCategory == '전체' ? '아직 게시글이 없습니다.' : currentCategory + ' 게시판에 아직 게시글이 없습니다.'}"></p>
+        <p th:text="${currentCategory == '전체' ? '아직 게시글이 없습니다.' : currentCategory + ' 게시판에 아직 게시글이 없습니다.'}"
+           class="text-lg font-bold text-neutral-800 dark:text-neutral-100">
+        </p>
         <p class="mt-2 text-sm text-neutral-500 dark:text-neutral-300">
           첫 게시글을 작성해서 캠퍼스 이야기를 시작해보세요.
         </p>
-        <a href="/post/add"
+        <a th:if="${!isLocationCategory}"
+           th:href="${currentCategory == '전체'} ? @{/post/add} : @{/post/add(category=${currentCategory})}"
            class="mt-5 inline-flex items-center justify-center rounded-lg bg-neutral-900 px-4 py-2 text-sm font-bold text-white hover:bg-neutral-800 dark:hover:bg-white/20">
           글쓰기
         </a>
+        <button th:if="${isLocationCategory}"
+                type="button"
+                th:attr="data-category=${currentCategory}"
+                class="location-write-btn mt-5 inline-flex items-center justify-center rounded-lg bg-neutral-900 px-4 py-2 text-sm font-bold text-white hover:bg-neutral-800 dark:hover:bg-white/20">
+          글쓰기
+        </button>
       </div>
 
-      <!-- 게시글 리스트 -->
-      <div id="postList" class="flex flex-col gap-4" th:if="${!#lists.isEmpty(postList)}">
-        <a th:each="post, iterStat: ${postList}"
+      <!-- 게시글 목록 -->
+      <div id="postList" th:if="${!#lists.isEmpty(postList)}" class="flex flex-col gap-4">
+        <a th:each="post : ${postList}"
            th:href="@{/post/detail/{id}(id=${post.id})}"
-           class="post-item"> <!-- 타임리프 링크 생성 문법 @{URL(param)} -->
+           class="post-item">
           <div class="flex gap-4 p-4 border rounded-xl hover:bg-neutral-50 dark:hover:bg-white/20 transition cursor-pointer">
-            <div class="bg-neutral-200 rounded-lg flex-shrink-0" style="width: 96px; height: 96px;">
-<!--              첫 번째 이미지만 표시-->
+            <div class="w-24 h-24 bg-neutral-200 rounded-lg flex-shrink-0">
               <img th:if="${post.images != null and !#lists.isEmpty(post.images)}"
                    th:src="@{${post.images[0].imageUrl}}"
                    class="w-full h-full object-cover"/>
 
-              <!-- 이미지 없을 때 -->
               <div th:if="${post.images == null or #lists.isEmpty(post.images)}"
-                   class="w-full h-full bg-neutral-200"></div>
+                   class="w-full h-full bg-neutral-200">
+              </div>
             </div>
+
             <div class="flex-1">
               <div class="flex items-center gap-2 mb-1">
-                  <span th:text="${post.category.categoryName}" class="text-xs px-2 py-1 bg-neutral-200 rounded"></span>
+                <span th:text="${post.category.categoryName}" class="text-xs px-2 py-1 bg-neutral-200 rounded whitespace-nowrap shrink-0"></span>
                 <h2 th:text="${post.title}" class="font-semibold text-sm"></h2>
               </div>
-              <p th:if="${post.category.categoryName == '밥친구' and post.meetingTime != null}"
-                 class="mb-1 text-xs font-semibold text-blue-600"
-                 th:text="|약속 시간 ${#temporals.format(post.meetingTime, 'yyyy.MM.dd HH:mm')}|"></p>
 
-              <p th:text="${post.content} " class="text-sm text-neutral-600 line-clamp-2  whitespace-pre-line"></p>
+              <p th:if="${post.category.categoryName == '밥친구' and post.meetingTime != null}"
+                 th:text="|약속 시간 ${#temporals.format(post.meetingTime, 'yyyy.MM.dd HH:mm')}|"
+                 class="mb-1 text-xs font-semibold text-blue-600">
+              </p>
+
+              <p th:text="${post.content}" class="text-sm text-neutral-600 line-clamp-2 whitespace-pre-line"></p>
 
               <div class="text-xs text-neutral-400 mt-2 flex gap-3">
                 <span th:text="${#temporals.format(post.createdAt, 'yyyy.MM.dd HH:mm')}"></span>
-                  <span>댓글 (<span th:text="${post.commentList == null ? 0 : #lists.size(post.commentList)}">0</span>)</span>
-
+                <span>댓글 (<span th:text="${post.commentList == null ? 0 : #lists.size(post.commentList)}">0</span>)</span>
               </div>
             </div>
           </div>
         </a>
       </div>
 
-      <div class="mt-6 flex items-center justify-center gap-2" th:if="${totalPages > 1}">
+      <!-- 페이지네이션 -->
+      <div th:if="${totalPages > 1}" class="mt-6 flex items-center justify-center gap-2">
         <a th:if="${currentPage > 0 and currentCategory == '전체'}"
            th:href="@{/post/list(page=${currentPage - 1})}"
            class="px-4 py-2 text-sm font-bold text-neutral-700 border border-neutral-300 rounded-lg hover:bg-neutral-100 dark:text-neutral-100 dark:border-neutral-600 dark:hover:bg-neutral-700">
           이전
         </a>
+
         <a th:if="${currentPage > 0 and currentCategory != '전체'}"
            th:href="@{/post/list/{category}(category=${currentCategory}, page=${currentPage - 1})}"
            class="px-4 py-2 text-sm font-bold text-neutral-700 border border-neutral-300 rounded-lg hover:bg-neutral-100 dark:text-neutral-100 dark:border-neutral-600 dark:hover:bg-neutral-700">
           이전
         </a>
-        <span class="px-4 py-2 text-sm text-neutral-500"
-              th:text="|${currentPage + 1} / ${totalPages}|">1 / 1</span>
+
+        <span th:text="|${currentPage + 1} / ${totalPages}|"
+              class="px-4 py-2 text-sm text-neutral-500">
+          1 / 1
+        </span>
+
         <a th:if="${currentPage + 1 < totalPages and currentCategory == '전체'}"
            th:href="@{/post/list(page=${currentPage + 1})}"
            class="px-4 py-2 text-sm font-bold text-neutral-700 border border-neutral-300 rounded-lg hover:bg-neutral-100 dark:text-neutral-100 dark:border-neutral-600 dark:hover:bg-neutral-700">
           다음
         </a>
+
         <a th:if="${currentPage + 1 < totalPages and currentCategory != '전체'}"
            th:href="@{/post/list/{category}(category=${currentCategory}, page=${currentPage + 1})}"
            class="px-4 py-2 text-sm font-bold text-neutral-700 border border-neutral-300 rounded-lg hover:bg-neutral-100 dark:text-neutral-100 dark:border-neutral-600 dark:hover:bg-neutral-700">
           다음
         </a>
       </div>
+
+      <!-- 위치 기반 글쓰기 안내 -->
+      <div id="locationWriteModal"
+           class="fixed inset-0 z-[3000] hidden items-center justify-center bg-black/40 px-4">
+        <div class="w-full max-w-md rounded-xl bg-white p-6 shadow-xl dark:bg-neutral-800">
+          <h2 class="text-lg font-bold text-neutral-950 dark:text-neutral-100">위치 기반 글 작성</h2>
+          <p class="mt-3 whitespace-pre-line text-sm text-neutral-600 dark:text-neutral-300">분실물, 분실, 습득, 밥친구 글은 위치 정보가 필요합니다.
+지도에서 작성할 수 있어요.</p>
+          <div class="mt-6 flex justify-end gap-2">
+            <button type="button"
+                    id="locationWriteCancel"
+                    class="rounded-lg border border-neutral-300 px-4 py-2 text-sm font-semibold text-neutral-700 hover:bg-neutral-100 dark:border-neutral-600 dark:text-neutral-100 dark:hover:bg-neutral-700">
+              취소
+            </button>
+            <a id="locationWriteMapLink"
+               href="/mapPin"
+               class="rounded-lg bg-neutral-900 px-4 py-2 text-sm font-semibold text-white hover:bg-neutral-700">
+              지도에서 작성하기
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- 탭 스크롤 스크립트 -->
+      <script>
+        document.addEventListener('DOMContentLoaded', () => {
+          const carousel = document.getElementById('categoryCarousel');
+          const leftIndicator = document.getElementById('tabLeftIndicator');
+          const rightIndicator = document.getElementById('tabRightIndicator');
+
+          if (!carousel || !leftIndicator || !rightIndicator) return;
+
+          const dragThreshold = 8;
+          const wheelSpeed = 1.5;
+          let wheelTargetLeft = carousel.scrollLeft;
+          let wheelAnimationId = null;
+
+          const clampScrollLeft = (value) => {
+            const maxScrollLeft = carousel.scrollWidth - carousel.clientWidth;
+            return Math.max(0, Math.min(value, maxScrollLeft));
+          };
+
+          const getTabLeft = (tab) => tab.offsetLeft - carousel.offsetLeft;
+
+          const updateIndicators = () => {
+            const maxScrollLeft = carousel.scrollWidth - carousel.clientWidth;
+            leftIndicator.classList.toggle('is-visible', carousel.scrollLeft > 1);
+            rightIndicator.classList.toggle('is-visible', carousel.scrollLeft < maxScrollLeft - 1);
+          };
+
+          const disableNativeLinkDrag = () => {
+            carousel.querySelectorAll('a').forEach((tab) => {
+              tab.draggable = false;
+              tab.addEventListener('dragstart', (event) => event.preventDefault());
+            });
+          };
+
+          const setupDragScroll = () => {
+            const dragState = {
+              active: false,
+              dragging: false,
+              suppressNextClick: false,
+              startX: 0,
+              startY: 0,
+              startScrollLeft: 0,
+            };
+
+            carousel.addEventListener('pointerdown', (event) => {
+              if (event.pointerType !== 'mouse') return;
+
+              dragState.active = true;
+              dragState.dragging = false;
+              dragState.suppressNextClick = false;
+              dragState.startX = event.clientX;
+              dragState.startY = event.clientY;
+              dragState.startScrollLeft = carousel.scrollLeft;
+              wheelTargetLeft = carousel.scrollLeft;
+            });
+
+            document.addEventListener('pointermove', (event) => {
+              if (!dragState.active) return;
+
+              const deltaX = dragState.startX - event.clientX;
+              const deltaY = dragState.startY - event.clientY;
+              const moveDistance = Math.hypot(deltaX, deltaY);
+
+              if (!dragState.dragging && moveDistance < dragThreshold) return;
+
+              dragState.dragging = true;
+              dragState.suppressNextClick = true;
+              carousel.classList.add('is-dragging');
+              event.preventDefault();
+
+              carousel.scrollLeft = clampScrollLeft(dragState.startScrollLeft + deltaX);
+              wheelTargetLeft = carousel.scrollLeft;
+            });
+
+            const stopDrag = () => {
+              if (!dragState.active) return;
+
+              dragState.active = false;
+              dragState.dragging = false;
+              carousel.classList.remove('is-dragging');
+            };
+
+            document.addEventListener('pointerup', stopDrag);
+            document.addEventListener('pointercancel', stopDrag);
+
+            carousel.addEventListener('click', (event) => {
+              if (!dragState.suppressNextClick) return;
+
+              event.preventDefault();
+              event.stopPropagation();
+              dragState.suppressNextClick = false;
+            }, true);
+          };
+
+          const setupWheelScroll = () => {
+            const animateWheelScroll = () => {
+              const distance = wheelTargetLeft - carousel.scrollLeft;
+
+              if (Math.abs(distance) < 0.5) {
+                carousel.scrollLeft = wheelTargetLeft;
+                wheelAnimationId = null;
+                updateIndicators();
+                return;
+              }
+
+              carousel.scrollLeft += distance * 0.3;
+              wheelAnimationId = requestAnimationFrame(animateWheelScroll);
+            };
+
+            carousel.addEventListener('wheel', (event) => {
+              const maxScrollLeft = carousel.scrollWidth - carousel.clientWidth;
+              if (maxScrollLeft <= 0) return;
+
+              const delta = Math.abs(event.deltaX) > Math.abs(event.deltaY) ? event.deltaX : event.deltaY;
+              const canScrollLeft = delta < 0 && wheelTargetLeft > 0;
+              const canScrollRight = delta > 0 && wheelTargetLeft < maxScrollLeft;
+
+              if (!canScrollLeft && !canScrollRight) return;
+
+              event.preventDefault();
+              wheelTargetLeft = clampScrollLeft(wheelTargetLeft + delta * wheelSpeed);
+
+              if (!wheelAnimationId) {
+                wheelAnimationId = requestAnimationFrame(animateWheelScroll);
+              }
+            }, { passive: false });
+          };
+
+          const setupIndicatorSync = () => {
+            carousel.addEventListener('scroll', () => {
+              if (!wheelAnimationId) {
+                wheelTargetLeft = carousel.scrollLeft;
+              }
+
+              updateIndicators();
+            }, { passive: true });
+
+            window.addEventListener('resize', () => {
+              wheelTargetLeft = clampScrollLeft(carousel.scrollLeft);
+              updateIndicators();
+            });
+          };
+
+          const scrollActiveTabIntoView = () => {
+            const activeTab = carousel.querySelector('[data-active="true"]');
+            if (activeTab) {
+              carousel.scrollLeft = getTabLeft(activeTab);
+            }
+
+            wheelTargetLeft = carousel.scrollLeft;
+          };
+
+          disableNativeLinkDrag();
+          setupDragScroll();
+          setupWheelScroll();
+          setupIndicatorSync();
+          scrollActiveTabIntoView();
+          updateIndicators();
+
+          const locationWriteModal = document.getElementById('locationWriteModal');
+          const locationWriteMapLink = document.getElementById('locationWriteMapLink');
+          const locationWriteCancel = document.getElementById('locationWriteCancel');
+
+          document.querySelectorAll('.location-write-btn').forEach((button) => {
+            button.addEventListener('click', () => {
+              if (!locationWriteModal || !locationWriteMapLink) return;
+              locationWriteMapLink.href = `/mapPin?category=${encodeURIComponent(button.dataset.category || '')}`;
+              locationWriteModal.classList.remove('hidden');
+              locationWriteModal.classList.add('flex');
+            });
+          });
+
+          const closeLocationWriteModal = () => {
+            if (!locationWriteModal) return;
+            locationWriteModal.classList.add('hidden');
+            locationWriteModal.classList.remove('flex');
+          };
+
+          locationWriteCancel?.addEventListener('click', closeLocationWriteModal);
+          locationWriteModal?.addEventListener('click', (event) => {
+            if (event.target === locationWriteModal) closeLocationWriteModal();
+          });
+          document.addEventListener('keydown', (event) => {
+            if (event.key === 'Escape') closeLocationWriteModal();
+          });
+        });
+      </script>
     </div>
   </div>
 </div>

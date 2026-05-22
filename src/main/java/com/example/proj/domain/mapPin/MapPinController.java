@@ -39,11 +39,12 @@ public class MapPinController {
     private final FileService fileService;
 
     @GetMapping("")
-    public String mapView(Model model) {
+    public String mapView(@RequestParam(required = false) String category, Model model) {
         model.addAttribute("postPinList", postService.getLocatedPosts().stream()
                 .map(this::toPinResponse)
                 .toList());
         model.addAttribute("categoryList", categoryService.findAll());
+        model.addAttribute("initialCategory", category);
         return "pages/map/mapPinView";
     }
 

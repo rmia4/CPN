@@ -1,6 +1,7 @@
 package com.example.proj.domain.post;
 
 import com.example.proj.domain.post.File.FileService;
+import com.example.proj.domain.post.category.CategoryModel;
 import com.example.proj.domain.post.category.CategoryService;
 import com.example.proj.domain.post.comment.CommentModel;
 import com.example.proj.domain.post.comment.CommentSaveRequestDto;
@@ -16,6 +17,7 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.io.IOException;
 import java.util.List;
@@ -56,7 +58,9 @@ public class PostController {
 
 
     @GetMapping("/add")
-    public String addForm(@AuthenticationPrincipal CustomUserDetail userDetail, Model model)
+    public String addForm(@AuthenticationPrincipal CustomUserDetail userDetail,
+                          @RequestParam(required = false) String category,
+                          Model model)
     {
         if (userDetail == null) {
             model.addAttribute("loginRequiredMessage", "게시글 작성은 로그인 후 사용할 수 있습니다.");
@@ -64,7 +68,8 @@ public class PostController {
             return "pages/auth/loginRequired";
         }
 
-        model.addAttribute("categoryList", categoryService.findAll());
+        model.addAttribute("categoryList", getGeneralCategories());
+        model.addAttribute("selectedCategory", isLocationCategory(category) ? null : category);
         return "pages/post/postAdd";
     }
 
@@ -73,6 +78,7 @@ public class PostController {
     public String postTestAdd(@Valid PostSaveRequestDto postSaveRequestDto, BindingResult bindingResult,
                               @AuthenticationPrincipal CustomUserDetail userDetail,
                               @RequestParam("image") List<MultipartFile> files,
+                              RedirectAttributes redirectAttributes,
                               Model model) throws IOException {
         if (userDetail == null) {
             model.addAttribute("loginRequiredMessage", "게시글 작성은 로그인 후 사용할 수 있습니다.");
@@ -82,7 +88,8 @@ public class PostController {
 
         postSaveRequestDto.setUserId(userDetail.getUsername());
         if (bindingResult.hasErrors()) {
-            model.addAttribute("categoryList", categoryService.findAll());
+            model.addAttribute("categoryList", getGeneralCategories());
+            model.addAttribute("selectedCategory", postSaveRequestDto.getCategory());
             return "pages/post/postAdd";
         }
         // 이미지 저장
@@ -90,7 +97,8 @@ public class PostController {
         // 기존 방식 유지 + 이미지 추가 전달
         postService.addPost(postSaveRequestDto, imagePaths);
 
-        return "redirect:/post/list";
+        redirectAttributes.addAttribute("category", postSaveRequestDto.getCategory());
+        return "redirect:/post/list/{category}";
     }
 
 
@@ -208,5 +216,16 @@ public class PostController {
         return "분실했어요".equals(category) || "습득했어요".equals(category);
     }
 
+    private boolean isLocationCategory(String category) {
+        return "분실물".equals(category)
+                || isLostType(category)
+                || "밥친구".equals(category);
+    }
+
+    private List<CategoryModel> getGeneralCategories() {
+        return categoryService.findAll().stream()
+                .filter(category -> !isLocationCategory(category.getCategoryName()))
+                .toList();
+    }
 
 }

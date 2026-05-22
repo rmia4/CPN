@@ -26,9 +26,17 @@
                         <option value="">카테고리 선택</option>
                         <option th:each="cat : ${categoryList}"
                                 th:value="${cat.categoryName}"
-                                th:text="${cat.categoryName}">
+                                th:text="${cat.categoryName}"
+                                th:selected="${cat.categoryName == selectedCategory}">
                         </option>
                     </select>
+                    <p class="mt-2 text-xs text-neutral-500 dark:text-neutral-400">
+                        위치 기반 글은 지도에서 작성할 수 있어요.
+                    </p>
+                    <a href="/mapPin"
+                       class="mt-2 inline-flex items-center justify-center rounded-lg border border-neutral-300 px-3 py-1.5 text-xs font-semibold text-neutral-700 hover:bg-neutral-100 dark:border-neutral-600 dark:text-neutral-100 dark:hover:bg-neutral-700">
+                        지도에서 작성하기
+                    </a>
                 </div>
 
                 <div id="meetingTimeBox" class="hidden">

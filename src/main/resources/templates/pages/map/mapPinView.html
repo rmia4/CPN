@@ -1,23 +1,51 @@
 <div th:replace="~{layout/layout :: layout(~{::content})}">
 
     <div th:fragment="content">
+        <style>
+            #map {
+                width: 100%;
+                height: 500px;
+                border: 1px solid #dee2e6;
+                border-radius: 8px;
+            }
+
+            #pinDetail {
+                position: fixed;
+                top: 80px;
+                right: 20px;
+                width: 300px;
+                z-index: 30;
+            }
+        </style>
+
         <main class="min-h-[600px]">
             <div class="relative">
-                <!-- 지도 -->
-                <div id="map"
-                     class="w-full min-h-screen bg-gray-200"
-                     style="width: 100%; height: 500px; border-radius: 8px; border: 1px solid #dee2e6;"></div>
+                <!-- 지도 영역 -->
+                <div id="map" class="w-full min-h-screen bg-gray-200"></div>
                 <div id="buildingTooltip"
                      class="pointer-events-none absolute z-[40] hidden rounded bg-neutral-900 px-2 py-1 text-xs font-semibold text-white shadow">
                 </div>
                 <div id="mapLoginPrompt"
-                     class="absolute bottom-4 left-1/2 z-[35] hidden w-[calc(100%-32px)] max-w-md -translate-x-1/2 rounded-xl border border-neutral-200 bg-white p-4 text-sm shadow-lg dark:border-neutral-700 dark:bg-neutral-800">
-                    <p class="font-semibold text-neutral-900 dark:text-neutral-100">로그인 후 핀을 추가할 수 있습니다.</p>
-                    <div class="mt-3 flex justify-end">
+                     class="fixed inset-0 z-[3000] hidden items-center justify-center bg-black/40 px-4">
+                    <div class="relative w-full max-w-md rounded-xl border border-neutral-200 bg-white p-5 text-sm shadow-lg dark:border-neutral-700 dark:bg-neutral-800">
+                        <button type="button"
+                                id="mapLoginPromptClose"
+                                class="absolute right-3 top-3 text-xl leading-none text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-100"
+                                aria-label="닫기">
+                            &times;
+                        </button>
+                        <p class="pr-8 font-semibold text-neutral-900 dark:text-neutral-100">로그인 후 핀을 추가할 수 있습니다.</p>
+                        <div class="mt-4 flex justify-end gap-2">
+                            <button type="button"
+                                    id="mapLoginPromptCancel"
+                                    class="rounded-lg border border-neutral-300 px-4 py-2 text-xs font-bold text-neutral-700 hover:bg-neutral-100 dark:border-neutral-600 dark:text-neutral-100 dark:hover:bg-neutral-700">
+                                닫기
+                            </button>
                         <a href="/login"
                            class="rounded-lg bg-neutral-900 px-4 py-2 text-xs font-bold text-white hover:bg-neutral-700">
                             로그인 페이지로 이동
                         </a>
+                        </div>
                     </div>
                 </div>
                 <!-- 필터 UI -->
@@ -76,16 +104,14 @@
                 </div>
             </div>
 
-            <!-- 핀 디테일 패널 -->
-            <div id="pinDetail"
-                 style="display:none; position:fixed; top:80px; right:20px; width:300px; z-index:30;"
-                 class="card shadow">
+            <!-- 핀 상세 패널 -->
+            <div id="pinDetail" class="card shadow hidden">
                 <div class="card-header d-flex justify-content-between align-items-center">
                     <span id="detailName" class="fw-bold"></span>
-                    <button class="btn-close" onclick="closeDetail()"></button>
+                    <button type="button" id="detailCloseBtn" class="btn-close" aria-label="닫기"></button>
                 </div>
                 <div class="card-body">
-                    <img id="detailImage" alt="핀 이미지" style="display:none;" class="w-full max-h-64 object-contain rounded-lg mb-3"/>
+                    <img id="detailImage" alt="핀 이미지" class="hidden w-full max-h-64 object-contain rounded-lg mb-3"/>
                     <p id="detailMeetingTime" class="hidden text-sm font-semibold text-blue-600 mb-2"></p>
                     <p id="detailDescription" class="text-muted small mb-3"></p>
                     <div class="flex items-center gap-2">
@@ -179,7 +205,6 @@
                                     <label class="form-label">사진</label>
 
                                     <div class="d-flex gap-2">
-                                        <!-- 파일 선택 -->
                                         <label class="btn btn-outline-primary mb-0">
                                             파일 선택
                                             <input
@@ -191,7 +216,6 @@
                                             >
                                         </label>
 
-                                        <!-- 카메라 -->
                                         <label class="btn btn-outline-secondary mb-0">
                                             카메라
                                             <input
@@ -205,7 +229,6 @@
                                         </label>
                                     </div>
 
-                                    <!-- 미리보기 -->
                                     <img
                                             id="preview"
                                             alt="미리보기 이미지"
@@ -225,23 +248,28 @@
         <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js" integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r" crossorigin="anonymous"></script>
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.min.js" integrity="sha384-G/EV+4j2dNv+tEPo3++6LCgdCROaejBqfUeNjuKAiuXbjrxilcCdDz6ZAVfHWe1Y" crossorigin="anonymous"></script>
         <script th:inline="javascript">
-            /* =========================
-               1. 전역 변수
-            ========================= */
+            /* 전역 상태 */
             const PIN_ADD_URL = '/mapPin/add';
-            const PIN_DELETE_URL = '/mapPin/';
-            const API_KEY = 'xuA0v0EToS2lTlJCTmm2d6cUkKnihnZA8UO140xt';
-            const CSRF_TOKEN = null; // TODO: Spring Security 추가 시 설정
             const IS_AUTHENTICATED = /*[[${#authorization.expression('isAuthenticated()')}]]*/ false;
+            const INITIAL_MAP_CATEGORY = /*[[${initialCategory}]]*/ null;
             let savedPins = /*[[${postPinList}]]*/ [];
             if (!Array.isArray(savedPins)) {
                 savedPins = [];
             }
-            let map, clickedLatLng, pinModal;
+            let map, pinModal;
             const markers = {};
             const buildingMarkers = [];
             let busMarker = null;
             let ksMarker = null;
+            const pinForm = document.getElementById("pinForm");
+            const pinDetail = document.getElementById("pinDetail");
+            const detailImage = document.getElementById("detailImage");
+            const detailName = document.getElementById("detailName");
+            const detailDescription = document.getElementById("detailDescription");
+            const detailPostLink = document.getElementById("detailPostLink");
+            const detailDeleteBtn = document.getElementById("detailDeleteBtn");
+            const detailMeetingTime = document.getElementById("detailMeetingTime");
+            const detailComments = document.getElementById("detailComments");
             const preview = document.getElementById("preview");
             const fileInput = document.getElementById("fileInput");
             const cameraInput = document.getElementById("cameraInput");
@@ -255,7 +283,10 @@
             const detailCommentForm = document.getElementById("detailCommentForm");
             const detailCommentInput = document.getElementById("detailCommentInput");
             const detailLoginPrompt = document.getElementById("detailLoginPrompt");
+            const detailCloseBtn = document.getElementById("detailCloseBtn");
             const mapLoginPrompt = document.getElementById("mapLoginPrompt");
+            const mapLoginPromptClose = document.getElementById("mapLoginPromptClose");
+            const mapLoginPromptCancel = document.getElementById("mapLoginPromptCancel");
             let selectedDetailPin = null;
             let activeDetailPinId = null;
             const PIN_TAG_STYLES = {
@@ -314,9 +345,7 @@
                 imageUrl: "/dummyImages/ks.svg"
             };
 
-            /* =========================
-               2. 초기화
-            ========================= */
+            /* 지도 초기화 */
             function initTmap() {
                 pinModal = new bootstrap.Modal(document.getElementById('pinModal'));
 
@@ -332,20 +361,16 @@
 
                     const clickedLat = e.latLng.lat();
                     const clickedLon = e.latLng.lng();
-                    console.log(`lat: ${clickedLat}, lon: ${clickedLon}`);
 
                     if (!IS_AUTHENTICATED) {
-                        showToast('로그인 후 핀을 추가할 수 있어요');
                         showMapLoginPrompt();
                         return;
                     }
 
-                    clickedLatLng = e.latLng;
+                    pinForm.reset();
                     document.getElementById('pinLat').value = clickedLat;
                     document.getElementById('pinLng').value = clickedLon;
-                    document.getElementById('pinForm').reset();
-                    document.getElementById('pinLat').value = clickedLat;
-                    document.getElementById('pinLng').value = clickedLon;
+                    applyInitialCategory();
                     updateLostTypeVisibility();
                     updateTitlePrefixBadge();
                     pinModal.show();
@@ -357,26 +382,20 @@
                 renderKsMarker();
             }
 
-            /* =========================
-               3. 핵심 로직 (렌더링)
-            ========================= */
+            /* 핀 렌더링 */
             function renderPins() {
 
                 const type = getCurrentFilter();
 
-                // 1. 기존 마커 제거
                 Object.values(markers).forEach(marker => marker.setMap(null));
 
-                // 2. markers 초기화
                 for (let key in markers) delete markers[key];
 
-                // 3. 카테고리 라벨
                 const categoryLabel = {
                     "분실물": '[분실물] ',
                     "밥친구": '[밥친구] '
                 };
 
-                // 4. 다시 생성
                 savedPins.forEach(pin => {
                     const pinTag = getPinTag(pin);
                     if (type === 'all' || pin.category === type || pinTag === type) {
@@ -420,122 +439,127 @@
                 return `(${String(label).replace("호관", "")})`;
             }
 
-            function renderBusTimeMarker() {
-                if (busMarker) {
-                    busMarker.setMap(null);
+            function renderStaticMarker(currentMarker, info, options) {
+                if (currentMarker) {
+                    currentMarker.setMap(null);
                 }
 
-                busMarker = new Tmapv2.Marker({
-                    position: new Tmapv2.LatLng(BUS_TIME_INFO.lat, BUS_TIME_INFO.lon),
-                    title: BUS_TIME_INFO.title,
-                    icon: getBusMarkerIcon(),
-                    iconSize: new Tmapv2.Size(42, 42),
+                const marker = new Tmapv2.Marker({
+                    position: new Tmapv2.LatLng(info.lat, info.lon),
+                    title: info.title,
+                    icon: options.icon || info.imageUrl,
+                    iconSize: options.iconSize,
                     map: map
                 });
 
-                busMarker.addListener("click", () => showBusTimeDetail());
+                if (options.onClick) {
+                    marker.addListener("click", options.onClick);
+                }
+
+                return marker;
+            }
+
+            function renderBusTimeMarker() {
+                busMarker = renderStaticMarker(busMarker, BUS_TIME_INFO, {
+                    icon: getBusMarkerIcon(),
+                    iconSize: new Tmapv2.Size(42, 42),
+                    onClick: showBusTimeDetail
+                });
             }
 
             function renderKsMarker() {
-                if (ksMarker) {
-                    ksMarker.setMap(null);
-                }
-
-                ksMarker = new Tmapv2.Marker({
-                    position: new Tmapv2.LatLng(KS_MARKER_INFO.lat, KS_MARKER_INFO.lon),
-                    title: KS_MARKER_INFO.title,
-                    icon: KS_MARKER_INFO.imageUrl,
-                    iconSize: new Tmapv2.Size(101, 101),
-                    map: map
+                ksMarker = renderStaticMarker(ksMarker, KS_MARKER_INFO, {
+                    iconSize: new Tmapv2.Size(101, 101)
                 });
             }
 
-            /* =========================
-               4. UI 관련
-            ========================= */
+            /* 필터 처리 */
+            function applyFilter(type) {
+                document.querySelectorAll('.filter-btn').forEach(button => {
+                    const isActive = button.dataset.type === type;
+                    button.classList.toggle('bg-blue-500', isActive);
+                    button.classList.toggle('text-white', isActive);
+                    button.classList.toggle('text-gray-600', !isActive);
+                });
+
+                renderPins();
+            }
+
+            /* 모달 및 상세 패널 처리 */
+            function resetDetailDeleteButton() {
+                detailDeleteBtn.classList.add('hidden');
+                detailDeleteBtn.classList.remove('flex');
+                detailDeleteBtn.disabled = true;
+                detailDeleteBtn.removeAttribute('data-delete-action');
+                detailDeleteBtn.removeAttribute('data-csrf-name');
+                detailDeleteBtn.removeAttribute('data-csrf-value');
+                detailDeleteBtn.onclick = null;
+            }
+
+            function setDetailImage(src) {
+                if (!src) {
+                    detailImage.classList.add('hidden');
+                    detailImage.removeAttribute('src');
+                    return;
+                }
+
+                detailImage.src = src;
+                detailImage.classList.remove('hidden');
+                detailImage.onerror = () => {
+                    detailImage.classList.add('hidden');
+                };
+            }
+
             function showDetail(pin) {
                 selectedDetailPin = pin;
                 activeDetailPinId = String(pin.id);
-                document.getElementById('detailName').textContent = pin.title;
-                document.getElementById('detailDescription').textContent = pin.description || '';
+                detailName.textContent = pin.title;
+                detailDescription.textContent = pin.description || '';
                 renderMeetingTime(pin);
                 loadPinComments(pin.id);
 
-                const detailPostLink = document.getElementById('detailPostLink');
                 detailPostLink.href = `/post/detail/${pin.id}`;
                 detailPostLink.textContent = '게시글 보기';
-                detailPostLink.style.display = 'block';
-                detailPostLink.classList.remove('disabled');
+                detailPostLink.classList.remove('hidden', 'disabled');
+                setDetailImage(pin.imageUrl);
+                resetDetailDeleteButton();
+                detailDeleteBtn.onclick = () => deletePin(pin.id);
 
-                const img = document.getElementById('detailImage');
-
-                if (pin.imageUrl) {
-                    img.src = pin.imageUrl;
-                    img.style.display = 'block';
-                } else {
-                    img.style.display = 'none';
-                }
-
-                img.onerror = () => {
-                    img.style.display = 'none';
-                };
-
-                const deleteBtn = document.getElementById('detailDeleteBtn');
-                deleteBtn.classList.add('hidden');
-                deleteBtn.classList.remove('flex');
-                deleteBtn.disabled = true;
-                deleteBtn.removeAttribute('data-delete-action');
-                deleteBtn.removeAttribute('data-csrf-name');
-                deleteBtn.removeAttribute('data-csrf-value');
-                deleteBtn.onclick = () => deletePin(pin.id);
-
-                document.getElementById('pinDetail').style.display = 'block';
+                pinDetail.classList.remove('hidden');
                 updateDetailDeleteButton(pin);
             }
 
             function showBusTimeDetail() {
-                document.getElementById('detailName').textContent = BUS_TIME_INFO.title;
-                document.getElementById('detailDescription').textContent = BUS_TIME_INFO.description;
+                detailName.textContent = BUS_TIME_INFO.title;
+                detailDescription.textContent = BUS_TIME_INFO.description;
                 selectedDetailPin = null;
                 activeDetailPinId = null;
-                document.getElementById('detailComments').innerHTML = "";
+                detailComments.innerHTML = "";
                 detailCommentForm.classList.add("hidden");
                 detailLoginPrompt.classList.add("hidden");
-                document.getElementById('detailMeetingTime').classList.add("hidden");
+                detailMeetingTime.classList.add("hidden");
 
-                const detailPostLink = document.getElementById('detailPostLink');
                 detailPostLink.href = '#';
-                detailPostLink.style.display = 'none';
-                const deleteBtn = document.getElementById('detailDeleteBtn');
-                deleteBtn.classList.add('hidden');
-                deleteBtn.classList.remove('flex');
-                deleteBtn.disabled = true;
-
-                const img = document.getElementById('detailImage');
-                img.src = BUS_TIME_INFO.imageUrl;
-                img.style.display = 'block';
-                img.onerror = () => {
-                    img.style.display = 'none';
-                };
-
-                document.getElementById('pinDetail').style.display = 'block';
+                detailPostLink.classList.add('hidden');
+                resetDetailDeleteButton();
+                setDetailImage(BUS_TIME_INFO.imageUrl);
+                pinDetail.classList.remove('hidden');
             }
 
             function closeDetail() {
-                document.getElementById('pinDetail').style.display = 'none';
+                pinDetail.classList.add('hidden');
                 selectedDetailPin = null;
                 activeDetailPinId = null;
             }
 
             function renderMeetingTime(pin) {
-                const meetingTime = document.getElementById('detailMeetingTime');
                 if (pin.category === "밥친구" && pin.meetingTime) {
-                    meetingTime.textContent = `약속 시간 ${formatDateTime(pin.meetingTime)}`;
-                    meetingTime.classList.remove("hidden");
+                    detailMeetingTime.textContent = `약속 시간 ${formatDateTime(pin.meetingTime)}`;
+                    detailMeetingTime.classList.remove("hidden");
                     return;
                 }
 
-                meetingTime.classList.add("hidden");
+                detailMeetingTime.classList.add("hidden");
             }
 
             function formatDateTime(value) {
@@ -557,8 +581,7 @@
             }
 
             async function loadPinComments(postId) {
-                const commentsBox = document.getElementById('detailComments');
-                commentsBox.innerHTML = '<p class="text-xs text-neutral-500">댓글을 불러오는 중입니다.</p>';
+                detailComments.innerHTML = '<p class="text-xs text-neutral-500">댓글을 불러오는 중입니다.</p>';
                 detailCommentForm.classList.toggle("hidden", !IS_AUTHENTICATED);
                 detailLoginPrompt.classList.toggle("hidden", IS_AUTHENTICATED);
 
@@ -566,25 +589,21 @@
                     const response = await fetch(`/mapPin/${postId}/comments`);
                     if (!response.ok) throw new Error();
                     const comments = await response.json();
-                    renderPinComments(comments);
+
+                    if (!comments || comments.length === 0) {
+                        detailComments.innerHTML = '<p class="text-xs text-neutral-500">아직 댓글이 없습니다.</p>';
+                        return;
+                    }
+
+                    detailComments.innerHTML = comments.map(comment => `
+                        <div class="border-t pt-2">
+                            <div class="text-xs text-neutral-400">${escapeHtml(comment.userName || "")} ${escapeHtml(formatDateTime(comment.createdAt))}</div>
+                            <p class="whitespace-pre-line">${escapeHtml(comment.content || "")}</p>
+                        </div>
+                    `).join("");
                 } catch (error) {
-                    commentsBox.innerHTML = '<p class="text-xs text-red-500">댓글을 불러오지 못했습니다.</p>';
+                    detailComments.innerHTML = '<p class="text-xs text-red-500">댓글을 불러오지 못했습니다.</p>';
                 }
-            }
-
-            function renderPinComments(comments) {
-                const commentsBox = document.getElementById('detailComments');
-                if (!comments || comments.length === 0) {
-                    commentsBox.innerHTML = '<p class="text-xs text-neutral-500">아직 댓글이 없습니다.</p>';
-                    return;
-                }
-
-                commentsBox.innerHTML = comments.map(comment => `
-                    <div class="border-t pt-2">
-                        <div class="text-xs text-neutral-400">${escapeHtml(comment.userName || "")} ${escapeHtml(formatDateTime(comment.createdAt))}</div>
-                        <p class="whitespace-pre-line">${escapeHtml(comment.content || "")}</p>
-                    </div>
-                `).join("");
             }
 
             function escapeHtml(value) {
@@ -610,7 +629,13 @@
             }
 
             function showMapLoginPrompt() {
+                mapLoginPrompt.classList.add("flex");
                 mapLoginPrompt.classList.remove("hidden");
+            }
+
+            function hideMapLoginPrompt() {
+                mapLoginPrompt.classList.add("hidden");
+                mapLoginPrompt.classList.remove("flex");
             }
 
             function showConfirmModal(message) {
@@ -678,7 +703,6 @@
                 document.getElementById('buildingTooltip').classList.add('hidden');
             }
 
-            // 사진 미리보기
             function handleImage(input) {
                 const file = input.files[0];
                 if (file) {
@@ -689,7 +713,6 @@
                 }
             }
 
-            // 이미지 미리보기 리셋
             function resetImageInput() {
                 preview.src = "";
                 preview.classList.add("hidden");
@@ -725,31 +748,27 @@
                             return;
                         }
 
-                        const deleteBtn = document.getElementById('detailDeleteBtn');
                         const csrfInput = deleteForm.querySelector('input[type="hidden"][name^="_csrf"], input[type="hidden"][name="_csrf"]');
 
-                        deleteBtn.dataset.deleteAction = deleteForm.getAttribute('action') || '/post/delete';
+                        detailDeleteBtn.dataset.deleteAction = deleteForm.getAttribute('action') || '/post/delete';
 
                         if (csrfInput) {
-                            deleteBtn.dataset.csrfName = csrfInput.name;
-                            deleteBtn.dataset.csrfValue = csrfInput.value;
+                            detailDeleteBtn.dataset.csrfName = csrfInput.name;
+                            detailDeleteBtn.dataset.csrfValue = csrfInput.value;
                         }
 
-                        deleteBtn.disabled = false;
-                        deleteBtn.classList.remove('hidden');
-                        deleteBtn.classList.add('flex');
+                        detailDeleteBtn.disabled = false;
+                        detailDeleteBtn.classList.remove('hidden');
+                        detailDeleteBtn.classList.add('flex');
                     })
                     .catch(() => {
-                        const deleteBtn = document.getElementById('detailDeleteBtn');
-                        deleteBtn.disabled = true;
-                        deleteBtn.classList.add('hidden');
-                        deleteBtn.classList.remove('flex');
+                        detailDeleteBtn.disabled = true;
+                        detailDeleteBtn.classList.add('hidden');
+                        detailDeleteBtn.classList.remove('flex');
                     });
             }
 
-            /* =========================
-               5. 유틸
-            ========================= */
+            /* 유틸 */
             function getCurrentFilter() {
                 return document.querySelector('.filter-btn.bg-blue-500')?.dataset.type || 'all';
             }
@@ -804,42 +823,56 @@
                 return pin.tag || pin.category || 'default';
             }
 
-            function getPinMarkerOptions(pin) {
-                const tag = getPinTag(pin);
+            /* 핀 스타일 설정 */
+            function getPinMarkerStyle(pin, tag) {
                 const tagText = `${tag || ''} ${pin.category || ''} ${pin.title || ''}`;
                 const isFoundPin = tagText.includes("습득");
                 const isLostPin = tagText.includes("분실");
-                const style = isFoundPin
-                    ? {color: "#14b8a6", stroke: "#047857", label: ""}
-                    : isLostPin
-                        ? {color: "#f97316", stroke: "#c2410c", label: ""}
-                        : (PIN_TAG_STYLES[tag] || PIN_TAG_STYLES.default);
-                const label = isFoundPin
-                    ? `
+
+                if (isFoundPin) return {color: "#14b8a6", stroke: "#047857", label: "", type: "found"};
+                if (isLostPin) return {color: "#f97316", stroke: "#c2410c", label: "", type: "lost"};
+                return {...(PIN_TAG_STYLES[tag] || PIN_TAG_STYLES.default), type: tag};
+            }
+
+            function getPinMarkerLabel(pin, style) {
+                if (style.type === "found") {
+                    return `
                         <g transform="translate(10 9.5) scale(0.66)" fill="none" stroke="${style.stroke}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <path d="m20.25 7.5-.625 10.632a2.25 2.25 0 0 1-2.247 2.118H6.622a2.25 2.25 0 0 1-2.247-2.118L3.75 7.5"/>
                             <path d="M10 11.25h4"/>
                             <path d="M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125Z"/>
                         </g>
-                    `
-                    : isLostPin
-                        ? `
-                            <g transform="translate(10 9.5) scale(0.66)" fill="none" stroke="${style.stroke}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M12 9v3.75"/>
-                                <path d="M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/>
-                                <path d="M12 15.75h.008v.008H12v-.008Z"/>
-                            </g>
-                        `
-                        : tag === "밥친구" || pin.category === "밥친구"
-                    ? `
+                    `;
+                }
+
+                if (style.type === "lost") {
+                    return `
+                        <g transform="translate(10 9.5) scale(0.66)" fill="none" stroke="${style.stroke}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M12 9v3.75"/>
+                            <path d="M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/>
+                            <path d="M12 15.75h.008v.008H12v-.008Z"/>
+                        </g>
+                    `;
+                }
+
+                if (style.type === "밥친구" || pin.category === "밥친구") {
+                    return `
                         <g transform="translate(9.5 9) scale(0.265)">
                             <ellipse cx="26" cy="24" rx="5" ry="7" fill="${style.stroke}"/>
                             <rect x="24" y="30" width="4" height="16" rx="2" fill="${style.stroke}"/>
                             <rect x="36" y="18" width="3" height="28" rx="1.5" transform="rotate(12 36 18)" fill="${style.stroke}"/>
                             <rect x="42" y="18" width="3" height="28" rx="1.5" transform="rotate(12 42 18)" fill="${style.stroke}"/>
                         </g>
-                    `
-                    : `<text x="18" y="21" text-anchor="middle" font-size="12" font-family="Arial, sans-serif" font-weight="700" fill="${style.stroke}">${style.label}</text>`;
+                    `;
+                }
+
+                return `<text x="18" y="21" text-anchor="middle" font-size="12" font-family="Arial, sans-serif" font-weight="700" fill="${style.stroke}">${style.label}</text>`;
+            }
+
+            function getPinMarkerOptions(pin) {
+                const tag = getPinTag(pin);
+                const style = getPinMarkerStyle(pin, tag);
+                const label = getPinMarkerLabel(pin, style);
                 const svg = `
                     <svg xmlns="http://www.w3.org/2000/svg" width="36" height="46" viewBox="0 0 36 46">
                         <path d="M18 44C13 36 5 29 5 17.5C5 10.3 10.8 4 18 4s13 6.3 13 13.5C31 29 23 36 18 44Z" fill="${style.color}" stroke="${style.stroke}" stroke-width="2"/>
@@ -875,8 +908,24 @@
                 return `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`;
             }
 
+            function applyInitialCategory() {
+                if (!INITIAL_MAP_CATEGORY) return;
+
+                if (INITIAL_MAP_CATEGORY === "밥친구") {
+                    document.getElementById("meal").checked = true;
+                    return;
+                }
+
+                if (["분실물", "분실했어요", "습득했어요"].includes(INITIAL_MAP_CATEGORY)) {
+                    document.getElementById("lost").checked = true;
+                    if (INITIAL_MAP_CATEGORY !== "분실물") {
+                        lostTypeSelect.value = INITIAL_MAP_CATEGORY;
+                    }
+                }
+            }
+
             function updateLostTypeVisibility() {
-                lostTypeBox.style.display = getSelectedPinCategory() === '분실물' ? 'block' : 'none';
+                lostTypeBox.classList.toggle('hidden', getSelectedPinCategory() !== '분실물');
                 const isMealPin = getSelectedPinCategory() === '밥친구';
                 meetingTimeBox.classList.toggle('hidden', !isMealPin);
                 meetingTimeInput.required = isMealPin;
@@ -924,11 +973,7 @@
                 return '핀을 저장하지 못했어요. 잠시 후 다시 시도해 주세요';
             }
 
-            /* =========================
-               6. 이벤트
-            ========================= */
-            // 핀 추가
-            document.getElementById('pinForm').addEventListener('submit', function(e) {
+            function handlePinSubmit(e) {
                 e.preventDefault();
 
                 const formData = new FormData(this);
@@ -944,6 +989,9 @@
                 const selectedTag = getSelectedPinTag();
 
                 formData.set('tag', selectedTag);
+                if (["분실했어요", "습득했어요"].includes(selectedTag)) {
+                    formData.set('category', selectedTag);
+                }
 
                 if (title && prefix) {
                     formData.set('title', `${prefix} ${title}`);
@@ -980,15 +1028,15 @@
                     .catch(error => {
                         showToast(error.message || '핀을 저장하지 못했어요. 잠시 후 다시 시도해 주세요');
                     });
-            });
+            }
 
-            detailCommentForm.addEventListener("submit", async (event) => {
+            async function handleCommentSubmit(event) {
                 event.preventDefault();
 
                 if (!selectedDetailPin) return;
 
                 if (!IS_AUTHENTICATED) {
-                    showToast("로그인 후 댓글을 작성할 수 있어요");
+                    showMapLoginPrompt();
                     return;
                 }
 
@@ -1016,20 +1064,18 @@
                 } catch (error) {
                     showToast(error.message || "댓글을 저장하지 못했어요");
                 }
-            });
+            }
 
-            // 핀 삭제
             async function deletePin(id) {
                 if (!await showConfirmModal('핀을 삭제할까요?')) return;
-                const deleteBtn = document.getElementById('detailDeleteBtn');
                 const formData = new FormData();
                 formData.set('postId', id);
 
-                if (deleteBtn.dataset.csrfName && deleteBtn.dataset.csrfValue) {
-                    formData.set(deleteBtn.dataset.csrfName, deleteBtn.dataset.csrfValue);
+                if (detailDeleteBtn.dataset.csrfName && detailDeleteBtn.dataset.csrfValue) {
+                    formData.set(detailDeleteBtn.dataset.csrfName, detailDeleteBtn.dataset.csrfValue);
                 }
 
-                fetch(deleteBtn.dataset.deleteAction || '/post/delete', {
+                fetch(detailDeleteBtn.dataset.deleteAction || '/post/delete', {
                     method: 'POST',
                     body: formData,
                     credentials: 'same-origin'
@@ -1049,50 +1095,49 @@
                     });
             }
 
-            // 필터 버튼
-            document.querySelectorAll('.filter-btn').forEach(btn => {
-                btn.addEventListener('click', function() {
-
-                    document.querySelectorAll('.filter-btn').forEach(b => {
-                        b.classList.remove('bg-blue-500','text-white');
-                        b.classList.add('text-gray-600');
-                    });
-
-                    this.classList.add('bg-blue-500','text-white');
-                    this.classList.remove('text-gray-600');
-
-                    renderPins();
+            /* 이벤트 등록 */
+            function setupEventListeners() {
+                pinForm.addEventListener('submit', handlePinSubmit);
+                detailCommentForm.addEventListener("submit", handleCommentSubmit);
+                detailCloseBtn.addEventListener("click", closeDetail);
+                mapLoginPromptClose.addEventListener("click", hideMapLoginPrompt);
+                mapLoginPromptCancel.addEventListener("click", hideMapLoginPrompt);
+                mapLoginPrompt.addEventListener("click", event => {
+                    if (event.target === mapLoginPrompt) hideMapLoginPrompt();
                 });
-            });
 
-            // 이미지 미리 보기
-            fileInput.addEventListener("change", function () {
-                handleImage(this);
-            });
-            cameraInput.addEventListener("change", function () {
-                handleImage(this);
-            });
+                document.addEventListener("keydown", event => {
+                    if (event.key === "Escape" && !mapLoginPrompt.classList.contains("hidden")) {
+                        hideMapLoginPrompt();
+                    }
+                });
 
-            categoryRadios.forEach(radio => {
-                radio.addEventListener("change", () => {
+                document.querySelectorAll('.filter-btn').forEach(button => {
+                    button.addEventListener('click', () => applyFilter(button.dataset.type));
+                });
+
+                fileInput.addEventListener("change", () => handleImage(fileInput));
+                cameraInput.addEventListener("change", () => handleImage(cameraInput));
+
+                categoryRadios.forEach(radio => radio.addEventListener("change", () => {
                     updateLostTypeVisibility();
                     updateTitlePrefixBadge();
-                });
-            });
+                }));
 
-            lostTypeSelect.addEventListener("change", updateTitlePrefixBadge);
-            pinTitleInput.addEventListener("input", updateTitlePrefixBadge);
+                lostTypeSelect.addEventListener("change", updateTitlePrefixBadge);
+                pinTitleInput.addEventListener("input", updateTitlePrefixBadge);
+
+                window.addEventListener('load', () => {
+                    setTimeout(initTmap, 200);
+                });
+            }
+
+            setupEventListeners();
             updateLostTypeVisibility();
             updateTitlePrefixBadge();
         </script>
 
-        <!-- TODO: tmapApiKey를 application.properties에 설정 후 th:src로 교체 -->
-        <!-- <script th:src="@{https://apis.openapi.sk.com/tmap/jsv2(version=1,appKey=${tmapApiKey})}"></script> -->
+        <!-- 지도 API -->
         <script src="https://apis.openapi.sk.com/tmap/jsv2?version=1&appKey=xuA0v0EToS2lTlJCTmm2d6cUkKnihnZA8UO140xt"></script>
-        <script>
-            window.addEventListener('load', () => {
-                setTimeout(initTmap, 200);
-            });
-        </script>
     </div>
 </div>
