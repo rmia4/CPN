@@ -12,6 +12,7 @@
             </div>
 
             <form th:action="@{/post/add}"
+                  id="postAddForm"
                   method="post"
                   enctype="multipart/form-data"
                   class="space-y-5 border border-neutral-200 bg-white p-5 dark:border-neutral-700 dark:bg-neutral-800">
@@ -97,6 +98,7 @@
                         취소
                     </a>
                     <button type="submit"
+                            id="postSubmitButton"
                             class="px-5 py-2 text-sm font-semibold text-white bg-neutral-950 hover:bg-neutral-800">
                         등록
                     </button>
@@ -132,6 +134,8 @@
             const locationWriteModal = document.getElementById("locationWriteModal");
             const locationWriteMapLink = document.getElementById("locationWriteMapLink");
             const locationWriteCancel = document.getElementById("locationWriteCancel");
+            const postAddForm = document.getElementById("postAddForm");
+            const postSubmitButton = document.getElementById("postSubmitButton");
 
             function updateMeetingTimeVisibility() {
                 const isMealPost = categorySelect.value === "밥친구";
@@ -165,6 +169,27 @@
             });
             document.addEventListener("keydown", (event) => {
                 if (event.key === "Escape") closeLocationWriteModal();
+            });
+
+            const resetPostSubmitButton = () => {
+                if (!postSubmitButton) return;
+                postSubmitButton.disabled = false;
+                postSubmitButton.textContent = "등록";
+                postSubmitButton.classList.remove("cursor-not-allowed", "bg-neutral-400", "hover:bg-neutral-400");
+                postSubmitButton.classList.add("bg-neutral-950", "hover:bg-neutral-800");
+            };
+
+            postAddForm?.addEventListener("invalid", resetPostSubmitButton, true);
+            postAddForm?.addEventListener("submit", () => {
+                if (!postAddForm.checkValidity() || !postSubmitButton) {
+                    resetPostSubmitButton();
+                    return;
+                }
+
+                postSubmitButton.disabled = true;
+                postSubmitButton.textContent = "등록중...";
+                postSubmitButton.classList.remove("bg-neutral-950", "hover:bg-neutral-800");
+                postSubmitButton.classList.add("cursor-not-allowed", "bg-neutral-400", "hover:bg-neutral-400");
             });
         </script>
     </div>

@@ -149,7 +149,7 @@
             <div class="flex-1">
               <div class="flex items-center gap-2 mb-1">
                 <span th:text="${post.category.categoryName}" class="text-xs px-2 py-1 bg-neutral-200 rounded whitespace-nowrap shrink-0"></span>
-                <h2 th:text="${post.title}" class="font-semibold text-sm"></h2>
+                <h2 th:text="${post.title}" class="min-w-0 font-semibold text-sm line-clamp-2"></h2>
               </div>
 
               <p th:if="${post.category.categoryName == '밥친구' and post.meetingTime != null}"
