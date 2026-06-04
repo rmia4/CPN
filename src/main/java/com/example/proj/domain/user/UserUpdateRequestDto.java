@@ -19,4 +19,6 @@ public class UserUpdateRequestDto {
     private String style1;
     private String style2;
     private String style3;
+    private String passwd;
+    private String passwdConfirm;
 }

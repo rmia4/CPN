@@ -28,62 +28,83 @@
                     </a>
                 </div>
 
-                <form th:action="@{/user/detail}" method="post" class="space-y-4">
+                <form th:action="@{/user/detail}" th:object="${userUpdateRequestDto}" method="post" class="space-y-4">
                     <div>
                         <label for="userName" class="mb-1 block text-sm font-semibold text-neutral-700 dark:text-neutral-200">이름</label>
                         <input id="userName"
-                               name="userName"
+                               th:field="*{userName}"
                                type="text"
-                               th:value="${user.userName}"
                                class="w-full border border-neutral-200 px-3 py-2 text-sm dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-100"
                                required>
+                        <p th:if="${#fields.hasErrors('userName')}" th:errors="*{userName}" class="mt-1 text-xs text-red-500"></p>
                     </div>
 
                     <div>
                         <label for="userNumber" class="mb-1 block text-sm font-semibold text-neutral-700 dark:text-neutral-200">학번</label>
                         <input id="userNumber"
-                               name="userNumber"
+                               th:field="*{userNumber}"
                                type="text"
-                               th:value="${user.userNumber}"
                                class="w-full border border-neutral-200 px-3 py-2 text-sm dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-100"
                                required>
+                        <p th:if="${#fields.hasErrors('userNumber')}" th:errors="*{userNumber}" class="mt-1 text-xs text-red-500"></p>
                     </div>
 
                     <div>
                         <label for="gender" class="mb-1 block text-sm font-semibold text-neutral-700 dark:text-neutral-200">성별</label>
                         <select id="gender"
-                                name="gender"
+                                th:field="*{gender}"
                                 class="w-full border border-neutral-200 px-3 py-2 text-sm dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-100">
-                            <option value="" th:selected="${user.gender == null || user.gender == ''}">선택 안함</option>
-                            <option value="남성" th:selected="${user.gender == '남성'}">남성</option>
-                            <option value="여성" th:selected="${user.gender == '여성'}">여성</option>
-                            <option value="기타" th:selected="${user.gender == '기타'}">기타</option>
+                            <option value="">선택 안함</option>
+                            <option value="남성">남성</option>
+                            <option value="여성">여성</option>
+                            <option value="기타">기타</option>
                         </select>
+                    </div>
+
+                    <div class="grid gap-3 sm:grid-cols-2">
+                        <div>
+                            <label for="passwd" class="mb-1 block text-sm font-semibold text-neutral-700 dark:text-neutral-200">새 비밀번호</label>
+                            <input id="passwd"
+                                   th:field="*{passwd}"
+                                   type="password"
+                                   autocomplete="new-password"
+                                   class="w-full border border-neutral-200 px-3 py-2 text-sm dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-100"
+                                   placeholder="변경할 때만 입력">
+                            <p class="mt-1 text-xs text-neutral-500 dark:text-neutral-300">영문, 숫자, 특수문자 포함 8자 이상</p>
+                            <p th:if="${#fields.hasErrors('passwd')}" th:errors="*{passwd}" class="mt-1 text-xs text-red-500"></p>
+                        </div>
+                        <div>
+                            <label for="passwdConfirm" class="mb-1 block text-sm font-semibold text-neutral-700 dark:text-neutral-200">새 비밀번호 확인</label>
+                            <input id="passwdConfirm"
+                                   th:field="*{passwdConfirm}"
+                                   type="password"
+                                   autocomplete="new-password"
+                                   class="w-full border border-neutral-200 px-3 py-2 text-sm dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-100"
+                                   placeholder="새 비밀번호 재입력">
+                            <p th:if="${#fields.hasErrors('passwdConfirm')}" th:errors="*{passwdConfirm}" class="mt-1 text-xs text-red-500"></p>
+                        </div>
                     </div>
 
                     <div class="grid gap-3 sm:grid-cols-3">
                         <div>
                             <label for="style1" class="mb-1 block text-sm font-semibold text-neutral-700 dark:text-neutral-200">스타일 1</label>
                             <input id="style1"
-                                   name="style1"
+                                   th:field="*{style1}"
                                    type="text"
-                                   th:value="${user.style1}"
                                    class="w-full border border-neutral-200 px-3 py-2 text-sm dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-100">
                         </div>
                         <div>
                             <label for="style2" class="mb-1 block text-sm font-semibold text-neutral-700 dark:text-neutral-200">스타일 2</label>
                             <input id="style2"
-                                   name="style2"
+                                   th:field="*{style2}"
                                    type="text"
-                                   th:value="${user.style2}"
                                    class="w-full border border-neutral-200 px-3 py-2 text-sm dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-100">
                         </div>
                         <div>
                             <label for="style3" class="mb-1 block text-sm font-semibold text-neutral-700 dark:text-neutral-200">스타일 3</label>
                             <input id="style3"
-                                   name="style3"
+                                   th:field="*{style3}"
                                    type="text"
-                                   th:value="${user.style3}"
                                    class="w-full border border-neutral-200 px-3 py-2 text-sm dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-100">
                         </div>
                     </div>

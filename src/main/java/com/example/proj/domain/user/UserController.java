@@ -62,8 +62,9 @@ public class UserController {
 
     @GetMapping("/detail")
     public String userDetail(@AuthenticationPrincipal CustomUserDetail userDetail, Model model) {
-        model.addAttribute("user", userService.findByUserId(userDetail.getUsername()));
-        model.addAttribute("userUpdateRequestDto", new UserUpdateRequestDto());
+        UserModel user = userService.findByUserId(userDetail.getUsername());
+        model.addAttribute("user", user);
+        model.addAttribute("userUpdateRequestDto", toUpdateDto(user));
 
         return "pages/user/userDetail";
     }
@@ -78,10 +79,43 @@ public class UserController {
             return "pages/user/userDetail";
         }
 
-        UserModel updatedUser = userService.updateUser(userDetail.getUsername(), userUpdateRequestDto);
+        if (hasPasswordInput(userUpdateRequestDto) && !passwordsMatch(userUpdateRequestDto)) {
+            bindingResult.rejectValue("passwdConfirm", "passwordMismatch", "비밀번호가 일치하지 않습니다.");
+            model.addAttribute("user", userService.findByUserId(userDetail.getUsername()));
+            return "pages/user/userDetail";
+        }
+
+        UserModel updatedUser;
+        try {
+            updatedUser = userService.updateUser(userDetail.getUsername(), userUpdateRequestDto);
+        } catch (IllegalArgumentException e) {
+            bindingResult.rejectValue("passwd", "passwordRule", e.getMessage());
+            model.addAttribute("user", userService.findByUserId(userDetail.getUsername()));
+            return "pages/user/userDetail";
+        }
         refreshPrincipal(updatedUser);
 
         return "redirect:/user/detail";
+    }
+
+    private UserUpdateRequestDto toUpdateDto(UserModel user) {
+        UserUpdateRequestDto dto = new UserUpdateRequestDto();
+        dto.setUserName(user.getUserName());
+        dto.setUserNumber(user.getUserNumber());
+        dto.setGender(user.getGender());
+        dto.setStyle1(user.getStyle1());
+        dto.setStyle2(user.getStyle2());
+        dto.setStyle3(user.getStyle3());
+        return dto;
+    }
+
+    private boolean hasPasswordInput(UserUpdateRequestDto dto) {
+        return (dto.getPasswd() != null && !dto.getPasswd().isBlank())
+                || (dto.getPasswdConfirm() != null && !dto.getPasswdConfirm().isBlank());
+    }
+
+    private boolean passwordsMatch(UserUpdateRequestDto dto) {
+        return dto.getPasswd() != null && dto.getPasswd().equals(dto.getPasswdConfirm());
     }
 
     private void refreshPrincipal(UserModel user) {

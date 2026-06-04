@@ -16,6 +16,7 @@ import java.util.List;
 public class UserService implements UserDetailsService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private static final String PASSWORD_PATTERN = "^(?=.*[A-Za-z])(?=.*\\d)(?=.*[^A-Za-z\\d]).{8,}$";
 
     public void addUser(UserSaveRequestDto userSaveRequestDto) {
         if (existsByUserId(userSaveRequestDto.getUserId())) {
@@ -88,6 +89,12 @@ public class UserService implements UserDetailsService {
         user.setStyle2(blankToNull(dto.getStyle2()));
         user.setStyle3(blankToNull(dto.getStyle3()));
 
+        if (dto.getPasswd() != null && !dto.getPasswd().isBlank()) {
+            if (!dto.getPasswd().matches(PASSWORD_PATTERN)) {
+                throw new IllegalArgumentException("비밀번호는 영문, 숫자, 특수문자를 포함해 8자 이상이어야 합니다.");
+            }
+            user.setPasswd(passwordEncoder.encode(dto.getPasswd()));
+        }
 
         return userRepository.save(user);
     }
