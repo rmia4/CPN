@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>오늘의 날씨</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --page-bg: #f4f7fb;
+            --ink: #1f2937;
+            --muted: #667085;
+            --line: #d9e2ec;
+            --brand: #1d75d8;
+            --sky: #dff3ff;
+            --sun: #ffd36a;
+            --rain: #4f8edb;
+        }
+
+        body {
+            min-height: 100vh;
+            background:
+                    radial-gradient(circle at top left, rgba(255, 211, 106, 0.28), transparent 32rem),
+                    linear-gradient(180deg, #eef8ff 0%, var(--page-bg) 42%, #ffffff 100%);
+            color: var(--ink);
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        }
+
+        .page-shell {
+            width: min(1120px, calc(100% - 32px));
+            margin: 0 auto;
+            padding: 32px 0 48px;
+        }
+
+        .top-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .icon-button,
+        .compare-link {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 42px;
+            border: 1px solid rgba(29, 117, 216, 0.2);
+            background: rgba(255, 255, 255, 0.82);
+            color: var(--brand);
+            text-decoration: none;
+            box-shadow: 0 10px 30px rgba(31, 41, 55, 0.08);
+        }
+
+        .icon-button {
+            width: 42px;
+            border-radius: 50%;
+            font-size: 24px;
+            line-height: 1;
+        }
+
+        .compare-link {
+            border-radius: 999px;
+            padding: 0 16px;
+            font-weight: 700;
+            font-size: 14px;
+        }
+
+        .weather-hero {
+            display: grid;
+            grid-template-columns: minmax(0, 1.15fr) minmax(260px, 0.85fr);
+            gap: 24px;
+            align-items: stretch;
+            margin-bottom: 24px;
+        }
+
+        .hero-main,
+        .today-panel {
+            border: 1px solid rgba(217, 226, 236, 0.8);
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.9);
+            box-shadow: 0 24px 70px rgba(31, 41, 55, 0.1);
+        }
+
+        .hero-main {
+            padding: 32px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .hero-main::after {
+            content: "";
+            position: absolute;
+            right: 30px;
+            top: 32px;
+            width: 130px;
+            height: 130px;
+            border-radius: 50%;
+            background: var(--sun);
+            box-shadow: 0 0 0 24px rgba(255, 211, 106, 0.22);
+        }
+
+        .eyebrow {
+            margin: 0 0 12px;
+            color: var(--brand);
+            font-size: 13px;
+            font-weight: 800;
+        }
+
+        h1 {
+            position: relative;
+            z-index: 1;
+            margin: 0;
+            max-width: 560px;
+            font-size: clamp(36px, 5vw, 64px);
+            font-weight: 900;
+            letter-spacing: 0;
+            line-height: 1.03;
+        }
+
+        .hero-meta {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 24px;
+            color: var(--muted);
+            font-size: 14px;
+        }
+
+        .hero-meta span {
+            padding: 8px 12px;
+            border-radius: 999px;
+            background: #f2f6fb;
+            border: 1px solid var(--line);
+        }
+
+        .today-panel {
+            padding: 28px;
+        }
+
+        .today-label {
+            color: var(--muted);
+            font-size: 13px;
+            font-weight: 800;
+        }
+
+        .temperature {
+            margin-top: 8px;
+            font-size: 68px;
+            line-height: 1;
+            font-weight: 900;
+        }
+
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 10px;
+            margin-top: 24px;
+        }
+
+        .summary-item {
+            min-height: 88px;
+            padding: 14px;
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            background: #f8fbff;
+        }
+
+        .summary-item b {
+            display: block;
+            margin-top: 8px;
+            font-size: 20px;
+        }
+
+        .section-title {
+            display: flex;
+            align-items: end;
+            justify-content: space-between;
+            gap: 12px;
+            margin: 28px 0 14px;
+        }
+
+        .section-title h2 {
+            margin: 0;
+            font-size: 22px;
+            font-weight: 900;
+        }
+
+        .section-title p {
+            margin: 0;
+            color: var(--muted);
+            font-size: 14px;
+        }
+
+        .hourly-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 12px;
+        }
+
+        .hour-card {
+            min-height: 192px;
+            padding: 16px;
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            background: #ffffff;
+            box-shadow: 0 12px 28px rgba(31, 41, 55, 0.07);
+        }
+
+        .hour-card:first-child {
+            border-color: rgba(29, 117, 216, 0.4);
+            background: linear-gradient(180deg, #ffffff 0%, var(--sky) 100%);
+        }
+
+        .hour-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            color: var(--muted);
+            font-size: 13px;
+            font-weight: 800;
+        }
+
+        .weather-mark {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--sun) 0 55%, var(--rain) 56% 100%);
+        }
+
+        .hour-temp {
+            margin: 18px 0 12px;
+            font-size: 34px;
+            font-weight: 900;
+            line-height: 1;
+        }
+
+        .weather-list {
+            display: grid;
+            gap: 8px;
+            margin: 0;
+            padding: 0;
+            list-style: none;
+            color: var(--muted);
+            font-size: 13px;
+        }
+
+        .weather-list li {
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+            border-top: 1px solid #eef2f6;
+            padding-top: 8px;
+        }
+
+        .weather-list strong {
+            color: var(--ink);
+            font-weight: 800;
+            text-align: right;
+        }
+
+        @media (max-width: 800px) {
+            .weather-hero,
+            .summary-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .hero-main {
+                padding: 26px;
+            }
+
+            .hero-main::after {
+                width: 88px;
+                height: 88px;
+                right: 22px;
+                top: 22px;
+            }
+        }
+    </style>
+</head>
+<body>
+<main class="page-shell">
+    <div class="top-actions">
+        <button type="button" class="icon-button" aria-label="이전 페이지로 돌아가기" onclick="history.back()">x</button>
+        <a class="compare-link" href="/w">기존 페이지 보기</a>
+    </div>
+
+    <section class="weather-hero">
+        <div class="hero-main">
+            <p class="eyebrow">Campus Weather</p>
+            <h1>오늘 날씨를 한눈에 확인하세요</h1>
+            <div class="hero-meta">
+                <span>기준 위치 <b th:text="${weatherData.baseLocation}">126.97 / 37.56</b></span>
+                <span>조회 일자 <b th:text="${weatherData.targetDate}">20231024</b></span>
+                <span>24시간 예보</span>
+            </div>
+        </div>
+
+        <aside class="today-panel" th:with="now=${weatherData.hourlyWeather[0]}">
+            <div class="today-label">지금 기준</div>
+            <div class="temperature" th:text="${now.temperature != null ? now.temperature + '℃' : '-'}">20℃</div>
+            <div class="summary-grid">
+                <div class="summary-item">
+                    <span>강수확률</span>
+                    <b th:text="${now.rainPercent != null ? now.rainPercent + '%' : '-'}">30%</b>
+                </div>
+                <div class="summary-item">
+                    <span>습도</span>
+                    <b th:text="${now.humidityPercent != null ? now.humidityPercent + '%' : '-'}">60%</b>
+                </div>
+                <div class="summary-item">
+                    <span>풍속</span>
+                    <b th:text="${now.windSpeed != null ? now.windSpeed + 'm/s' : '-'}">2m/s</b>
+                </div>
+            </div>
+        </aside>
+    </section>
+
+    <div class="section-title">
+        <div>
+            <h2>시간대별 예보</h2>
+            <p>기온, 비, 습도, 바람 정보를 카드로 정리했습니다.</p>
+        </div>
+    </div>
+
+    <section class="hourly-grid">
+        <article class="hour-card" th:each="info, stat : ${weatherData.hourlyWeather}">
+            <div class="hour-top">
+                <span th:text="${stat.index == 0 ? '현재' : '+' + stat.index + '시간'}">현재</span>
+                <span class="weather-mark" aria-hidden="true"></span>
+            </div>
+            <div class="hour-temp" th:text="${info.temperature != null ? info.temperature + '℃' : '-'}">20℃</div>
+            <ul class="weather-list">
+                <li>
+                    <span>하늘</span>
+                    <strong th:text="${info.sky ?: '-'}">1</strong>
+                </li>
+                <li>
+                    <span>강수</span>
+                    <strong th:text="${info.rainPercent != null ? info.rainPercent + '%' : '-'}">30%</strong>
+                </li>
+                <li>
+                    <span>강수량</span>
+                    <strong th:text="${info.rainAmount ?: '-'}">강수없음</strong>
+                </li>
+                <li>
+                    <span>습도</span>
+                    <strong th:text="${info.humidityPercent != null ? info.humidityPercent + '%' : '-'}">60%</strong>
+                </li>
+                <li>
+                    <span>풍속</span>
+                    <strong th:text="${info.windSpeed != null ? info.windSpeed + ' m/s' : '-'}">2 m/s</strong>
+                </li>
+                <li th:if="${info.maxTemp != null or info.minTemp != null}">
+                    <span>최고/최저</span>
+                    <strong>
+                        <span th:if="${info.maxTemp != null}" th:text="${info.maxTemp + '℃'}">25℃</span>
+                        <span th:if="${info.minTemp != null}" th:text="${' / ' + info.minTemp + '℃'}"> / 15℃</span>
+                    </strong>
+                </li>
+            </ul>
+        </article>
+    </section>
+</main>
+</body>
+</html>

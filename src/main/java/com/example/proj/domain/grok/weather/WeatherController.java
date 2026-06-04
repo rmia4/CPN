@@ -28,6 +28,14 @@ public class WeatherController {
         return "pages/grok/weather";
     }
 
+    @GetMapping("/w/new")
+    public String modernWeather(Model model) {
+        WeatherRequestDto weather =  weatherService.getWeather(126.97F ,37.56F);
+        model.addAttribute("weatherData", weather);
+
+        return "pages/grok/weather-modern";
+    }
+
 
 
 }

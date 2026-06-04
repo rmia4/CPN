@@ -21,6 +21,13 @@
                     </div>
                 </div>
 
+                <div class="mb-5 flex justify-end" th:if="${user.role == 'ROLE_ADMIN' or user.role == 'admin'}">
+                    <a href="/admin"
+                       class="inline-flex items-center justify-center bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700">
+                        관리자 페이지로 이동
+                    </a>
+                </div>
+
                 <form th:action="@{/user/detail}" method="post" class="space-y-4">
                     <div>
                         <label for="userName" class="mb-1 block text-sm font-semibold text-neutral-700 dark:text-neutral-200">이름</label>
