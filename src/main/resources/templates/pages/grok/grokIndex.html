@@ -265,7 +265,11 @@
                     }
 
                     const data = await response.json();
-                    appendMessage("assistant", data.answer || "이미지 분석 결과를 가져오지 못했습니다.");
+                    let answer = data.answer || "이미지 분석 결과를 가져오지 못했습니다.";
+                    if (data.styleSaved && data.styles?.length) {
+                        answer += `\n\n저장된 스타일 키워드: ${data.styles.join(", ")}`;
+                    }
+                    appendMessage("assistant", answer);
                     chatStatus.textContent = "";
                     closeImageModal();
                 } catch (error) {

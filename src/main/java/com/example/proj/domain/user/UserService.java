@@ -92,6 +92,23 @@ public class UserService implements UserDetailsService {
         return userRepository.save(user);
     }
 
+    public UserModel updateStyleKeywords(String userId, List<String> styles) {
+        if (styles == null || styles.size() < 3) {
+            throw new IllegalArgumentException("스타일 키워드는 3개가 필요합니다.");
+        }
+
+        UserModel user = userRepository.findByUserId(userId);
+        if (user == null) {
+            throw new IllegalArgumentException("존재하지 않는 유저: " + userId);
+        }
+
+        user.setStyle1(blankToNull(styles.get(0)));
+        user.setStyle2(blankToNull(styles.get(1)));
+        user.setStyle3(blankToNull(styles.get(2)));
+
+        return userRepository.save(user);
+    }
+
     private String blankToNull(String value) {
         return value == null || value.isBlank() ? null : value.trim();
     }
@@ -107,7 +124,6 @@ public class UserService implements UserDetailsService {
     }
 
 }
-
 
 
 

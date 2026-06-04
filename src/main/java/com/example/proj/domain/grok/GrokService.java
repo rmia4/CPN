@@ -14,6 +14,7 @@ import org.springframework.web.multipart.MultipartFile;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.List;
@@ -26,7 +27,7 @@ public class GrokService {
     private final ObjectMapper objectMapper;
     private final RestTemplate restTemplate = new RestTemplate();
 
-    public OutfitRecommendation recommendOutfit(String message, String weatherSummary, String gender) {
+    public OutfitRecommendation recommendOutfit(String message, String weatherSummary, String gender, List<String> styles) {
         String apiKey = dotenv.get("GROQ_API_KEY");
         if (apiKey == null || apiKey.isBlank()) {
             throw new IllegalStateException("GROQ_API_KEY가 설정되어 있지 않습니다.");
@@ -36,7 +37,7 @@ public class GrokService {
         headers.setBearerAuth(apiKey);
         headers.setContentType(MediaType.APPLICATION_JSON);
 
-        String userProfile = buildUserProfile(gender);
+        String userProfile = buildUserProfile(gender, styles);
 
         Map<String, Object> body = Map.of(
                 "model", "llama-3.3-70b-versatile",
@@ -88,15 +89,32 @@ public class GrokService {
         return parseRecommendation(content.asText());
     }
 
-    private String buildUserProfile(String gender) {
+    private String buildUserProfile(String gender, List<String> styles) {
+        StringBuilder userProfile = new StringBuilder();
+
         if (gender == null || gender.isBlank()) {
-            return "성별 정보 없음";
+            userProfile.append("성별 정보 없음");
+        } else {
+            userProfile.append("성별: ").append(gender.trim());
         }
 
-        return "성별: " + gender.trim();
+        List<String> cleanStyles = styles == null
+                ? List.of()
+                : styles.stream()
+                .filter(style -> style != null && !style.isBlank())
+                .map(String::trim)
+                .toList();
+
+        if (cleanStyles.isEmpty()) {
+            userProfile.append("\n선호 스타일 정보 없음");
+        } else {
+            userProfile.append("\n선호 스타일: ").append(String.join(", ", cleanStyles));
+        }
+
+        return userProfile.toString();
     }
 
-    public String checkOutfitImage(MultipartFile image, String weatherSummary) {
+    public OutfitImageAnalysis checkOutfitImage(MultipartFile image, String weatherSummary) {
         String apiKey = dotenv.get("GROQ_API_KEY");
         if (apiKey == null || apiKey.isBlank()) {
             throw new IllegalStateException("GROQ_API_KEY가 설정되어 있지 않습니다.");
@@ -141,6 +159,8 @@ public class GrokService {
                                                         이 이미지에 있는 의상을 분석해줘.
                                                         옷의 종류, 색상, 두께감, 스타일을 설명하고 아래 날씨에 오늘 입기 적절한지 판단해줘.
                                                         적절하면 이유를 말하고, 부족하면 무엇을 더하거나 빼면 좋을지 추천해줘.
+                                                        답변 마지막 줄에는 사용자 취향으로 저장할 스타일 키워드 3개를 반드시 "스타일키워드: " 형식으로 적어.
+                                                        스타일 키워드는 한글 명사로만 작성하고 쉼표로 구분해. 예: 스타일키워드: 미니멀, 캐주얼, 데일리
                                                         답변은 반드시 한글, 숫자, 기본 문장부호만 사용해.
                                                         한자, 일본어, 중국어, 영어 단어는 사용하지 마.
                                                         
@@ -173,7 +193,67 @@ public class GrokService {
             throw new IllegalStateException("Groq 이미지 분석 응답을 읽을 수 없습니다.");
         }
 
-        return removeUnsupportedCharacters(content.asText());
+        return parseOutfitImageAnalysis(content.asText());
+    }
+
+    private OutfitImageAnalysis parseOutfitImageAnalysis(String rawAnswer) {
+        List<String> lines = Arrays.stream(rawAnswer.split("\\R"))
+                .map(String::trim)
+                .filter(line -> !line.isBlank())
+                .toList();
+
+        List<String> styleKeywords = List.of();
+        StringBuilder answer = new StringBuilder();
+
+        for (String line : lines) {
+            if (isStyleKeywordLine(line)) {
+                styleKeywords = parseStyleKeywords(line);
+                continue;
+            }
+
+            if (!answer.isEmpty()) {
+                answer.append("\n");
+            }
+            answer.append(line);
+        }
+
+        if (answer.isEmpty()) {
+            answer.append(rawAnswer.trim());
+        }
+
+        return new OutfitImageAnalysis(
+                removeUnsupportedCharacters(answer.toString()),
+                styleKeywords
+        );
+    }
+
+    private boolean isStyleKeywordLine(String line) {
+        return line != null && line.replace(" ", "").startsWith("스타일키워드");
+    }
+
+    private List<String> parseStyleKeywords(String line) {
+        String normalizedLine = line.replace('：', ':');
+        int separatorIndex = normalizedLine.indexOf(':');
+        if (separatorIndex < 0) {
+            return List.of();
+        }
+
+        String keywordText = normalizedLine.substring(separatorIndex + 1);
+        List<String> keywords = new ArrayList<>();
+        for (String keyword : keywordText.split(",")) {
+            String cleanedKeyword = removeUnsupportedCharacters(keyword)
+                    .replaceAll("[^가-힣0-9 ]", "")
+                    .trim();
+
+            if (!cleanedKeyword.isBlank()) {
+                keywords.add(cleanedKeyword);
+            }
+            if (keywords.size() == 3) {
+                break;
+            }
+        }
+
+        return keywords;
     }
 
     private OutfitRecommendation parseRecommendation(String rawAnswer) {
@@ -220,5 +300,8 @@ public class GrokService {
     }
 
     public record OutfitRecommendation(String answer, String shoppingKeyword) {
+    }
+
+    public record OutfitImageAnalysis(String answer, List<String> styleKeywords) {
     }
 }

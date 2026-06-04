@@ -59,15 +59,15 @@ public class GrokController {
         String weatherSummary = request.weatherSummary() == null || request.weatherSummary().isBlank()
                 ? "날씨 정보가 없습니다."
                 : request.weatherSummary();
-        String profileGender = userDetail == null || userDetail.getUserModel() == null
-                ? null
-                : getProfileGender(userDetail);
+        UserModel profileUser = getProfileUser(userDetail);
+        String profileGender = profileUser == null ? null : normalizeGender(profileUser.getGender());
         String gender = request.gender() == null || request.gender().isBlank()
                 ? profileGender
                 : request.gender();
+        List<String> styles = getProfileStyles(profileUser);
 
         try {
-            GrokService.OutfitRecommendation recommendation = grokService.recommendOutfit(message, weatherSummary, gender);
+            GrokService.OutfitRecommendation recommendation = grokService.recommendOutfit(message, weatherSummary, gender, styles);
             return ResponseEntity.ok(new GrokChatResponse(
                     recommendation.answer(),
                     naverShoppingService.searchImages(recommendation.shoppingKeyword(), gender, 6)
@@ -80,14 +80,26 @@ public class GrokController {
 
     @PostMapping("/grok/outfit-check")
     public ResponseEntity<GrokChatResponse> checkOutfit(@RequestParam("image") MultipartFile image,
-                                                        @RequestParam("weatherSummary") String weatherSummary) {
+                                                        @RequestParam("weatherSummary") String weatherSummary,
+                                                        @AuthenticationPrincipal CustomUserDetail userDetail) {
         String summary = weatherSummary == null || weatherSummary.isBlank()
                 ? "날씨 정보가 없습니다."
                 : weatherSummary;
 
         try {
-            String answer = grokService.checkOutfitImage(image, summary);
-            return ResponseEntity.ok(new GrokChatResponse(answer, List.of()));
+            GrokService.OutfitImageAnalysis analysis = grokService.checkOutfitImage(image, summary);
+            List<String> styleKeywords = analysis.styleKeywords();
+            boolean styleSaved = false;
+
+            if (userDetail != null && styleKeywords.size() == 3) {
+                UserModel updatedUser = userService.updateStyleKeywords(userDetail.getUsername(), styleKeywords);
+                userDetail.getUserModel().setStyle1(updatedUser.getStyle1());
+                userDetail.getUserModel().setStyle2(updatedUser.getStyle2());
+                userDetail.getUserModel().setStyle3(updatedUser.getStyle3());
+                styleSaved = true;
+            }
+
+            return ResponseEntity.ok(new GrokChatResponse(analysis.answer(), List.of(), styleKeywords, styleSaved));
         } catch (Exception e) {
             return ResponseEntity.internalServerError()
                     .body(new GrokChatResponse(e.getMessage(), List.of()));
@@ -114,16 +126,31 @@ public class GrokController {
     }
 
     private String getProfileGender(CustomUserDetail userDetail) {
-        if (userDetail == null || userDetail.getUsername() == null || userDetail.getUsername().isBlank()) {
-            return "";
-        }
-
-        UserModel user = userService.findByUserId(userDetail.getUsername());
+        UserModel user = getProfileUser(userDetail);
         if (user == null) {
             return "";
         }
 
         return normalizeGender(user.getGender());
+    }
+
+    private UserModel getProfileUser(CustomUserDetail userDetail) {
+        if (userDetail == null || userDetail.getUsername() == null || userDetail.getUsername().isBlank()) {
+            return null;
+        }
+
+        return userService.findByUserId(userDetail.getUsername());
+    }
+
+    private List<String> getProfileStyles(UserModel user) {
+        if (user == null) {
+            return List.of();
+        }
+
+        return List.of(user.getStyle1(), user.getStyle2(), user.getStyle3()).stream()
+                .filter(style -> style != null && !style.isBlank())
+                .map(String::trim)
+                .toList();
     }
 
     private String normalizeGender(String gender) {
@@ -148,6 +175,9 @@ public class GrokController {
     public record GrokChatRequest(String message, String weatherSummary, String gender) {
     }
 
-    public record GrokChatResponse(String answer, List<String> images) {
+    public record GrokChatResponse(String answer, List<String> images, List<String> styles, boolean styleSaved) {
+        public GrokChatResponse(String answer, List<String> images) {
+            this(answer, images, List.of(), false);
+        }
     }
 }
