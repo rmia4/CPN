@@ -16,6 +16,47 @@
                 width: 300px;
                 z-index: 30;
             }
+
+            @media (max-width: 640px) {
+                #pinDetail {
+                    top: auto;
+                    right: 12px;
+                    bottom: 16px;
+                    left: 12px;
+                    width: auto;
+                    max-height: 72vh;
+                    overflow-y: auto;
+                    z-index: 60;
+                }
+
+                #pinDetail .card-header {
+                    position: sticky;
+                    top: 0;
+                    z-index: 2;
+                    background: #fff;
+                    box-shadow: 0 1px 0 rgba(0, 0, 0, 0.08);
+                }
+
+                html.dark #pinDetail .card-header {
+                    background: #262626;
+                }
+
+                #detailName {
+                    max-width: calc(100% - 36px);
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                    white-space: nowrap;
+                }
+
+                #detailImage {
+                    max-height: 260px;
+                    object-fit: contain;
+                }
+
+                #pinDetail .card-body {
+                    padding-top: 0.875rem;
+                }
+            }
         </style>
 
         <main class="min-h-[600px]">
@@ -107,7 +148,12 @@
             <!-- 핀 상세 패널 -->
             <div id="pinDetail" class="card shadow hidden">
                 <div class="card-header d-flex justify-content-between align-items-center">
-                    <span id="detailName" class="fw-bold"></span>
+                    <div class="min-w-0">
+                        <span id="detailName" class="block fw-bold"></span>
+                        <span id="detailCommentCount" class="mt-1 inline-flex rounded-full bg-neutral-100 px-2 py-1 text-xs font-semibold text-neutral-500 dark:bg-neutral-700 dark:text-neutral-200">
+                            0
+                        </span>
+                    </div>
                     <button type="button" id="detailCloseBtn" class="btn-close" aria-label="닫기"></button>
                 </div>
                 <div class="card-body">
@@ -270,6 +316,7 @@
             const detailDeleteBtn = document.getElementById("detailDeleteBtn");
             const detailMeetingTime = document.getElementById("detailMeetingTime");
             const detailComments = document.getElementById("detailComments");
+            const detailCommentCount = document.getElementById("detailCommentCount");
             const preview = document.getElementById("preview");
             const fileInput = document.getElementById("fileInput");
             const cameraInput = document.getElementById("cameraInput");
@@ -289,6 +336,7 @@
             const mapLoginPromptCancel = document.getElementById("mapLoginPromptCancel");
             let selectedDetailPin = null;
             let activeDetailPinId = null;
+            let lastMarkerActivationTime = 0;
             const PIN_TAG_STYLES = {
                 "분실물": {
                     color: "#ef4444",
@@ -403,12 +451,35 @@
                         const marker = new Tmapv2.Marker(Object.assign({
                             position: new Tmapv2.LatLng(pin.lat, pin.lon),
                             title: (categoryLabel[pin.category] || '') + pin.title,
+                            zIndex: 100,
                             map: map
                         }, getPinMarkerOptions(pin)));
 
-                        marker.addListener("click", () => showDetail(pin));
+                        addMarkerActivation(marker, () => showDetail(pin));
 
                         markers[pin.id] = marker;
+                    }
+                });
+            }
+
+            function addMarkerActivation(marker, handler) {
+                const activate = (event) => {
+                    const now = Date.now();
+                    if (now - lastMarkerActivationTime < 350) return;
+                    lastMarkerActivationTime = now;
+
+                    const sourceEvent = event && (event.originalEvent || event.domEvent || event);
+                    sourceEvent?.preventDefault?.();
+                    sourceEvent?.stopPropagation?.();
+
+                    handler(event);
+                };
+
+                ["click", "touchstart", "pointerdown"].forEach((eventName) => {
+                    try {
+                        marker.addListener(eventName, activate);
+                    } catch (error) {
+                        // Some Tmap marker builds expose only a subset of DOM-like events.
                     }
                 });
             }
@@ -424,6 +495,7 @@
                         title: `${building.label}, ${building.name}`,
                         icon: getBuildingLabelIcon(markerLabel),
                         iconSize: new Tmapv2.Size(62, 26),
+                        zIndex: 10,
                         map: map
                     });
 
@@ -449,11 +521,12 @@
                     title: info.title,
                     icon: options.icon || info.imageUrl,
                     iconSize: options.iconSize,
+                    zIndex: options.zIndex || 80,
                     map: map
                 });
 
                 if (options.onClick) {
-                    marker.addListener("click", options.onClick);
+                    addMarkerActivation(marker, options.onClick);
                 }
 
                 return marker;
@@ -522,6 +595,7 @@
                 detailPostLink.textContent = '게시글 보기';
                 detailPostLink.classList.remove('hidden', 'disabled');
                 setDetailImage(pin.imageUrl);
+                setDetailCommentCount(null);
                 resetDetailDeleteButton();
                 detailDeleteBtn.onclick = () => deletePin(pin.id);
 
@@ -535,6 +609,7 @@
                 selectedDetailPin = null;
                 activeDetailPinId = null;
                 detailComments.innerHTML = "";
+                setDetailCommentCount(0);
                 detailCommentForm.classList.add("hidden");
                 detailLoginPrompt.classList.add("hidden");
                 detailMeetingTime.classList.add("hidden");
@@ -581,6 +656,7 @@
             }
 
             async function loadPinComments(postId) {
+                setDetailCommentCount(null);
                 detailComments.innerHTML = '<p class="text-xs text-neutral-500">댓글을 불러오는 중입니다.</p>';
                 detailCommentForm.classList.toggle("hidden", !IS_AUTHENTICATED);
                 detailLoginPrompt.classList.toggle("hidden", IS_AUTHENTICATED);
@@ -591,10 +667,12 @@
                     const comments = await response.json();
 
                     if (!comments || comments.length === 0) {
+                        setDetailCommentCount(0);
                         detailComments.innerHTML = '<p class="text-xs text-neutral-500">아직 댓글이 없습니다.</p>';
                         return;
                     }
 
+                    setDetailCommentCount(comments.length);
                     detailComments.innerHTML = comments.map(comment => `
                         <div class="border-t pt-2">
                             <div class="text-xs text-neutral-400">${escapeHtml(comment.userName || "")} ${escapeHtml(formatDateTime(comment.createdAt))}</div>
@@ -602,8 +680,18 @@
                         </div>
                     `).join("");
                 } catch (error) {
+                    setDetailCommentCount(null);
                     detailComments.innerHTML = '<p class="text-xs text-red-500">댓글을 불러오지 못했습니다.</p>';
                 }
+            }
+
+            function setDetailCommentCount(count) {
+                if (count === null) {
+                    detailCommentCount.textContent = "댓글 확인 중";
+                    return;
+                }
+
+                detailCommentCount.textContent = `댓글 ${count}개`;
             }
 
             function escapeHtml(value) {
@@ -874,16 +962,19 @@
                 const style = getPinMarkerStyle(pin, tag);
                 const label = getPinMarkerLabel(pin, style);
                 const svg = `
-                    <svg xmlns="http://www.w3.org/2000/svg" width="36" height="46" viewBox="0 0 36 46">
-                        <path d="M18 44C13 36 5 29 5 17.5C5 10.3 10.8 4 18 4s13 6.3 13 13.5C31 29 23 36 18 44Z" fill="${style.color}" stroke="${style.stroke}" stroke-width="2"/>
-                        <circle cx="18" cy="17.5" r="8.5" fill="white" fill-opacity="0.95"/>
-                        ${label}
+                    <svg xmlns="http://www.w3.org/2000/svg" width="48" height="58" viewBox="0 0 48 58">
+                        <rect width="48" height="58" fill="transparent" pointer-events="all"/>
+                        <g transform="translate(6 12)">
+                            <path d="M18 44C13 36 5 29 5 17.5C5 10.3 10.8 4 18 4s13 6.3 13 13.5C31 29 23 36 18 44Z" fill="${style.color}" stroke="${style.stroke}" stroke-width="2"/>
+                            <circle cx="18" cy="17.5" r="8.5" fill="white" fill-opacity="0.95"/>
+                            ${label}
+                        </g>
                     </svg>
                 `.trim();
 
                 return {
                     icon: `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`,
-                    iconSize: new Tmapv2.Size(36, 46)
+                    iconSize: new Tmapv2.Size(48, 58)
                 };
             }
 

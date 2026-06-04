@@ -71,6 +71,54 @@
         color: #f5f5f5 !important;
         border-color: #525252 !important;
       }
+
+      #pageLoadingBar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        z-index: 9999;
+        width: 100%;
+        height: 3px;
+        overflow: hidden;
+        pointer-events: none;
+        opacity: 0;
+        transition: opacity 150ms ease;
+      }
+
+      #pageLoadingBar::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 42%;
+        height: 100%;
+        background: linear-gradient(90deg, #171717, #737373);
+        transform: translateX(-110%);
+      }
+
+      html.dark #pageLoadingBar::before {
+        background: linear-gradient(90deg, #f5f5f5, #a3a3a3);
+      }
+
+      html.is-page-loading #pageLoadingBar {
+        opacity: 1;
+      }
+
+      html.is-page-loading #pageLoadingBar::before {
+        animation: pageLoadingSlide 900ms ease-in-out infinite;
+      }
+
+      @keyframes pageLoadingSlide {
+        0% {
+          transform: translateX(-110%);
+        }
+        55% {
+          transform: translateX(80%);
+        }
+        100% {
+          transform: translateX(245%);
+        }
+      }
     </style>
     <script>
       function toggleDarkMode() {
@@ -109,10 +157,114 @@
           navigator.serviceWorker.register("/service-worker.js");
         }
       });
+
+      (() => {
+        const loadingClass = "is-page-loading";
+        const locationPattern = /\b(?:window\.)?location(?:\.href|\.assign|\.replace)?\b/;
+
+        function showPageLoading() {
+          document.documentElement.classList.add(loadingClass);
+        }
+
+        function hidePageLoading() {
+          document.documentElement.classList.remove(loadingClass);
+        }
+
+        function isModifiedClick(event) {
+          return event.defaultPrevented
+              || event.button !== 0
+              || event.metaKey
+              || event.ctrlKey
+              || event.shiftKey
+              || event.altKey;
+        }
+
+        function isSamePageAnchor(url) {
+          return url.origin === window.location.origin
+              && url.pathname === window.location.pathname
+              && url.search === window.location.search
+              && url.hash;
+        }
+
+        function shouldSkipLink(anchor, event) {
+          if (!anchor || isModifiedClick(event) || anchor.hasAttribute("download")) return true;
+
+          const target = (anchor.getAttribute("target") || "").toLowerCase();
+          if (target && target !== "_self") return true;
+
+          const href = anchor.getAttribute("href") || "";
+          if (!href || href.trim().startsWith("#")) return true;
+
+          try {
+            const url = new URL(anchor.href, window.location.href);
+            return !["http:", "https:"].includes(url.protocol) || isSamePageAnchor(url);
+          } catch (error) {
+            return true;
+          }
+        }
+
+        function shouldSkipForm(form) {
+          if (!form || form.method?.toLowerCase() === "dialog") return true;
+
+          const target = (form.getAttribute("target") || "").toLowerCase();
+          if (target && target !== "_self") return true;
+
+          try {
+            const url = new URL(form.action || window.location.href, window.location.href);
+            return !["http:", "https:"].includes(url.protocol) || isSamePageAnchor(url);
+          } catch (error) {
+            return true;
+          }
+        }
+
+        document.addEventListener("click", (event) => {
+          const anchor = event.target.closest?.("a[href]");
+          if (anchor) {
+            window.setTimeout(() => {
+              if (!shouldSkipLink(anchor, event)) showPageLoading();
+            }, 0);
+            return;
+          }
+
+          const button = event.target.closest?.("button, input[type='button'], input[type='submit']");
+          if (!button || button.disabled || button.closest("form")) return;
+
+          const inlineHandler = button.getAttribute("onclick") || "";
+          window.setTimeout(() => {
+            if (!event.defaultPrevented && locationPattern.test(inlineHandler)) {
+              showPageLoading();
+            }
+          }, 0);
+        });
+
+        document.addEventListener("submit", (event) => {
+          const form = event.target;
+          window.setTimeout(() => {
+            if (!event.defaultPrevented && !shouldSkipForm(form)) {
+              showPageLoading();
+            }
+          }, 0);
+        });
+
+        const nativeFormSubmit = HTMLFormElement.prototype.submit;
+        HTMLFormElement.prototype.submit = function () {
+          if (!shouldSkipForm(this)) {
+            showPageLoading();
+          }
+
+          nativeFormSubmit.call(this);
+        };
+
+        window.addEventListener("beforeunload", showPageLoading);
+        window.addEventListener("pageshow", hidePageLoading);
+        window.addEventListener("DOMContentLoaded", hidePageLoading);
+      })();
     </script>
   </head>
   <body class="bg-white text-black
              dark:bg-neutral-800 dark:text-neutral-100 flex flex-col min-h-screen">
+    <div id="pageLoadingBar" aria-hidden="true"></div>
+
     <!-- Header -->
     <div th:replace="~{fragments/header :: header}"></div>
 

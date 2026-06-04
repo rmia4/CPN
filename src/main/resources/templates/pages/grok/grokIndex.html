@@ -1,6 +1,6 @@
 <div th:replace="~{layout/layout :: layout(~{::content})}">
     <div th:fragment="content">
-        <main class="mx-auto max-w-6xl px-4 py-8">
+        <main class="max-w-4xl w-full mx-auto overflow-x-hidden px-4 py-6">
             <section class="mb-6">
                 <p class="text-sm font-semibold text-neutral-500">AI Outfit Assistant</p>
                 <h1 class="mt-1 text-2xl font-bold text-neutral-950">오늘 날씨에 맞는 옷차림 추천</h1>
@@ -9,8 +9,8 @@
                 </p>
             </section>
 
-            <section class="grid gap-4 lg:grid-cols-[360px_1fr]">
-                <aside class="border border-neutral-200 bg-white p-4 dark:border-neutral-700 dark:bg-neutral-800">
+            <section class="grid min-w-0 gap-4 lg:grid-cols-[360px_1fr]">
+                <aside class="min-w-0 border border-neutral-200 bg-white p-4 dark:border-neutral-700 dark:bg-neutral-800">
                     <div class="flex items-start justify-between gap-3">
                         <div>
                             <h2 class="text-base font-semibold text-neutral-950">오늘의 날씨</h2>
@@ -24,7 +24,7 @@
                     <div class="mt-4 rounded border border-neutral-200 bg-neutral-50 p-3 dark:border-neutral-700 dark:bg-neutral-900">
                         <p class="text-xs text-neutral-500 dark:text-neutral-300">AI에 전달되는 날씨 요약</p>
                         <p id="weatherSummary"
-                           class="mt-2 text-sm leading-6 text-neutral-800 dark:text-neutral-100"
+                           class="mt-2 break-words text-sm leading-6 text-neutral-800 dark:text-neutral-100"
                            th:text="${weatherSummary}">
                             위치: 126.97 / 37.56, 현재 기온: 20도
                         </p>
@@ -58,39 +58,39 @@
                     </div>
                 </aside>
 
-                <section class="flex min-h-[560px] flex-col border border-neutral-200 bg-white dark:border-neutral-700 dark:bg-neutral-800">
+                <section class="flex min-h-[560px] min-w-0 flex-col overflow-hidden border border-neutral-200 bg-white dark:border-neutral-700 dark:bg-neutral-800">
                     <div class="border-b border-neutral-200 p-4 dark:border-neutral-700">
                         <h2 class="text-base font-semibold text-neutral-950">Grok 채팅</h2>
                         <p class="mt-1 text-xs text-neutral-500">날씨 정보는 자동으로 함께 전달됩니다.</p>
                     </div>
 
-                    <div id="chatMessages" class="flex-1 space-y-3 overflow-y-auto p-4">
-                        <div class="max-w-[82%] border border-neutral-200 bg-neutral-50 p-3 text-sm leading-6 text-neutral-800 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-100">
+                    <div id="chatMessages" class="min-w-0 flex-1 space-y-3 overflow-y-auto p-4">
+                        <div class="max-w-full break-words border border-neutral-200 bg-neutral-50 p-3 text-sm leading-6 text-neutral-800 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-100 sm:max-w-[82%]">
                             안녕하세요. 오늘 날씨에 맞는 옷차림을 추천해드릴게요. “오늘 캠퍼스 오래 걸어다녀”처럼 상황을 덧붙이면 더 좋아요.
                         </div>
                     </div>
 
                     <div class="border-t border-neutral-200 p-4 dark:border-neutral-700">
                         <form id="chatForm">
-                        <div class="flex gap-2">
+                        <div class="flex flex-col gap-2 sm:flex-row">
                             <button id="openImageModalButton"
                                     type="button"
-                                    class="h-12 shrink-0 border border-neutral-300 px-4 text-sm font-semibold text-neutral-700 hover:bg-neutral-100 dark:border-neutral-600 dark:text-neutral-100 dark:hover:bg-neutral-700">
+                                    class="h-12 w-full shrink-0 border border-neutral-300 px-3 text-sm font-semibold text-neutral-700 hover:bg-neutral-100 dark:border-neutral-600 dark:text-neutral-100 dark:hover:bg-neutral-700 sm:w-auto">
                                 이미지 올리기
                             </button>
                             <select id="genderSelect"
-                                    class="h-12 shrink-0 border border-neutral-300 px-3 text-sm font-semibold text-neutral-700 dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-100">
+                                    class="h-12 w-full shrink-0 border border-neutral-300 px-3 text-sm font-semibold text-neutral-700 dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-100 sm:w-auto">
                                 <option value="" th:selected="${userGender == null or userGender == ''}">성별 선택 안 함</option>
                                 <option value="남성" th:selected="${userGender == '남성'}">남성</option>
                                 <option value="여성" th:selected="${userGender == '여성'}">여성</option>
                             </select>
                             <textarea id="messageInput"
-                                      class="min-h-[48px] flex-1 resize-none border border-neutral-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-neutral-300 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-100"
+                                      class="min-h-[48px] min-w-0 flex-1 resize-none border border-neutral-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-neutral-300 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-100"
                                       placeholder="예: 오늘 비 올 것 같아? 후드 입어도 괜찮을까?"
                                       required></textarea>
                             <button id="sendButton"
                                     type="submit"
-                                    class="h-12 px-4 text-sm font-semibold text-white bg-neutral-950 hover:bg-neutral-800">
+                                    class="h-12 w-full px-4 text-sm font-semibold text-white bg-neutral-950 hover:bg-neutral-800 sm:w-auto">
                                 전송
                             </button>
                         </div>
@@ -103,7 +103,7 @@
 
         <div id="imageModal"
              class="fixed inset-0 z-[100] hidden items-center justify-center bg-black/50 px-4">
-            <div class="w-full max-w-md border border-neutral-200 bg-white p-5 shadow-xl dark:border-neutral-700 dark:bg-neutral-800">
+            <div class="max-h-[calc(100vh-2rem)] w-full max-w-md overflow-y-auto border border-neutral-200 bg-white p-5 shadow-xl dark:border-neutral-700 dark:bg-neutral-800">
                 <div class="flex items-start justify-between gap-4">
                     <div>
                         <h2 class="text-base font-semibold text-neutral-950">의상 이미지 확인</h2>
@@ -169,8 +169,8 @@
             function appendMessage(role, text) {
                 const message = document.createElement("div");
                 message.className = role === "user"
-                    ? "ml-auto max-w-[82%] bg-neutral-950 p-3 text-sm leading-6 text-white dark:border dark:border-neutral-600 dark:bg-neutral-700 dark:text-neutral-100"
-                    : "max-w-[82%] border border-neutral-200 bg-neutral-50 p-3 text-sm leading-6 text-neutral-800 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-100";
+                    ? "ml-auto max-w-full break-words bg-neutral-950 p-3 text-sm leading-6 text-white dark:border dark:border-neutral-600 dark:bg-neutral-700 dark:text-neutral-100 sm:max-w-[82%]"
+                    : "max-w-full break-words border border-neutral-200 bg-neutral-50 p-3 text-sm leading-6 text-neutral-800 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-100 sm:max-w-[82%]";
                 message.textContent = text;
                 chatMessages.appendChild(message);
                 chatMessages.scrollTop = chatMessages.scrollHeight;
@@ -180,7 +180,7 @@
                 if (!images || images.length === 0) return;
 
                 const imageWrap = document.createElement("div");
-                imageWrap.className = "max-w-[82%] border border-neutral-200 bg-neutral-50 p-3 dark:border-neutral-700 dark:bg-neutral-900";
+                imageWrap.className = "max-w-full border border-neutral-200 bg-neutral-50 p-3 dark:border-neutral-700 dark:bg-neutral-900 sm:max-w-[82%]";
 
                 const title = document.createElement("p");
                 title.className = "mb-2 text-xs font-semibold text-neutral-500 dark:text-neutral-300";
@@ -188,7 +188,7 @@
                 imageWrap.appendChild(title);
 
                 const grid = document.createElement("div");
-                grid.className = "grid grid-cols-3 gap-2";
+                grid.className = "grid grid-cols-2 gap-2 sm:grid-cols-3";
 
                 images.forEach((src) => {
                     const img = document.createElement("img");
