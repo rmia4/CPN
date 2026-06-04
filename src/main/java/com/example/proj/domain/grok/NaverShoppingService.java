@@ -24,8 +24,8 @@ public class NaverShoppingService {
     private final RestTemplate restTemplate = new RestTemplate();
 
     public List<String> searchImages(String keyword, String gender, int display) {
-        String clientId = dotenv.get("NAVER_CLIENT_ID");
-        String clientSecret = dotenv.get("NAVER_CLIENT_SECRET");
+        String clientId = getEnv("NAVER_CLIENT_ID");
+        String clientSecret = getEnv("NAVER_CLIENT_SECRET");
 
         if (clientId == null || clientId.isBlank() || clientSecret == null || clientSecret.isBlank()) {
             return List.of();
@@ -84,5 +84,14 @@ public class NaverShoppingService {
         }
 
         return baseKeyword;
+    }
+
+    private String getEnv(String key) {
+        String value = dotenv.get(key);
+        if (value == null || value.isBlank()) {
+            value = System.getenv(key);
+        }
+
+        return value;
     }
 }

@@ -260,8 +260,7 @@
                     });
 
                     if (!response.ok) {
-                        const errorData = await response.json().catch(() => ({}));
-                        throw new Error(errorData.answer || "이미지 분석 요청에 실패했습니다.");
+                        throw new Error(await readErrorMessage(response, "이미지 분석 요청에 실패했습니다."));
                     }
 
                     const data = await response.json();
@@ -305,8 +304,7 @@
                     });
 
                     if (!response.ok) {
-                        const errorData = await response.json().catch(() => ({}));
-                        throw new Error(errorData.answer || "요청에 실패했습니다.");
+                        throw new Error(await readErrorMessage(response, "요청에 실패했습니다."));
                     }
 
                     const data = await response.json();
@@ -321,6 +319,24 @@
                     messageInput.focus();
                 }
             });
+
+            async function readErrorMessage(response, fallbackMessage) {
+                const contentType = response.headers.get("content-type") || "";
+
+                if (contentType.includes("application/json")) {
+                    const errorData = await response.json().catch(() => ({}));
+                    if (errorData.answer) {
+                        return errorData.answer;
+                    }
+                }
+
+                const errorText = await response.text().catch(() => "");
+                if (errorText) {
+                    return `${fallbackMessage} (${response.status}) ${errorText.slice(0, 120)}`;
+                }
+
+                return `${fallbackMessage} (${response.status})`;
+            }
         </script>
     </div>
 </div>

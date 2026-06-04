@@ -28,7 +28,7 @@ public class GrokService {
     private final RestTemplate restTemplate = new RestTemplate();
 
     public OutfitRecommendation recommendOutfit(String message, String weatherSummary, String gender, List<String> styles) {
-        String apiKey = dotenv.get("GROQ_API_KEY");
+        String apiKey = getEnv("GROQ_API_KEY");
         if (apiKey == null || apiKey.isBlank()) {
             throw new IllegalStateException("GROQ_API_KEY가 설정되어 있지 않습니다.");
         }
@@ -115,7 +115,7 @@ public class GrokService {
     }
 
     public OutfitImageAnalysis checkOutfitImage(MultipartFile image, String weatherSummary) {
-        String apiKey = dotenv.get("GROQ_API_KEY");
+        String apiKey = getEnv("GROQ_API_KEY");
         if (apiKey == null || apiKey.isBlank()) {
             throw new IllegalStateException("GROQ_API_KEY가 설정되어 있지 않습니다.");
         }
@@ -225,6 +225,15 @@ public class GrokService {
                 removeUnsupportedCharacters(answer.toString()),
                 styleKeywords
         );
+    }
+
+    private String getEnv(String key) {
+        String value = dotenv.get(key);
+        if (value == null || value.isBlank()) {
+            value = System.getenv(key);
+        }
+
+        return value;
     }
 
     private boolean isStyleKeywordLine(String line) {

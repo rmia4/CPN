@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+import java.util.stream.Stream;
 
 
 @Controller
@@ -147,7 +148,7 @@ public class GrokController {
             return List.of();
         }
 
-        return List.of(user.getStyle1(), user.getStyle2(), user.getStyle3()).stream()
+        return Stream.of(user.getStyle1(), user.getStyle2(), user.getStyle3())
                 .filter(style -> style != null && !style.isBlank())
                 .map(String::trim)
                 .toList();
