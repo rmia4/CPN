@@ -638,14 +638,18 @@
                             formData.append(`timeSlots[${index}].place`, slot.place || "");
                         });
 
-                        const response = await fetch("/timetable/add", {
+                        const response = await fetch(getTimetableFormAction(), {
                             method: "POST",
                             body: formData,
-                            credentials: "same-origin"
+                            credentials: "same-origin",
+                            headers: {
+                                "X-Requested-With": "XMLHttpRequest"
+                            }
                         });
 
                         if (!response.ok) {
-                            throw new Error("시간표 추가에 실패했어요.");
+                            const message = await response.text();
+                            throw new Error(message || "시간표 추가에 실패했어요.");
                         }
                     }
 
@@ -655,6 +659,12 @@
                     submitButton.textContent = originalText;
                     addHelperMessage(error.message || "시간표 추가 중 문제가 생겼어요.", "bot");
                 }
+            }
+
+            function getTimetableFormAction() {
+                const form = document.getElementById("timetable-form");
+
+                return form?.action || "/timetable/add";
             }
 
             function appendCsrfFormData(formData) {
