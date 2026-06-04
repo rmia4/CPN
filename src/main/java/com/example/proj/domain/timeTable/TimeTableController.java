@@ -2,12 +2,14 @@ package com.example.proj.domain.timeTable;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -23,14 +25,26 @@ public class TimeTableController {
 
     //update
     @PostMapping("/add")
-    public String addTimeTable(@Valid TimeTableUpdateDto dto, BindingResult bindingResult,
-                               @AuthenticationPrincipal UserDetails userDetails, Model model) {
+    public Object addTimeTable(@Valid TimeTableUpdateDto dto, BindingResult bindingResult,
+                               @AuthenticationPrincipal UserDetails userDetails, Model model,
+                               @RequestHeader(value = "X-Requested-With", required = false) String requestedWith) {
+        boolean ajaxRequest = "XMLHttpRequest".equals(requestedWith);
+
+        if (bindingResult.hasErrors()) {
+            if (ajaxRequest) {
+                return ResponseEntity.badRequest().body("시간표 입력값을 확인해주세요.");
+            }
+
+            return "pages/timeTable/timetable";
+        }
+
         dto.setUserId(userDetails.getUsername());
 
-        //TODO:예외처리
-        if(bindingResult.hasErrors()){
-        }
         timeTableService.updateTimeTable(dto);
+        if (ajaxRequest) {
+            return ResponseEntity.ok().build();
+        }
+
         return "redirect:/timetable";
     }
 
