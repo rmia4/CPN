@@ -4,9 +4,11 @@
         <style>
             #map {
                 width: 100%;
-                height: 500px;
+                height: calc(100vh - 4rem);
+                min-height: 500px;
                 border: 1px solid #dee2e6;
                 border-radius: 8px;
+                touch-action: none;
             }
 
             #pinDetail {
@@ -18,6 +20,11 @@
             }
 
             @media (max-width: 640px) {
+                #map {
+                    height: calc(100dvh - 4rem);
+                    min-height: calc(100dvh - 4rem);
+                }
+
                 #pinDetail {
                     top: auto;
                     right: 12px;
@@ -337,6 +344,8 @@
             let selectedDetailPin = null;
             let activeDetailPinId = null;
             let lastMarkerActivationTime = 0;
+            let lastPinModalOpenTime = 0;
+            let mapPointerStart = null;
             const PIN_TAG_STYLES = {
                 "분실물": {
                     color: "#ef4444",
@@ -405,29 +414,122 @@
                 });
 
                 map.addListener('click', function(e) {
-                    closeDetail();
-
-                    const clickedLat = e.latLng.lat();
-                    const clickedLon = e.latLng.lng();
-
-                    if (!IS_AUTHENTICATED) {
-                        showMapLoginPrompt();
-                        return;
-                    }
-
-                    pinForm.reset();
-                    document.getElementById('pinLat').value = clickedLat;
-                    document.getElementById('pinLng').value = clickedLon;
-                    applyInitialCategory();
-                    updateLostTypeVisibility();
-                    updateTitlePrefixBadge();
-                    pinModal.show();
+                    openPinModalFromLatLng(e.latLng);
                 });
+                setupMapPointerFallback();
 
                 renderPins();
                 renderBuildingLabels();
                 renderBusTimeMarker();
                 renderKsMarker();
+                resizeMapAfterLayout();
+            }
+
+            function openPinModalFromLatLng(latLng) {
+                if (!latLng || Date.now() - lastMarkerActivationTime < 350) return;
+
+                const clickedLat = getLatValue(latLng);
+                const clickedLon = getLngValue(latLng);
+
+                if (!Number.isFinite(clickedLat) || !Number.isFinite(clickedLon)) return;
+
+                const now = Date.now();
+                if (now - lastPinModalOpenTime < 350) return;
+                lastPinModalOpenTime = now;
+
+                closeDetail();
+
+                if (!IS_AUTHENTICATED) {
+                    showMapLoginPrompt();
+                    return;
+                }
+
+                pinForm.reset();
+                document.getElementById('pinLat').value = clickedLat;
+                document.getElementById('pinLng').value = clickedLon;
+                applyInitialCategory();
+                updateLostTypeVisibility();
+                updateTitlePrefixBadge();
+                pinModal.show();
+            }
+
+            function getLatValue(latLng) {
+                if (typeof latLng.lat === 'function') return Number(latLng.lat());
+                if (typeof latLng.latitude === 'function') return Number(latLng.latitude());
+                return Number(latLng.lat ?? latLng.latitude ?? latLng._lat);
+            }
+
+            function getLngValue(latLng) {
+                if (typeof latLng.lng === 'function') return Number(latLng.lng());
+                if (typeof latLng.lon === 'function') return Number(latLng.lon());
+                if (typeof latLng.longitude === 'function') return Number(latLng.longitude());
+                return Number(latLng.lng ?? latLng.lon ?? latLng.longitude ?? latLng._lng);
+            }
+
+            function setupMapPointerFallback() {
+                const mapElement = document.getElementById('map');
+                if (!mapElement || mapElement.dataset.pointerFallbackReady === 'true') return;
+
+                mapElement.dataset.pointerFallbackReady = 'true';
+
+                mapElement.addEventListener('pointerdown', event => {
+                    if (!isTouchLikePointer(event) || shouldIgnoreMapPointer(event)) return;
+
+                    mapPointerStart = {
+                        x: event.clientX,
+                        y: event.clientY,
+                        time: Date.now()
+                    };
+                }, {passive: true});
+
+                mapElement.addEventListener('pointerup', event => {
+                    if (!isTouchLikePointer(event) || !mapPointerStart || shouldIgnoreMapPointer(event)) return;
+                    if (Date.now() - lastMarkerActivationTime < 350) return;
+
+                    const moved = Math.hypot(event.clientX - mapPointerStart.x, event.clientY - mapPointerStart.y);
+                    const elapsed = Date.now() - mapPointerStart.time;
+                    mapPointerStart = null;
+
+                    if (moved > 12 || elapsed > 800) return;
+
+                    const latLng = getLatLngFromClientPoint(event.clientX, event.clientY);
+                    openPinModalFromLatLng(latLng);
+                }, {passive: true});
+            }
+
+            function isTouchLikePointer(event) {
+                return event.pointerType === 'touch' || event.pointerType === 'pen';
+            }
+
+            function shouldIgnoreMapPointer(event) {
+                const target = event.target;
+                return !!target?.closest?.('#filterBox, #pinDetail, #mapLoginPrompt, #confirmModal, #pinModal, .modal, button, a, input, select, textarea');
+            }
+
+            function getLatLngFromClientPoint(clientX, clientY) {
+                const mapElement = document.getElementById('map');
+                const mapRect = mapElement.getBoundingClientRect();
+                const point = new Tmapv2.Point(clientX - mapRect.left, clientY - mapRect.top);
+
+                if (typeof map.screenToReal === 'function') {
+                    return map.screenToReal(point);
+                }
+
+                if (typeof map.getCenter === 'function') {
+                    return map.getCenter();
+                }
+
+                return null;
+            }
+
+            function resizeMapAfterLayout() {
+                [0, 200, 700, 1500].forEach(delay => {
+                    setTimeout(() => {
+                        if (typeof map?.resize === 'function') {
+                            map.resize();
+                        }
+                    }, delay);
+                });
             }
 
             /* 핀 렌더링 */
@@ -1221,6 +1323,9 @@
                 window.addEventListener('load', () => {
                     setTimeout(initTmap, 200);
                 });
+
+                window.addEventListener('resize', resizeMapAfterLayout);
+                window.addEventListener('orientationchange', resizeMapAfterLayout);
             }
 
             setupEventListeners();
