@@ -121,6 +121,7 @@
       }
     </style>
     <script>
+      // 저장된 테마 상태를 토글하고 아이콘을 갱신한다.
       function toggleDarkMode() {
         const root = document.documentElement;
 
@@ -135,13 +136,14 @@
         }
       }
 
+      // 헤더 안의 모든 테마 아이콘 텍스트를 맞춘다.
       function updateThemeIcons(iconText) {
         document.querySelectorAll(".themeIcon").forEach((icon) => {
           icon.textContent = iconText;
         });
       }
 
-      // 페이지 로드시 아이콘도 맞춰줌
+      // 페이지 진입 시 저장된 테마와 서비스 워커를 초기화한다.
       window.addEventListener("DOMContentLoaded", () => {
         const theme = localStorage.getItem("theme");
 
@@ -159,17 +161,21 @@
       });
 
       (() => {
+        // 페이지 이동 중 로딩 바 표시를 관리한다.
         const loadingClass = "is-page-loading";
         const locationPattern = /\b(?:window\.)?location(?:\.href|\.assign|\.replace)?\b/;
 
+        // 로딩 바를 표시한다.
         function showPageLoading() {
           document.documentElement.classList.add(loadingClass);
         }
 
+        // 로딩 바를 숨긴다.
         function hidePageLoading() {
           document.documentElement.classList.remove(loadingClass);
         }
 
+        // 새 탭/수정키 클릭 등 기본 이동이 아닌 클릭인지 확인한다.
         function isModifiedClick(event) {
           return event.defaultPrevented
               || event.button !== 0
@@ -179,6 +185,7 @@
               || event.altKey;
         }
 
+        // 같은 페이지의 해시 이동은 로딩 표시에서 제외한다.
         function isSamePageAnchor(url) {
           return url.origin === window.location.origin
               && url.pathname === window.location.pathname
@@ -186,6 +193,7 @@
               && url.hash;
         }
 
+        // 로딩 표시가 필요 없는 링크인지 판단한다.
         function shouldSkipLink(anchor, event) {
           if (!anchor || isModifiedClick(event) || anchor.hasAttribute("download")) return true;
 
@@ -203,6 +211,7 @@
           }
         }
 
+        // 로딩 표시가 필요 없는 폼 제출인지 판단한다.
         function shouldSkipForm(form) {
           if (!form || form.method?.toLowerCase() === "dialog") return true;
 
@@ -217,6 +226,7 @@
           }
         }
 
+        // 링크와 버튼 클릭으로 발생하는 페이지 이동을 감지한다.
         document.addEventListener("click", (event) => {
           const anchor = event.target.closest?.("a[href]");
           if (anchor) {
@@ -237,6 +247,7 @@
           }, 0);
         });
 
+        // 일반 폼 제출 시 로딩 바를 표시한다.
         document.addEventListener("submit", (event) => {
           const form = event.target;
           window.setTimeout(() => {
@@ -246,6 +257,7 @@
           }, 0);
         });
 
+        // 스크립트에서 form.submit()을 직접 호출하는 경우도 처리한다.
         const nativeFormSubmit = HTMLFormElement.prototype.submit;
         HTMLFormElement.prototype.submit = function () {
           if (!shouldSkipForm(this)) {

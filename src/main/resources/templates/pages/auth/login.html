@@ -125,6 +125,7 @@
 </div>
 
 <script th:inline="javascript">
+    // 로그인/회원가입 탭 DOM 요소 참조
     const tabLogin = document.getElementById('tab-login');
     const tabSignup = document.getElementById('tab-signup');
     const formLogin = document.getElementById('form-login');
@@ -133,10 +134,12 @@
     const activeTabClasses = ['border-b-2', 'border-black', 'text-black', 'dark:border-white', 'dark:text-white'];
     const inactiveTabClasses = ['text-neutral-400', 'dark:text-neutral-500'];
 
+    // 현재 보이는 폼 높이에 맞춰 wrapper 높이를 조절한다.
     function setHeight(el) {
         wrapper.style.height = el.scrollHeight + 'px';
     }
 
+    // 활성 탭과 비활성 탭의 스타일을 교체한다.
     function activateTab(active, inactive) {
         active.classList.add(...activeTabClasses);
         active.classList.remove(...inactiveTabClasses);
@@ -144,6 +147,7 @@
         inactive.classList.add(...inactiveTabClasses);
     }
 
+    // 로그인 폼을 표시한다.
     function showLogin() {
         activateTab(tabLogin, tabSignup);
         formSignup.classList.add('hidden');
@@ -151,6 +155,7 @@
         setHeight(formLogin);
     }
 
+    // 회원가입 폼을 표시한다.
     function showSignup() {
         activateTab(tabSignup, tabLogin);
         formLogin.classList.add('hidden');
@@ -158,6 +163,7 @@
         setHeight(formSignup);
     }
 
+    // 회원가입 오류가 있으면 회원가입 탭을 먼저 보여준다.
     window.addEventListener('load', () => {
         setTimeout(() => {
             const signupError = /*[[${signupError}]]*/ false;
@@ -169,6 +175,7 @@
         }, 10);
     });
 
+    // 탭 전환 이벤트
     tabLogin.addEventListener('click', showLogin);
     tabSignup.addEventListener('click', showSignup);
 </script>

@@ -154,6 +154,7 @@
         </div>
 
         <script>
+            // 주요 DOM 요소 참조
             const chatForm = document.getElementById("chatForm");
             const imageCheckForm = document.getElementById("imageCheckForm");
             const imageModal = document.getElementById("imageModal");
@@ -170,6 +171,7 @@
             const genderSelect = document.getElementById("genderSelect");
             const weatherSummary = document.getElementById("weatherSummary")?.textContent?.trim() || "";
 
+            // 채팅 영역에 사용자/AI 메시지를 추가한다.
             function appendMessage(role, text) {
                 const message = document.createElement("div");
                 message.className = role === "user"
@@ -180,6 +182,7 @@
                 chatMessages.scrollTop = chatMessages.scrollHeight;
             }
 
+            // AI가 반환한 추천 이미지를 메시지 목록에 표시한다.
             function appendImages(images) {
                 if (!images || images.length === 0) return;
 
@@ -208,16 +211,19 @@
                 chatMessages.scrollTop = chatMessages.scrollHeight;
             }
 
+            // 이미지 업로드 모달을 연다.
             function openImageModal() {
                 imageModal.classList.remove("hidden");
                 imageModal.classList.add("flex");
             }
 
+            // 이미지 업로드 모달을 닫는다.
             function closeImageModal() {
                 imageModal.classList.add("hidden");
                 imageModal.classList.remove("flex");
             }
 
+            // 이미지 모달 이벤트
             openImageModalButton.addEventListener("click", openImageModal);
             closeImageModalButton.addEventListener("click", closeImageModal);
             cancelImageModalButton.addEventListener("click", closeImageModal);
@@ -227,6 +233,7 @@
                 }
             });
 
+            // 선택한 파일의 미리보기를 표시한다.
             outfitImageInput.addEventListener("change", () => {
                 const file = outfitImageInput.files?.[0];
                 if (!file) {
@@ -239,6 +246,7 @@
                 outfitPreview.classList.remove("hidden");
             });
 
+            // 업로드한 의상 이미지와 날씨 정보를 함께 분석 요청한다.
             imageCheckForm.addEventListener("submit", async (event) => {
                 event.preventDefault();
 
@@ -279,6 +287,7 @@
                 }
             });
 
+            // 채팅 메시지와 날씨/성별 정보를 함께 추천 요청한다.
             chatForm.addEventListener("submit", async (event) => {
                 event.preventDefault();
 
@@ -320,6 +329,7 @@
                 }
             });
 
+            // 서버 오류 응답을 화면에 보여줄 짧은 메시지로 변환한다.
             async function readErrorMessage(response, fallbackMessage) {
                 const contentType = response.headers.get("content-type") || "";
 

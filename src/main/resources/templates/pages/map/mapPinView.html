@@ -302,6 +302,7 @@
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.min.js" integrity="sha384-G/EV+4j2dNv+tEPo3++6LCgdCROaejBqfUeNjuKAiuXbjrxilcCdDz6ZAVfHWe1Y" crossorigin="anonymous"></script>
         <script th:inline="javascript">
             /* 전역 상태 */
+            // 지도 페이지 상태값
             const PIN_ADD_URL = '/mapPin/add';
             const IS_AUTHENTICATED = /*[[${#authorization.expression('isAuthenticated()')}]]*/ false;
             const INITIAL_MAP_CATEGORY = /*[[${initialCategory}]]*/ null;
@@ -403,6 +404,7 @@
             };
 
             /* 지도 초기화 */
+            // Tmap 인스턴스와 초기 마커를 구성한다.
             function initTmap() {
                 pinModal = new bootstrap.Modal(document.getElementById('pinModal'));
 
@@ -425,6 +427,7 @@
                 resizeMapAfterLayout();
             }
 
+            // 지도 좌표를 핀 추가 모달에 채우고 모달을 연다.
             function openPinModalFromLatLng(latLng) {
                 if (!latLng || Date.now() - lastMarkerActivationTime < 350) return;
 
@@ -453,12 +456,14 @@
                 pinModal.show();
             }
 
+            // Tmap 좌표 객체에서 위도 값을 안전하게 읽는다.
             function getLatValue(latLng) {
                 if (typeof latLng.lat === 'function') return Number(latLng.lat());
                 if (typeof latLng.latitude === 'function') return Number(latLng.latitude());
                 return Number(latLng.lat ?? latLng.latitude ?? latLng._lat);
             }
 
+            // Tmap 좌표 객체에서 경도 값을 안전하게 읽는다.
             function getLngValue(latLng) {
                 if (typeof latLng.lng === 'function') return Number(latLng.lng());
                 if (typeof latLng.lon === 'function') return Number(latLng.lon());
@@ -466,6 +471,7 @@
                 return Number(latLng.lng ?? latLng.lon ?? latLng.longitude ?? latLng._lng);
             }
 
+            // 터치 환경에서 지도 클릭 좌표를 직접 계산하는 보조 처리다.
             function setupMapPointerFallback() {
                 const mapElement = document.getElementById('map');
                 if (!mapElement || mapElement.dataset.pointerFallbackReady === 'true') return;
@@ -497,15 +503,18 @@
                 }, {passive: true});
             }
 
+            // 터치/펜 입력인지 확인한다.
             function isTouchLikePointer(event) {
                 return event.pointerType === 'touch' || event.pointerType === 'pen';
             }
 
+            // 버튼/모달 위 입력처럼 지도 클릭으로 처리하면 안 되는 경우를 제외한다.
             function shouldIgnoreMapPointer(event) {
                 const target = event.target;
                 return !!target?.closest?.('#filterBox, #pinDetail, #mapLoginPrompt, #confirmModal, #pinModal, .modal, button, a, input, select, textarea');
             }
 
+            // 화면 좌표를 Tmap 좌표로 변환한다.
             function getLatLngFromClientPoint(clientX, clientY) {
                 const mapElement = document.getElementById('map');
                 const mapRect = mapElement.getBoundingClientRect();
@@ -522,6 +531,7 @@
                 return null;
             }
 
+            // 레이아웃 변경 뒤 지도 크기를 다시 맞춘다.
             function resizeMapAfterLayout() {
                 [0, 200, 700, 1500].forEach(delay => {
                     setTimeout(() => {
@@ -533,6 +543,7 @@
             }
 
             /* 핀 렌더링 */
+            // 현재 필터에 맞춰 저장된 핀 마커를 다시 렌더링한다.
             function renderPins() {
 
                 const type = getCurrentFilter();
@@ -564,6 +575,7 @@
                 });
             }
 
+            // 마커 클릭/터치 이벤트를 동일한 핸들러로 연결한다.
             function addMarkerActivation(marker, handler) {
                 const activate = (event) => {
                     const now = Date.now();
@@ -586,6 +598,7 @@
                 });
             }
 
+            // 주요 건물 라벨 마커를 지도에 표시한다.
             function renderBuildingLabels() {
                 buildingMarkers.forEach(marker => marker.setMap(null));
                 buildingMarkers.length = 0;
@@ -613,6 +626,7 @@
                 return `(${String(label).replace("호관", "")})`;
             }
 
+            // 고정 안내 마커를 하나 렌더링한다.
             function renderStaticMarker(currentMarker, info, options) {
                 if (currentMarker) {
                     currentMarker.setMap(null);
@@ -649,6 +663,7 @@
             }
 
             /* 필터 처리 */
+            // 필터 버튼 상태를 갱신하고 핀을 다시 표시한다.
             function applyFilter(type) {
                 document.querySelectorAll('.filter-btn').forEach(button => {
                     const isActive = button.dataset.type === type;
@@ -661,6 +676,7 @@
             }
 
             /* 모달 및 상세 패널 처리 */
+            // 상세 패널의 삭제 버튼 상태를 초기화한다.
             function resetDetailDeleteButton() {
                 detailDeleteBtn.classList.add('hidden');
                 detailDeleteBtn.classList.remove('flex');
@@ -671,6 +687,7 @@
                 detailDeleteBtn.onclick = null;
             }
 
+            // 상세 패널 이미지 표시 상태를 설정한다.
             function setDetailImage(src) {
                 if (!src) {
                     detailImage.classList.add('hidden');
@@ -685,6 +702,7 @@
                 };
             }
 
+            // 선택한 핀 정보를 상세 패널에 표시한다.
             function showDetail(pin) {
                 selectedDetailPin = pin;
                 activeDetailPinId = String(pin.id);
@@ -723,12 +741,14 @@
                 pinDetail.classList.remove('hidden');
             }
 
+            // 핀 상세 패널을 닫는다.
             function closeDetail() {
                 pinDetail.classList.add('hidden');
                 selectedDetailPin = null;
                 activeDetailPinId = null;
             }
 
+            // 밥친구 핀의 약속 시간을 상세 패널에 표시한다.
             function renderMeetingTime(pin) {
                 if (pin.category === "밥친구" && pin.meetingTime) {
                     detailMeetingTime.textContent = `약속 시간 ${formatDateTime(pin.meetingTime)}`;
@@ -739,6 +759,7 @@
                 detailMeetingTime.classList.add("hidden");
             }
 
+            // 서버 시간 값을 화면용 날짜/시간 문자열로 변환한다.
             function formatDateTime(value) {
                 if (typeof value === "string" && /^\d{4}\.\d{2}\.\d{2}\s\d{2}:\d{2}$/.test(value)) {
                     return value;
@@ -757,6 +778,7 @@
                 return `${date.getFullYear()}.${pad(date.getMonth() + 1)}.${pad(date.getDate())} ${pad(date.getHours())}:${pad(date.getMinutes())}`;
             }
 
+            // 선택한 핀의 댓글 목록을 불러온다.
             async function loadPinComments(postId) {
                 setDetailCommentCount(null);
                 detailComments.innerHTML = '<p class="text-xs text-neutral-500">댓글을 불러오는 중입니다.</p>';
@@ -787,6 +809,7 @@
                 }
             }
 
+            // 상세 패널 댓글 수 배지를 갱신한다.
             function setDetailCommentCount(count) {
                 if (count === null) {
                     detailCommentCount.textContent = "댓글 확인 중";
@@ -796,6 +819,7 @@
                 detailCommentCount.textContent = `댓글 ${count}개`;
             }
 
+            // 댓글 HTML 삽입 전 특수문자를 이스케이프한다.
             function escapeHtml(value) {
                 return String(value)
                     .replace(/&/g, "&amp;")
@@ -805,6 +829,7 @@
                     .replace(/'/g, "&#039;");
             }
 
+            // 짧은 알림 토스트를 표시한다.
             function showToast(message) {
                 const toast = document.getElementById('toast');
 
@@ -818,16 +843,19 @@
                 }, 2000);
             }
 
+            // 로그인 필요 안내 모달을 표시한다.
             function showMapLoginPrompt() {
                 mapLoginPrompt.classList.add("flex");
                 mapLoginPrompt.classList.remove("hidden");
             }
 
+            // 로그인 필요 안내 모달을 닫는다.
             function hideMapLoginPrompt() {
                 mapLoginPrompt.classList.add("hidden");
                 mapLoginPrompt.classList.remove("flex");
             }
 
+            // 삭제 전 확인 모달을 표시한다.
             function showConfirmModal(message) {
                 const modal = document.getElementById('confirmModal');
                 const panel = document.getElementById('confirmModalPanel');
@@ -866,6 +894,7 @@
                 });
             }
 
+            // 건물 라벨에 대한 툴팁을 표시한다.
             function showBuildingTooltip(building, event) {
                 const tooltip = document.getElementById('buildingTooltip');
                 tooltip.textContent = `${building.label}, ${building.name}`;
@@ -873,6 +902,7 @@
                 moveBuildingTooltip(event);
             }
 
+            // 포인터 이동에 맞춰 건물 툴팁 위치를 갱신한다.
             function moveBuildingTooltip(event) {
                 const tooltip = document.getElementById('buildingTooltip');
                 const mapElement = document.getElementById('map');
@@ -889,10 +919,12 @@
                 tooltip.style.top = `${clientY - mapRect.top - 34}px`;
             }
 
+            // 건물 툴팁을 숨긴다.
             function hideBuildingTooltip() {
                 document.getElementById('buildingTooltip').classList.add('hidden');
             }
 
+            // 선택한 이미지 파일을 미리보기로 표시한다.
             function handleImage(input) {
                 const file = input.files[0];
                 if (file) {
@@ -903,6 +935,7 @@
                 }
             }
 
+            // 이미지 입력과 미리보기를 초기화한다.
             function resetImageInput() {
                 preview.src = "";
                 preview.classList.add("hidden");
@@ -911,6 +944,7 @@
                 cameraInput.value = "";
             }
 
+            // 상세 게시글을 확인해 삭제 가능한 경우 버튼을 노출한다.
             function updateDetailDeleteButton(pin) {
                 if (!IS_AUTHENTICATED) {
                     return;
@@ -959,14 +993,17 @@
             }
 
             /* 유틸 */
+            // 현재 선택된 지도 필터 값을 가져온다.
             function getCurrentFilter() {
                 return document.querySelector('.filter-btn.bg-blue-500')?.dataset.type || 'all';
             }
 
+            // 핀 추가 모달에서 선택된 카테고리를 가져온다.
             function getSelectedPinCategory() {
                 return document.querySelector('input[name="category"]:checked')?.value || '분실물';
             }
 
+            // 제목 입력값에서 자동 접두사를 제거한다.
             function removeTitlePrefix(title) {
                 const value = String(title || '');
 
@@ -985,6 +1022,7 @@
                 return value.trimStart();
             }
 
+            // 선택된 카테고리에 맞는 제목 접두사를 만든다.
             function getTitlePrefix() {
                 const category = getSelectedPinCategory();
                 if (category === '분실물') {
@@ -994,11 +1032,13 @@
                 return "";
             }
 
+            // 선택된 핀 태그 값을 계산한다.
             function getSelectedPinTag() {
                 const category = getSelectedPinCategory();
                 return category === '분실물' ? lostTypeSelect.value : category;
             }
 
+            // 저장된 핀 제목/카테고리에서 표시 태그를 추론한다.
             function getPinTag(pin) {
                 const title = String(pin.title || '');
 
@@ -1014,6 +1054,7 @@
             }
 
             /* 핀 스타일 설정 */
+            // 핀 태그에 맞는 마커 색상과 타입을 결정한다.
             function getPinMarkerStyle(pin, tag) {
                 const tagText = `${tag || ''} ${pin.category || ''} ${pin.title || ''}`;
                 const isFoundPin = tagText.includes("습득");
@@ -1024,6 +1065,7 @@
                 return {...(PIN_TAG_STYLES[tag] || PIN_TAG_STYLES.default), type: tag};
             }
 
+            // 핀 타입에 맞는 SVG 내부 라벨을 만든다.
             function getPinMarkerLabel(pin, style) {
                 if (style.type === "found") {
                     return `
@@ -1059,6 +1101,7 @@
                 return `<text x="18" y="21" text-anchor="middle" font-size="12" font-family="Arial, sans-serif" font-weight="700" fill="${style.stroke}">${style.label}</text>`;
             }
 
+            // Tmap 마커에 사용할 SVG 아이콘 옵션을 만든다.
             function getPinMarkerOptions(pin) {
                 const tag = getPinTag(pin);
                 const style = getPinMarkerStyle(pin, tag);
@@ -1080,6 +1123,7 @@
                 };
             }
 
+            // 건물명 라벨 SVG 아이콘을 만든다.
             function getBuildingLabelIcon(label) {
                 const svg = `
                     <svg xmlns="http://www.w3.org/2000/svg" width="62" height="26" viewBox="0 0 62 26">
@@ -1090,6 +1134,7 @@
                 return `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`;
             }
 
+            // 버스 시간표 마커 SVG 아이콘을 만든다.
             function getBusMarkerIcon() {
                 const svg = `
                     <svg xmlns="http://www.w3.org/2000/svg" width="42" height="42" viewBox="0 0 42 42">
@@ -1101,6 +1146,7 @@
                 return `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`;
             }
 
+            // URL에서 전달된 초기 카테고리를 핀 추가 폼에 반영한다.
             function applyInitialCategory() {
                 if (!INITIAL_MAP_CATEGORY) return;
 
@@ -1117,6 +1163,7 @@
                 }
             }
 
+            // 선택 카테고리에 따라 분실물/약속 시간 입력 표시를 바꾼다.
             function updateLostTypeVisibility() {
                 lostTypeBox.classList.toggle('hidden', getSelectedPinCategory() !== '분실물');
                 const isMealPin = getSelectedPinCategory() === '밥친구';
@@ -1127,6 +1174,7 @@
                 }
             }
 
+            // 제목 접두사 배지와 실제 입력값을 동기화한다.
             function updateTitlePrefixBadge() {
                 const content = removeTitlePrefix(pinTitleInput.value);
                 const prefix = getTitlePrefix();
@@ -1135,6 +1183,7 @@
                 titlePrefixBadge.classList.toggle("d-none", !prefix);
             }
 
+            // 핀 저장 전 필수 입력 오류 메시지를 반환한다.
             function getPinSubmitError(formData) {
                 const title = removeTitlePrefix(formData.get('title')).trim();
                 const description = String(formData.get('description') || '').trim();
@@ -1154,6 +1203,7 @@
                 return '';
             }
 
+            // 핀 저장 실패 응답을 사용자 메시지로 변환한다.
             function getPinSaveErrorMessage(response) {
                 if (response.status === 401 || response.status === 403) {
                     return '로그인 후 핀을 추가할 수 있어요';
@@ -1166,6 +1216,7 @@
                 return '핀을 저장하지 못했어요. 잠시 후 다시 시도해 주세요';
             }
 
+            // 핀 추가 폼을 서버에 저장하고 지도 마커를 갱신한다.
             function handlePinSubmit(e) {
                 e.preventDefault();
 
@@ -1223,6 +1274,7 @@
                     });
             }
 
+            // 핀 상세 댓글을 저장하고 댓글 목록을 새로고침한다.
             async function handleCommentSubmit(event) {
                 event.preventDefault();
 
@@ -1259,6 +1311,7 @@
                 }
             }
 
+            // 확인 후 핀 게시글을 삭제하고 지도에서 제거한다.
             async function deletePin(id) {
                 if (!await showConfirmModal('핀을 삭제할까요?')) return;
                 const formData = new FormData();
@@ -1289,6 +1342,7 @@
             }
 
             /* 이벤트 등록 */
+            // 지도 페이지의 모든 이벤트 핸들러를 연결한다.
             function setupEventListeners() {
                 pinForm.addEventListener('submit', handlePinSubmit);
                 detailCommentForm.addEventListener("submit", handleCommentSubmit);

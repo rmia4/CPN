@@ -349,8 +349,10 @@
 
         <script src="https://cdn.jsdelivr.net/npm/animejs@3.2.2/lib/anime.min.js"></script>
         <script>
+            // PWA 설치 프롬프트를 버튼 클릭 때 다시 사용하기 위해 보관한다.
             let deferredInstallPrompt = null;
 
+            // 브라우저의 설치 가능 이벤트를 받아 기본 표시를 지연한다.
             window.addEventListener("beforeinstallprompt", (event) => {
                 event.preventDefault();
                 deferredInstallPrompt = event;
@@ -361,10 +363,12 @@
                 }
             });
 
+            // 홈 화면 애니메이션과 설치 버튼 이벤트를 초기화한다.
             window.addEventListener("DOMContentLoaded", () => {
                 const addToHomeButton = document.getElementById("addToHomeButton");
 
                 if (addToHomeButton) {
+                    // 설치 프롬프트가 있으면 실행하고, 없으면 안내 문구를 보여준다.
                     addToHomeButton.addEventListener("click", async () => {
                         if (deferredInstallPrompt) {
                             deferredInstallPrompt.prompt();
@@ -379,6 +383,7 @@
 
                 if (!window.anime) return;
 
+                // 첫 화면 요소를 순차적으로 표시한다.
                 anime({
                     targets: ".home-visual",
                     translateY: [28, 0],
@@ -414,6 +419,7 @@
                     easing: "easeOutCubic"
                 });
 
+                // 숫자 카운터를 데이터 값까지 증가시킨다.
                 document.querySelectorAll(".home-count").forEach((el) => {
                     anime({
                         targets: el,
@@ -424,6 +430,7 @@
                     });
                 });
 
+                // 지도 핀 클릭 시 우측 카드에 표시할 샘플 데이터다.
                 const cardData = {
                     lost: {
                         category: "분실물",
@@ -442,6 +449,7 @@
                     }
                 };
 
+                // 핀을 클릭하면 카드 내용을 해당 항목으로 교체한다.
                 document.querySelectorAll(".home-pin").forEach((pin) => {
                     pin.addEventListener("click", () => {
                         const data = cardData[pin.dataset.card];
@@ -461,6 +469,7 @@
                     });
                 });
 
+                // 홈 지도 핀에 반복 움직임을 적용한다.
                 anime({
                     targets: ".home-pin",
                     translateY: [0, -6, 0],

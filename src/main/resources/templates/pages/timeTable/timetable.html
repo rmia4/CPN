@@ -243,6 +243,7 @@
         </div>
 
         <script>
+            // 시간표 상태값
             let slotIndex = 0;
             let helperResult = null;
             const dayMap = {
@@ -260,18 +261,21 @@
                 5: "금"
             };
 
+            // 문장 입력 도우미 패널을 연다.
             function openHelperPanel() {
                 document.getElementById("helper-panel").classList.remove("-translate-x-full");
                 document.getElementById("helper-overlay").classList.remove("hidden");
                 document.getElementById("helper-tab").classList.add("hidden");
             }
 
+            // 문장 입력 도우미 패널을 닫는다.
             function closeHelperPanel() {
                 document.getElementById("helper-panel").classList.add("-translate-x-full");
                 document.getElementById("helper-overlay").classList.add("hidden");
                 document.getElementById("helper-tab").classList.remove("hidden");
             }
 
+            // 도우미 패널의 열림/닫힘 상태를 전환한다.
             function toggleHelperPanel() {
                 const panel = document.getElementById("helper-panel");
 
@@ -282,6 +286,7 @@
                 }
             }
 
+            // 시간표 카드 높이에 맞춰 도우미 탭 위치를 보정한다.
             function positionHelperTab() {
                 const tab = document.getElementById("helper-tab");
                 const card = document.getElementById("timetable-card");
@@ -296,6 +301,7 @@
                 tab.style.top = `${Math.min(Math.max(centerY, minTop), maxTop)}px`;
             }
 
+            // 시간표 전역 이벤트
             window.addEventListener("keydown", (event) => {
                 if (event.key === "Escape") {
                     closeHelperPanel();
@@ -311,14 +317,17 @@
             window.addEventListener("scroll", positionHelperTab, {passive: true});
             window.addEventListener("click", closeSubjectMenus);
 
+            // 수업 추가/수정 모달을 연다.
             function openModal() {
                 document.getElementById("modal").classList.remove("hidden");
             }
 
+            // 수업 추가/수정 모달을 닫는다.
             function closeModal() {
                 document.getElementById("modal").classList.add("hidden");
             }
 
+            // 삭제 전 확인 모달을 표시한다.
             function showConfirmModal(message) {
                 const modal = document.getElementById("confirm-modal");
                 const panel = document.getElementById("confirm-modal-panel");
@@ -357,6 +366,7 @@
                 });
             }
 
+            // 수업 입력 폼과 시간 슬롯 인덱스를 초기화한다.
             function resetForm() {
                 document.getElementById("form-id").value = "";
                 document.getElementById("form-title").value = "";
@@ -367,6 +377,7 @@
                 slotIndex = 0;
             }
 
+            // 수업 카드의 수정/삭제 메뉴를 연다.
             function toggleSubjectMenu(event, btn) {
                 event.stopPropagation();
                 const menu = btn.parentElement.querySelector(".subject-menu");
@@ -379,12 +390,14 @@
                 }
             }
 
+            // 열려 있는 수업 메뉴를 모두 닫는다.
             function closeSubjectMenus() {
                 document.querySelectorAll(".subject-menu").forEach(menu => {
                     menu.classList.add("hidden");
                 });
             }
 
+            // 수업 카드의 data 속성으로 수정 모달 데이터를 만든다.
             function handleEdit(btn) {
                 closeSubjectMenus();
                 const subject = btn.closest(".subject");
@@ -409,6 +422,7 @@
                 openEditModal(data);
             }
 
+            // 빈 수업 추가 모달을 준비한다.
             function openAddModal() {
                 document.getElementById("modal-title").innerText = "수업 추가";
 
@@ -418,6 +432,7 @@
                 openModal();
             }
 
+            // 기존 수업 데이터로 수정 모달을 채운다.
             function openEditModal(data) {
                 // 초기화
                 resetForm();
@@ -444,6 +459,7 @@
                 openModal();
             }
 
+            // 도우미 분석 결과를 수업 추가 모달에 채운다.
             function openAddModalWithData(data) {
                 document.getElementById("modal-title").innerText = "수업 추가";
                 resetForm();
@@ -463,6 +479,7 @@
                 openModal();
             }
 
+            // 옵션이 없으면 추가한 뒤 select 값을 설정한다.
             function setSelectValue(select, value, label) {
                 const stringValue = String(value ?? "");
                 if (!stringValue) return;
@@ -475,6 +492,7 @@
                 select.value = stringValue;
             }
 
+            // 수업 시간 슬롯 입력 묶음을 하나 추가한다.
             function addTimeSlot() {
                 const container = document.getElementById("time-slot-container");
 
@@ -520,7 +538,7 @@
                 slotIndex++;
             }
 
-            // 시간 옵션 생성 함수
+            // 시간 선택 옵션을 생성한다.
             function generateTimeOptions() {
                 let options = "";
                 for (let i = 9; i <= 18; i++) {
@@ -529,6 +547,7 @@
                 return options;
             }
 
+            // 시간 슬롯을 제거하고 인덱스를 다시 맞춘다.
             function removeSlot(btn) {
                 const slot = btn.closest(".slot-item");
 
@@ -547,6 +566,7 @@
                 reindexSlots();
             }
 
+            // 서버 바인딩을 위해 timeSlots 인덱스를 0부터 다시 맞춘다.
             function reindexSlots() {
                 const slots = document.querySelectorAll(".slot-item");
 
@@ -566,6 +586,7 @@
                 slotIndex = slots.length;
             }
 
+            // 확인 후 수업 삭제 폼을 제출한다.
             async function deleteClass(btn) {
                 closeSubjectMenus();
                 const subject = btn.closest(".subject");
@@ -581,6 +602,7 @@
                 document.getElementById("delete-form").submit();
             }
 
+            // 도우미 입력 문장을 파싱하고 미리보기를 갱신한다.
             function parseHelperInput() {
                 const input = document.getElementById("helper-input");
                 const text = input.value.trim();
@@ -606,18 +628,21 @@
                 showHelperPreview(parsed);
             }
 
+            // 도우미 입력과 분석 결과를 초기화한다.
             function resetHelperInput() {
                 document.getElementById("helper-input").value = "";
                 helperResult = null;
                 hideHelperPreview();
             }
 
+            // 분석된 수업 목록을 서버에 추가 요청한다.
             function submitHelperResult() {
                 if (!helperResult) return;
 
                 submitHelperCourses(helperResult.courses);
             }
 
+            // 분석된 여러 수업을 순서대로 저장한다.
             async function submitHelperCourses(courses) {
                 const submitButton = document.querySelector('#helper-preview button');
                 const originalText = submitButton.textContent;
@@ -661,12 +686,14 @@
                 }
             }
 
+            // 시간표 폼의 제출 URL을 가져온다.
             function getTimetableFormAction() {
                 const form = document.getElementById("timetable-form");
 
                 return form?.action || "/timetable/add";
             }
 
+            // AJAX 저장에 CSRF 값을 함께 넣는다.
             function appendCsrfFormData(formData) {
                 const csrfInput = document.querySelector('#timetable-form input[name^="_csrf"]');
 
@@ -675,6 +702,7 @@
                 }
             }
 
+            // 쉼표로 구분된 여러 수업 문장을 파싱한다.
             function parseTimetableTexts(text) {
                 const parts = text
                     .split(",")
@@ -700,6 +728,7 @@
                 return {courses};
             }
 
+            // 한 문장에서 과목명, 요일, 시간, 장소를 추출한다.
             function parseTimetableText(text) {
                 const normalized = text
                     .replace(/\s+/g, " ")
@@ -742,6 +771,7 @@
                 };
             }
 
+            // 문장에서 요일 값을 추출한다.
             function extractDays(text) {
                 const compact = text.replace(/\s+/g, "");
                 const days = [];
@@ -756,6 +786,7 @@
                 return [...new Set(days)].sort((a, b) => a - b);
             }
 
+            // 문장에서 시작/종료 시간을 추출한다.
             function extractTimeRange(text) {
                 const rangeMatch = text.match(/(오전|오후)?\s*(\d{1,2})\s*시?\s*(?:부터|에서|-|~)\s*(오전|오후)?\s*(\d{1,2})\s*시?/);
                 if (!rangeMatch) return null;
@@ -771,6 +802,7 @@
                 return {startTime, endTime};
             }
 
+            // 오전/오후 문맥을 24시간 숫자로 보정한다.
             function normalizeHour(hour, meridiem, startTime) {
                 if (meridiem === "오후" && hour < 12) {
                     return hour + 12;
@@ -783,11 +815,13 @@
                 return hour;
             }
 
+            // 문장 끝의 장소 후보를 추출한다.
             function extractPlace(text) {
                 const placeMatch = text.match(/([가-힣A-Za-z0-9]+(?:관|동|실|호|층|벤치|강의실|식당|도서관|체육관|운동장)(?:\s*\d{1,4}호?)?)\s*$/);
                 return placeMatch ? placeMatch[1].trim() : "";
             }
 
+            // 요일/시간/장소를 제거하고 과목명 후보를 남긴다.
             function extractTitle(text, place) {
                 let title = text
                     .replace(/(월|화|수|목|금)(요일)?/g, " ")
@@ -802,6 +836,7 @@
                 return title;
             }
 
+            // 도우미 분석 결과를 저장 전 미리보기로 표시한다.
             function showHelperPreview(data) {
                 const preview = document.getElementById("helper-preview");
                 const content = document.getElementById("helper-preview-content");
@@ -824,11 +859,13 @@
                 preview.classList.remove("hidden");
             }
 
+            // 도우미 미리보기를 숨긴다.
             function hideHelperPreview() {
                 document.getElementById("helper-preview").classList.add("hidden");
                 document.getElementById("helper-preview-content").innerHTML = "";
             }
 
+            // 도우미 채팅 영역에 메시지를 추가한다.
             function addHelperMessage(message, type) {
                 const chat = document.getElementById("helper-chat");
                 const bubble = document.createElement("div");
@@ -841,6 +878,7 @@
                 chat.scrollTop = chat.scrollHeight;
             }
 
+            // 미리보기 HTML 삽입 전 특수문자를 이스케이프한다.
             function escapeHtml(value) {
                 return String(value)
                     .replace(/&/g, "&amp;")

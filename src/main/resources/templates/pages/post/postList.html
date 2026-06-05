@@ -223,7 +223,9 @@
 
       <!-- 탭 스크롤 스크립트 -->
       <script>
+        // 카테고리 탭 캐러셀과 위치 작성 안내 모달을 초기화한다.
         document.addEventListener('DOMContentLoaded', () => {
+          // 캐러셀 DOM 요소 참조
           const carousel = document.getElementById('categoryCarousel');
           const leftIndicator = document.getElementById('tabLeftIndicator');
           const rightIndicator = document.getElementById('tabRightIndicator');
@@ -235,19 +237,23 @@
           let wheelTargetLeft = carousel.scrollLeft;
           let wheelAnimationId = null;
 
+          // 캐러셀 스크롤 위치를 허용 범위 안으로 제한한다.
           const clampScrollLeft = (value) => {
             const maxScrollLeft = carousel.scrollWidth - carousel.clientWidth;
             return Math.max(0, Math.min(value, maxScrollLeft));
           };
 
+          // 탭의 캐러셀 내부 좌표를 계산한다.
           const getTabLeft = (tab) => tab.offsetLeft - carousel.offsetLeft;
 
+          // 좌우 스크롤 가능 여부에 따라 인디케이터를 표시한다.
           const updateIndicators = () => {
             const maxScrollLeft = carousel.scrollWidth - carousel.clientWidth;
             leftIndicator.classList.toggle('is-visible', carousel.scrollLeft > 1);
             rightIndicator.classList.toggle('is-visible', carousel.scrollLeft < maxScrollLeft - 1);
           };
 
+          // 링크 자체의 브라우저 드래그 동작을 막는다.
           const disableNativeLinkDrag = () => {
             carousel.querySelectorAll('a').forEach((tab) => {
               tab.draggable = false;
@@ -255,6 +261,7 @@
             });
           };
 
+          // 마우스 드래그로 탭 목록을 가로 스크롤한다.
           const setupDragScroll = () => {
             const dragState = {
               active: false,
@@ -315,6 +322,7 @@
             }, true);
           };
 
+          // 마우스 휠 입력을 가로 스크롤 애니메이션으로 변환한다.
           const setupWheelScroll = () => {
             const animateWheelScroll = () => {
               const distance = wheelTargetLeft - carousel.scrollLeft;
@@ -349,6 +357,7 @@
             }, { passive: false });
           };
 
+          // 스크롤/리사이즈 때 인디케이터 상태를 동기화한다.
           const setupIndicatorSync = () => {
             carousel.addEventListener('scroll', () => {
               if (!wheelAnimationId) {
@@ -364,6 +373,7 @@
             });
           };
 
+          // 현재 선택된 카테고리 탭을 처음에 보이도록 맞춘다.
           const scrollActiveTabIntoView = () => {
             const activeTab = carousel.querySelector('[data-active="true"]');
             if (activeTab) {
@@ -384,6 +394,7 @@
           const locationWriteMapLink = document.getElementById('locationWriteMapLink');
           const locationWriteCancel = document.getElementById('locationWriteCancel');
 
+          // 위치 기반 글쓰기는 지도 페이지로 안내하는 모달을 띄운다.
           document.querySelectorAll('.location-write-btn').forEach((button) => {
             button.addEventListener('click', () => {
               if (!locationWriteModal || !locationWriteMapLink) return;
@@ -393,6 +404,7 @@
             });
           });
 
+          // 위치 작성 안내 모달을 닫는다.
           const closeLocationWriteModal = () => {
             if (!locationWriteModal) return;
             locationWriteModal.classList.add('hidden');

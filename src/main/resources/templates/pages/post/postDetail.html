@@ -148,6 +148,7 @@
         (() => {
           let initialized = false;
 
+          // 게시글 좌표가 있으면 상세 페이지의 미니 지도를 렌더링한다.
           function renderPostLocationMap() {
             if (initialized || !window.Tmapv2) return false;
 
@@ -176,6 +177,7 @@
             return true;
           }
 
+          // Tmap 스크립트 로드 타이밍에 맞춰 지도 렌더링을 재시도한다.
           window.initPostLocationMap = function () {
             let count = 0;
             const timer = setInterval(() => {
@@ -194,6 +196,7 @@
               onload="window.initPostLocationMap && window.initPostLocationMap()"></script>
       </script>
       <script>
+        // 삭제 같은 위험 동작 전에 확인 모달을 표시한다.
         function showConfirmModal(message) {
           const modal = document.getElementById("confirm-modal");
           const panel = document.getElementById("confirm-modal-panel");
@@ -232,6 +235,7 @@
           });
         }
 
+        // 삭제 폼 제출 전 확인 모달을 거친다.
         async function handlePostDeleteSubmit(event) {
           event.preventDefault();
 
@@ -241,7 +245,7 @@
           }
         }
 
-        // URL에서 id 가져오기
+        // 기존 localStorage 미리보기 코드는 호환을 위해 유지한다.
         const params = new URLSearchParams(window.location.search);
         const postId = Number(params.get("id"));
 

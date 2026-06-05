@@ -87,10 +87,12 @@
             </form>
         </main>
         <script>
+            // 주요 DOM 요소 참조
             const categorySelect = document.getElementById("category");
             const meetingTimeBox = document.getElementById("meetingTimeBox");
             const meetingTimeInput = document.getElementById("meetingTime");
 
+            // 밥친구 카테고리일 때만 약속 시간을 입력하게 한다.
             function updateMeetingTimeVisibility() {
                 const isMealPost = categorySelect.value === "밥친구";
                 meetingTimeBox.classList.toggle("hidden", !isMealPost);
@@ -100,6 +102,7 @@
                 }
             }
 
+            // 카테고리 변경 이벤트
             categorySelect.addEventListener("change", updateMeetingTimeVisibility);
             updateMeetingTimeVisibility();
         </script>

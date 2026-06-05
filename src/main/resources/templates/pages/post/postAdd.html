@@ -127,6 +127,7 @@
             </div>
         </main>
         <script>
+            // 주요 DOM 요소 참조
             const categorySelect = document.getElementById("category");
             const meetingTimeBox = document.getElementById("meetingTimeBox");
             const meetingTimeInput = document.getElementById("meetingTime");
@@ -137,6 +138,7 @@
             const postAddForm = document.getElementById("postAddForm");
             const postSubmitButton = document.getElementById("postSubmitButton");
 
+            // 밥친구 카테고리일 때만 약속 시간을 입력하게 한다.
             function updateMeetingTimeVisibility() {
                 const isMealPost = categorySelect.value === "밥친구";
                 meetingTimeBox.classList.toggle("hidden", !isMealPost);
@@ -149,6 +151,7 @@
             categorySelect.addEventListener("change", updateMeetingTimeVisibility);
             updateMeetingTimeVisibility();
 
+            // 위치 기반 카테고리는 지도 작성 안내 모달을 연다.
             const openLocationWriteModal = () => {
                 if (!locationWriteModal || !locationWriteMapLink || !openLocationWriteModalButton) return;
                 locationWriteMapLink.href = openLocationWriteModalButton.dataset.mapUrl || "/mapPin";
@@ -156,12 +159,14 @@
                 locationWriteModal.classList.add("flex");
             };
 
+            // 지도 작성 안내 모달을 닫는다.
             const closeLocationWriteModal = () => {
                 if (!locationWriteModal) return;
                 locationWriteModal.classList.add("hidden");
                 locationWriteModal.classList.remove("flex");
             };
 
+            // 위치 작성 안내 모달 이벤트
             openLocationWriteModalButton?.addEventListener("click", openLocationWriteModal);
             locationWriteCancel?.addEventListener("click", closeLocationWriteModal);
             locationWriteModal?.addEventListener("click", (event) => {
@@ -171,6 +176,7 @@
                 if (event.key === "Escape") closeLocationWriteModal();
             });
 
+            // 유효성 실패 시 제출 버튼 상태를 원래대로 복구한다.
             const resetPostSubmitButton = () => {
                 if (!postSubmitButton) return;
                 postSubmitButton.disabled = false;
@@ -179,6 +185,7 @@
                 postSubmitButton.classList.add("bg-neutral-950", "hover:bg-neutral-800");
             };
 
+            // 중복 제출을 막기 위해 유효한 제출 동안 버튼을 비활성화한다.
             postAddForm?.addEventListener("invalid", resetPostSubmitButton, true);
             postAddForm?.addEventListener("submit", () => {
                 if (!postAddForm.checkValidity() || !postSubmitButton) {

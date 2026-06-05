@@ -154,11 +154,13 @@
 
     <!-- JS는 메뉴 토글만 유지 -->
     <script>
+        // 모바일 메뉴 버튼과 닫기 버튼 이벤트를 연결한다.
         function initMenu() {
             const btn = document.getElementById("menuBtn");
             const closeBtn = document.getElementById("closeMenuBtn");
             const menu = document.getElementById("mobileMenu");
 
+            // 메뉴 표시 상태와 접근성 속성을 함께 갱신한다.
             const toggleMenu = () => {
                 menu.classList.toggle("opacity-0");
                 menu.classList.toggle("pointer-events-none");
@@ -171,6 +173,7 @@
                 btn.setAttribute("aria-label", expanded ? "메뉴 열기" : "메뉴 닫기");
             };
 
+            // 모바일 메뉴 이벤트
             btn.addEventListener("click", toggleMenu);
             closeBtn.addEventListener("click", toggleMenu);
         }
