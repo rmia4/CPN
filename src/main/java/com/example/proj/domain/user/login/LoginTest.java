@@ -69,7 +69,7 @@ public class LoginTest implements CommandLineRunner {
         user2.setUserNumber("1122334");
         user2.setRole("ROLE_ADMIN");
         user2.setUserId("22");
-        String rawPassword2 = "1234";
+        String rawPassword2 = "passwd1!";
         String encodedPassword2 = passwordEncoder.encode(rawPassword2);
         user2.setPasswd(encodedPassword2);
         userRepository.save(user2);

@@ -5,7 +5,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 
 @Controller
 @RequiredArgsConstructor
@@ -27,15 +26,5 @@ public class WeatherController {
 
         return "pages/grok/weather";
     }
-
-    @GetMapping("/w/new")
-    public String modernWeather(Model model) {
-        WeatherRequestDto weather =  weatherService.getWeather(126.97F ,37.56F);
-        model.addAttribute("weatherData", weather);
-
-        return "pages/grok/weather-modern";
-    }
-
-
 
 }
