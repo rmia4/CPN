@@ -75,7 +75,7 @@
             </div>
         </aside>
 
-        <div class="relative max-w-[1200px] m-auto px-4">
+        <div class="relative max-w-[1200px] m-auto px-0.5 sm:px-4">
         <div id="timetable-card"
              class="relative bg-white rounded-2xl shadow p-4 overflow-x-auto dark:bg-neutral-800 dark:border-neutral-700">
             <div>
@@ -160,9 +160,9 @@
 
                 <!-- 시간표 그리드 -->
                 <div id="timetable"
-                     class="grid relative border-bg-white border-gray-200 dark:bg-neutral-800 dark:border-neutral-700"
-                     style="grid-template-columns: 60px repeat(5, 1fr);
-                            grid-template-rows: 32px repeat(9, 80px);">
+                     class="grid relative border-bg-white border-gray-200 dark:bg-neutral-800 dark:border-neutral-700 text-sm"
+                     style="grid-template-columns: 32px repeat(5, 1fr);
+                            grid-template-rows: 32px repeat(9, 70px);">
 
                     <!-- 헤더 -->
                     <div class="flex border h-8 items-center justify-center">시간</div>
@@ -185,12 +185,16 @@
 
                 <!-- 수업 그리드 -->
                 <div class="grid absolute top-0 left-0 w-full h-full"
-                     style="grid-template-columns: 60px repeat(5, 1fr);
-                            grid-template-rows: 32px repeat(9, 80px);">
+                     style="grid-template-columns: 32px repeat(5, 1fr);
+                            grid-template-rows: 32px repeat(9, 70px);">
                     <th:block th:each="item : ${timeTable}">
                         <th:block th:each="slot : ${item.timeSlotModels}">
 
-                            <div class="subject relative border rounded p-2 text-sm z-10 dark:text-black"
+                            <div class="subject relative border rounded
+                                        p-[2px] sm:p-2
+                                        text-[9px] sm:text-sm
+                                        leading-tight break-keep
+                                        z-10 dark:text-black"
                                  th:data-id="${item.id}"
                                  th:data-title="${item.title}"
 
@@ -209,14 +213,14 @@
                                     </div>
                                 </div>
 
-                                <div class="pr-8" th:text="${item.title}"></div>
-                                <div class="pr-8" th:text="${slot.place}"></div>
+                                <div class="text-[9px] sm:text-sm" th:text="${item.title}"></div>
+                                <div class="text-[8px] sm:text-xs" th:text="${slot.place}"></div>
 
-                                <div class="absolute right-2 top-1">
+                                <div class="absolute right-1 bottom-1 sm:right-2 sm:bottom-2">
                                     <button type="button"
                                             onclick="toggleSubjectMenu(event, this)"
                                             aria-label="수업 메뉴 열기"
-                                            class="text-base leading-none text-gray-500 hover:text-gray-800 dark:text-neutral-500 dark:hover:text-neutral-200">
+                                            class="text-[10px] sm:text-base leading-none text-gray-800 dark:text-neutral-500 dark:hover:text-neutral-200">
                                         <span aria-hidden="true">✎</span>
                                     </button>
                                     <div class="subject-menu absolute right-0 top-6 z-20 hidden min-w-20 overflow-hidden rounded border border-gray-200 bg-white text-xs shadow-lg dark:border-neutral-600 dark:bg-neutral-800">
