@@ -39,8 +39,8 @@ dependencies {
 	annotationProcessor("org.projectlombok:lombok")
 	testImplementation("org.springframework.boot:spring-boot-starter-data-jpa-test")
 	testImplementation("org.springframework.boot:spring-boot-starter-webmvc-test")
-	runtimeOnly("com.h2database:h2")
-//	runtimeOnly("com.mysql:mysql-connector-j")
+//	runtimeOnly("com.h2database:h2")
+	runtimeOnly("com.mysql:mysql-connector-j")
 	testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 	implementation("io.github.cdimascio:java-dotenv:5.2.2")
 
