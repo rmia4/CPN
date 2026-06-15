@@ -1,14 +1,8 @@
 package com.example.proj.domain.user;
 
 
-import com.example.proj.domain.mapPin.MapPinModel;
-import com.example.proj.domain.notification.NotificationModel;
-import com.example.proj.domain.post.PostModel;
-import com.example.proj.domain.timeTable.TimeTableModel;
 import jakarta.persistence.*;
 import lombok.Data;
-
-import java.util.List;
 
 @Data
 @Entity
@@ -44,19 +38,5 @@ public class UserModel {
     private String style2;
     @Column(nullable = true)
     private String style3;
-
-    //양방향 매핑
-    @OneToMany(mappedBy = "user",cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<NotificationModel> notificationList;
-
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<PostModel> postList;
-
-    @OneToMany(mappedBy = "user",cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<MapPinModel>  mapPinList;
-
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<TimeTableModel>  timeTableList;
-
 
 }
